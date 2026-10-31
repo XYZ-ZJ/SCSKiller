@@ -25,7 +25,7 @@ static class AesKeyDialog
             },
         };
         if (reason != null) panel.Children.Insert(0, new TextBlock { Text = reason, TextWrapping = TextWrapping.Wrap });
-        var dialog = new ContentDialog { Title = title, Content = panel, CloseButtonText = "Close", PrimaryButtonText = "Unlock", DefaultButton = ContentDialogButton.Close };
+        var dialog = new ContentDialog { Title = title, Content = panel, CloseButtonText = "关闭", PrimaryButtonText = "解锁", DefaultButton = ContentDialogButton.Close };
         if (await App.ShowAsync(dialog) != ContentDialogResult.Primary) return false;
         var key = (box.Text ?? "").Trim();
         string? problem = null;

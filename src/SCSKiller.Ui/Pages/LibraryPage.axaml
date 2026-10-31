@@ -91,7 +91,7 @@
                                              AutomationProperties.Name="Free the cache the new driver no longer uses" />
                         </Grid>
                     </WrapPanel>
-                    <HyperlinkButton Grid.Column="1" Content="Change" Padding="0" FontSize="12" Click="OnSettings" IsVisible="{Binding CanRaiseLimit}"
+                    <HyperlinkButton Grid.Column="1" Content="更改" Padding="0" FontSize="12" Click="OnSettings" IsVisible="{Binding CanRaiseLimit}"
                                      VerticalAlignment="Top" AutomationProperties.Name="Change the driver shader cache size" />
                     <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding CacheLine}" TextWrapping="Wrap" ToolTip.Tip="{Binding CacheUpperNote}" />
                 </Grid>
@@ -99,7 +99,7 @@
             <Border Grid.Column="1" Classes="Card" Padding="16,8">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="2">
                     <TextBlock Text="编译速度" Classes="Caption" />
-                    <HyperlinkButton Grid.Column="1" Content="Change" Padding="0" FontSize="12" Click="OnSettings" AutomationProperties.Name="Change compile speed" />
+                    <HyperlinkButton Grid.Column="1" Content="更改" Padding="0" FontSize="12" Click="OnSettings" AutomationProperties.Name="Change compile speed" />
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="{Binding Threads}" Classes="BodyStrong" />
                         <TextBlock Text="{Binding ThreadsOf}" Classes="Secondary" />
@@ -125,7 +125,7 @@
                         <TextBox.InnerRightContent>
                             <StackPanel Orientation="Horizontal">
                                 <Button Classes="Clear" Theme="{StaticResource FluentTextBoxButton}" Command="{Binding #Search.Clear}"
-                                        ToolTip.Tip="Clear" AutomationProperties.Name="Clear search">
+                                        ToolTip.Tip="清除搜索" AutomationProperties.Name="清除搜索">
                                     <PathIcon Data="{StaticResource TextBoxClearButtonData}" Width="10" Height="10" />
                                 </Button>
                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Search}" FontSize="14" Margin="0,0,12,0" VerticalAlignment="Center"
@@ -137,7 +137,7 @@
                         <ComboBox ItemsSource="{x:Static m:LibraryVm.ShowLabels}" SelectedIndex="{Binding ShowIndex, Mode=TwoWay}"
                                   MinWidth="200" AutomationProperties.Name="Show games by status" />
                         <CheckBox Content="显示已隐藏" IsChecked="{Binding ShowHidden, Mode=TwoWay}" IsVisible="{Binding HasHidden}"
-                                  MinWidth="0" ToolTip.Tip="Games you removed from the library" />
+                                  MinWidth="0" ToolTip.Tip="从游戏库中隐藏的游戏" />
                     </StackPanel>
                     <TextBlock Grid.Column="2" Text="{Binding ShownText}" IsVisible="{Binding Filtering}" Classes="Caption" VerticalAlignment="Center" />
                     <!-- the hidden games under the search, each with its way back -->
@@ -172,19 +172,19 @@
                         <ColumnDefinition Width="4.1*" MinWidth="355" />
                     </Grid.ColumnDefinitions>
                     <!-- Game, Pipelines and Cache sort the rows within each section; Status goes back to the default order -->
-                    <Button Classes="SortHeader" Click="OnSortName" ToolTip.Tip="Sort by name">
+                    <Button Classes="SortHeader" Click="OnSortName" ToolTip.Tip="按名称排序">
                         <TextBlock Text="{Binding GameHeader}" Classes="Caption" />
                     </Button>
-                    <TextBlock Grid.Column="1" Text="Shaders" Classes="Caption" TextAlignment="Right" VerticalAlignment="Center" />
-                    <Button Grid.Column="2" Classes="SortHeader" HorizontalAlignment="Right" Click="OnSortPipelines" ToolTip.Tip="Sort by pipelines">
+                    <TextBlock Grid.Column="1" Text="着色器" Classes="Caption" TextAlignment="Right" VerticalAlignment="Center" />
+                    <Button Grid.Column="2" Classes="SortHeader" HorizontalAlignment="Right" Click="OnSortPipelines" ToolTip.Tip="按管线数排序">
                         <TextBlock Text="{Binding PipelinesHeader}" Classes="Caption" />
                     </Button>
                     <Button Grid.Column="3" Classes="SortHeader" HorizontalAlignment="Right" Click="OnSortCache" ToolTip.Tip="Sort by each game's driver and Windows shader cache">
                         <TextBlock Text="{Binding CacheHeader}" Classes="Caption" />
                     </Button>
-                    <TextBlock Grid.Column="4" Text="Time" Classes="Caption" TextAlignment="Right" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="耗时" Classes="Caption" TextAlignment="Right" VerticalAlignment="Center" />
                     <Button Grid.Column="5" Classes="SortHeader" Margin="12,0,0,0" Click="OnSortStatus" ToolTip.Tip="Sort by status, as at first">
-                        <TextBlock Text="Status" Classes="Caption" />
+                        <TextBlock Text="状态" Classes="Caption" />
                     </Button>
                 </Grid>
                 <Border Grid.Row="1" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource CardStrokeColorDefaultBrush}" />
@@ -211,7 +211,7 @@
                             Spacing="8" MaxWidth="412" Margin="24">
                     <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Library}" FontSize="28" HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="No games found" Classes="Section" HorizontalAlignment="Center" />
+                    <TextBlock Text="未找到任何游戏" Classes="Section" HorizontalAlignment="Center" />
                     <TextBlock Text="{Binding NoGamesNote}" Classes="Secondary" TextWrapping="Wrap" TextAlignment="Center" />
                 </StackPanel>
 
@@ -260,11 +260,11 @@
                                                                 <WrapPanel ItemSpacing="4" LineSpacing="4" IsVisible="{Binding HasTagLine}" Margin="0,2,0,0">
                                                                     <Border Classes="Chip" Height="18" Padding="6,0" CornerRadius="9" IsVisible="{Binding IsKnownStutter}"
                                                                             ToolTip.Tip="{Binding StutterTip}">
-                                                                        <TextBlock Text="Stutters without a compile" FontSize="11" Foreground="{DynamicResource WarnBrush}" VerticalAlignment="Center" />
+                                                                        <TextBlock Text="未编译前存在卡顿" FontSize="11" Foreground="{DynamicResource WarnBrush}" VerticalAlignment="Center" />
                                                                     </Border>
                                                                     <Border Classes="Chip" Height="18" Padding="6,0" CornerRadius="9" IsVisible="{Binding IsNoStutter}"
                                                                             ToolTip.Tip="{Binding NoStutterTip}">
-                                                                        <TextBlock Text="No shader stutter" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                                                        <TextBlock Text="无着色器卡顿" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
                                                                     </Border>
                                                                     <Border Classes="Chip" Height="18" Padding="6,0" CornerRadius="9" IsVisible="{Binding HasBaChip}">
                                                                         <TextBlock Text="{Binding BaChip}" FontSize="11" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" />
@@ -308,8 +308,8 @@
                                                                 </Panel>
                                                                 <Panel>
                                                                     <Button Content="{Binding AddText}" IsVisible="{Binding IsAdd}" IsEnabled="{Binding CanAdd}" Click="OnAdd" />
-                                                                    <Button Content="Details" IsVisible="{Binding IsDetails}" Click="OnDetails" />
-                                                                    <Button Content="Record" Classes="Warn" IsVisible="{Binding IsRecord}" IsEnabled="{Binding CanRecord}" Click="OnRecord" />
+                                                                    <Button Content="详情" IsVisible="{Binding IsDetails}" Click="OnDetails" />
+                                                                    <Button Content="录制" Classes="Warn" IsVisible="{Binding IsRecord}" IsEnabled="{Binding CanRecord}" Click="OnRecord" />
                                                                     <Button Content="Why?" IsVisible="{Binding IsWhy}" Click="OnWhy" />
                                                                 </Panel>
                                                             </StackPanel>

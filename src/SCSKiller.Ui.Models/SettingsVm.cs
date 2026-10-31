@@ -12,7 +12,7 @@ public sealed class SettingsVm : Bindable
         ("512 MB", new(512L << 20, false)), ("1 GB", new(1L << 30, false)), ("4 GB", new(4L << 30, false)), ("5 GB", new(5L << 30, false)),
         ("10 GB", new(10L << 30, false)), ("12 GB", new(12L << 30, false)), ("16 GB (驱动默认值)", new(16L << 30, true)), ("24 GB", new(24L << 30, false)),
         ("32 GB", new(32L << 30, false)), ("48 GB", new(48L << 30, false)), ("64 GB", new(64L << 30, false)), ("100 GB", new(100L << 30, false)),
-        ("Unlimited", new(null, false)),
+        ("无限制", new(null, false)),
     ];
     static readonly int DefaultSize = Array.FindIndex(Sizes, s => s.Limit.Bytes == 100L << 30);
     public static readonly string[] SizeLabels = Sizes.Select(s => s.Label).ToArray();
@@ -73,24 +73,24 @@ public sealed class SettingsVm : Bindable
     public string? AutoMessage { get; set; }
     public InfoBarSeverity AutoSeverity { get; set; }
     public bool HasAutoMessage => AutoMessage != null;
-    public string CacheIntro => Mesa ? "Each game has a cache of its own, in Steam's shader cache folder."
-        : V.Caps.PerGameCacheCap != null ? "Each game has a cache of its own. When it's full the driver deletes that game's older files, and it stutters again."
+    public string CacheIntro => Mesa ? "每个游戏拥有独立的缓存，存放于 Steam 的着色器缓存目录中。"
+        : V.Caps.PerGameCacheCap != null ? "每个游戏拥有独立的缓存。当缓存满时，驱动会自动删除该游戏较旧的缓存文件，进而再次引发卡顿。"
         : (IsNvidia ? "全局显卡驱动设置，与 NVIDIA App › 图形 › 着色器缓存大小 相同。" : "全局显卡驱动设置。 ")
         + (KeptOn ? "当缓存满时，驱动会自动删除较旧的条目。被保留备份的游戏会自动放回。" : "当缓存满时，驱动会自动删除较旧的条目，这些游戏将再次出现卡顿。");
     public bool Configurable => V.Caps.CacheSizeConfigurable;
     public bool NotConfigurable => !Configurable;
     public string? AmdAlwaysOn => ScsKiller.AmdAlwaysOnLine(V);
     public bool HasAmdAlwaysOn => AmdAlwaysOn != null;
-    public string NotConfigurableText => Mesa ? "Mesa keeps each game's shaders in one file with no size limit, so there is no size setting."
+    public string NotConfigurableText => Mesa ? "Mesa 将每个游戏的着色器保存在单个无大小限制的文件中，因此无需设置缓存大小。"
         : V.Vendor == GpuVendor.Amd
-        ? $"The AMD driver's DirectX 12 shader cache is fixed at {Format.Bytes(AmdAppCache.DxcCacheCap)}, with no size setting. "
-          + "Past it, the driver removes the least recently used games' caches when a game starts" + (KeptOn ? ". Kept games are put back." : ", and SCSKiller shows those games as needing a compile again.")
+        ? $"AMD 显卡驱动的 DirectX 12 着色器缓存固定为 {Format.Bytes(AmdAppCache.DxcCacheCap)}，无法调整大小。"
+          + "超出此限制后，驱动会在游戏启动时自动移除最久未玩的缓存" + (KeptOn ? "。已开启单独保留的游戏会自动放回。" : "，SCSKiller 会提示这些游戏需要重新编译。")
         : V.Vendor == GpuVendor.Intel
-        ? $"The Intel driver keeps up to {Format.Bytes(IntelBackend.PerGameCap)} of shaders per game, with no size setting. "
-          + "Past it, the driver drops that game's older shaders, so SCSKiller compiles the most likely ones first."
-        : PerGameNvidia ? $"SCSKiller gives each game {Format.Bytes(NvidiaLinux.PlacedCacheSize)} of NVIDIA shader cache, with no size setting."
-        : $"SCSKiller can't change the cache size of {Fmt.Vendor(V.Vendor)} drivers yet, so it only shows what is used. "
-          + "If games get evicted, raise the limit in your GPU vendor's control panel.";
+        ? $"Intel 显卡驱动为每个游戏保留最多 {Format.Bytes(IntelBackend.PerGameCap)} 的着色器，无法调整大小。"
+          + "超出此限制后，驱动会丢弃该游戏较早的着色器，因此 SCSKiller 会优先编译可能性最高的着色器。"
+        : PerGameNvidia ? $"SCSKiller 为每个游戏分配 {Format.Bytes(NvidiaLinux.PlacedCacheSize)} 的 NVIDIA 着色器缓存，无法调整大小。"
+        : $"SCSKiller 尚无法修改 {Fmt.Vendor(V.Vendor)} 显卡驱动的缓存大小，仅能显示当前已使用量。"
+          + "如果游戏缓存被挤占丢弃，请在显卡控制面板中调高缓存上限。";
 
     public string CurrentLimit => read == null ? Format.Dash : read.Value.Limit switch
     {

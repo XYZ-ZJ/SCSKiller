@@ -24,7 +24,7 @@ static class GameFolderDialog
         static TextBlock Label(string text) => new() { Text = text, Classes = { "BodyStrong" }, Margin = new(0, 8, 0, 0) };
         var dialog = new ContentDialog
         {
-            Title = title, PrimaryButtonText = primary, CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Primary,
+            Title = title, PrimaryButtonText = primary, CloseButtonText = "取消", DefaultButton = ContentDialogButton.Primary,
             Content = new StackPanel
             {
                 Spacing = 4, MaxWidth = 520,

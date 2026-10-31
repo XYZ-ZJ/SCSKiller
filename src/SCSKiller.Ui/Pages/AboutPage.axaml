@@ -66,9 +66,9 @@
                         </TextBlock>
                         <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
                             <HyperlinkButton Content="What's new" Classes="Link" Click="OnWhatsNew" />
-                            <HyperlinkButton Content="Website" Classes="Link" NavigateUri="https://scskiller.com" />
-                            <HyperlinkButton Content="Source code" Classes="Link" NavigateUri="https://github.com/BlueHeisenberg/SCSKiller" />
-                            <HyperlinkButton Content="Support on Patreon" Classes="Link" NavigateUri="https://www.patreon.com/SCSKiller" />
+                            <HyperlinkButton Content="官方网站" Classes="Link" NavigateUri="https://scskiller.com" />
+                            <HyperlinkButton Content="源代码" Classes="Link" NavigateUri="https://github.com/BlueHeisenberg/SCSKiller" />
+                            <HyperlinkButton Content="Patreon 赞助" Classes="Link" NavigateUri="https://www.patreon.com/SCSKiller" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -100,7 +100,7 @@
                            Classes="Secondary" TextWrapping="Wrap" />
             </StackPanel>
 
-            <Expander x:Name="TrademarksBox" Header="Trademarks" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+            <Expander x:Name="TrademarksBox" Header="商标与声明" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <!-- FontSize first: the app sets every TextBlock's line height when its font size changes -->
                 <SelectableTextBlock Text="{Binding Trademarks}" Classes="Secondary" TextWrapping="Wrap" FontSize="14" LineHeight="22" />
             </Expander>

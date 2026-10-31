@@ -118,7 +118,7 @@
                         </StackPanel>
                     </Button>
                     <Button Content="{Binding PauseText}" Click="OnPause" IsVisible="{Binding HasCurrent}" />
-                    <Button Content="Stop" Click="OnStop" IsVisible="{Binding CanStop}"
+                    <Button Content="停止" Click="OnStop" IsVisible="{Binding CanStop}"
                             ToolTip.Tip="等待当前正在进行的编译安全完成，随后停止。再次添加该游戏可从中断处继续编译。" />
                 </StackPanel>
             </Grid>
@@ -158,7 +158,7 @@
                     <StackPanel Margin="20,32" Spacing="6" HorizontalAlignment="Center" IsVisible="{Binding Empty}">
                         <TextBlock Text="从游戏库中添加游戏" Classes="Section" HorizontalAlignment="Center" />
                         <TextBlock Text="在游戏上点击“加入队列”，然后点击“编译队列”。" Classes="Secondary" HorizontalAlignment="Center" />
-                        <HyperlinkButton Content="Open the Library" Click="OnLibrary" HorizontalAlignment="Center" />
+                        <HyperlinkButton Content="前往游戏库" Click="OnLibrary" HorizontalAlignment="Center" />
                     </StackPanel>
 
                     <!-- The running item: not draggable, always first. -->
@@ -190,7 +190,7 @@
                         <TextBlock Grid.Column="4" Text="{Binding Current.Time}" TextAlignment="Right" VerticalAlignment="Center" />
                         <TextBlock Grid.Column="5" Text="{Binding Current.Cache}" TextAlignment="Right" VerticalAlignment="Center" />
                         <Button Grid.Column="6" HorizontalAlignment="Right" Classes="RowButton" Padding="0" Click="OnRemoveCurrent"
-                                AutomationProperties.Name="{Binding Current.RemoveLabel}" ToolTip.Tip="Stop and remove">
+                                AutomationProperties.Name="{Binding Current.RemoveLabel}" ToolTip.Tip="停止并移出队列">
                             <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Dismiss}" />
                         </Button>
                         <ProgressBar Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Value="{Binding Percent}" IsIndeterminate="{Binding Indeterminate}"
@@ -251,7 +251,7 @@
                                             <ColumnDefinition Width="320" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Reorder}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" ToolTip.Tip="Drag to reorder" />
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" ToolTip.Tip="拖动以调整排序" />
                                         <Border Grid.Column="1" Classes="Number" Background="{DynamicResource ControlFillColorSecondaryBrush}">
                                             <TextBlock Text="{Binding Number}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Border>
@@ -268,20 +268,20 @@
                                         <TextBlock Grid.Column="4" Text="{Binding Time}" TextAlignment="Right" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="5" Text="{Binding Cache}" TextAlignment="Right" VerticalAlignment="Center" />
                                         <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="2">
-                                            <Button Content="Move to top" Classes="RowButton" FontSize="13" IsEnabled="{Binding CanUp}" Click="OnTop"
+                                            <Button Content="移至顶部" Classes="RowButton" FontSize="13" IsEnabled="{Binding CanUp}" Click="OnTop"
                                                     AutomationProperties.Name="{Binding TopLabel}" />
-                                            <Button Content="Move to bottom" Classes="RowButton" FontSize="13" IsEnabled="{Binding CanDown}" Click="OnBottom"
+                                            <Button Content="移至底部" Classes="RowButton" FontSize="13" IsEnabled="{Binding CanDown}" Click="OnBottom"
                                                     AutomationProperties.Name="{Binding BottomLabel}" />
                                             <Button Classes="RowButton" Padding="0" IsEnabled="{Binding CanUp}" Click="OnUp"
-                                                    AutomationProperties.Name="{Binding UpLabel}" ToolTip.Tip="Move up">
+                                                    AutomationProperties.Name="{Binding UpLabel}" ToolTip.Tip="上移">
                                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.ChevronUp}" />
                                             </Button>
                                             <Button Classes="RowButton" Padding="0" IsEnabled="{Binding CanDown}" Click="OnDown"
-                                                    AutomationProperties.Name="{Binding DownLabel}" ToolTip.Tip="Move down">
+                                                    AutomationProperties.Name="{Binding DownLabel}" ToolTip.Tip="下移">
                                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.ChevronDown}" />
                                             </Button>
                                             <Button Classes="RowButton" Padding="0" Click="OnRemove"
-                                                    AutomationProperties.Name="{Binding RemoveLabel}" ToolTip.Tip="Remove">
+                                                    AutomationProperties.Name="{Binding RemoveLabel}" ToolTip.Tip="移出">
                                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Dismiss}" />
                                             </Button>
                                         </StackPanel>
@@ -297,8 +297,8 @@
                     <StackPanel IsVisible="{Binding HasFinished}" Margin="0,0,0,8">
                         <Rectangle Height="1" Fill="{DynamicResource CardStrokeColorDefaultBrush}" />
                         <Grid Margin="16,6,16,0">
-                            <TextBlock Text="Finished" Classes="Caption" VerticalAlignment="Center" />
-                            <HyperlinkButton Content="Clear finished" HorizontalAlignment="Right" FontSize="12" Click="OnClearFinished" />
+                            <TextBlock Text="已完成" Classes="Caption" VerticalAlignment="Center" />
+                            <HyperlinkButton Content="清空已完成列表" HorizontalAlignment="Right" FontSize="12" Click="OnClearFinished" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Finished}" AutomationProperties.Name="Finished games">
                             <ItemsControl.ItemTemplate>
@@ -329,7 +329,7 @@
                                             <TextBlock Grid.Column="4" Text="{Binding Time}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextAlignment="Right" VerticalAlignment="Center" />
                                             <TextBlock Grid.Column="5" Text="{Binding Cache}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextAlignment="Right" VerticalAlignment="Center" />
                                             <Button Grid.Column="6" HorizontalAlignment="Right" Classes="RowButton" Padding="0" Click="OnRemove"
-                                                    AutomationProperties.Name="{Binding RemoveLabel}" ToolTip.Tip="Remove">
+                                                    AutomationProperties.Name="{Binding RemoveLabel}" ToolTip.Tip="移出">
                                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Dismiss}" />
                                             </Button>
                                         </Grid>
@@ -344,13 +344,13 @@
             <Expander Header="{Binding CpuSummary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <StackPanel Spacing="14">
                     <Grid>
-                        <TextBlock Text="Compile threads" />
+                        <TextBlock Text="编译线程数" />
                         <TextBlock Text="{Binding ThreadsText}" HorizontalAlignment="Right" />
                     </Grid>
                     <Slider Minimum="1" Maximum="{Binding MaxThreads, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Threads}"
                             AutomationProperties.Name="Compile threads" />
                     <StackPanel>
-                        <TextBlock Text="Priority" Margin="0,0,0,8" />
+                        <TextBlock Text="进程优先级" Margin="0,0,0,8" />
                         <RadioButton GroupName="Priority" Content="Below normal: fastest, the PC stays usable"
                                      IsChecked="{Binding Priority, Converter={x:Static ui:Converters.Index}, ConverterParameter=0}" />
                         <RadioButton GroupName="Priority" Content="Idle only: runs when nothing else needs the CPU"

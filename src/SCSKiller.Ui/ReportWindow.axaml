@@ -27,7 +27,7 @@
                         <Button Classes="accent" AutomationProperties.Name="Share">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Share}" FontSize="14" VerticalAlignment="Center" />
-                                <TextBlock Text="Share" />
+                                <TextBlock Text="分享" />
                                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.ChevronDown}" FontSize="8" VerticalAlignment="Center" Margin="0,0,-3,0" />
                             </StackPanel>
                             <Button.Flyout>
@@ -97,7 +97,7 @@
 
                                 <!-- small multiples: each run its own play range, one seconds-per-pixel and one y scale -->
                                 <StackPanel Grid.Row="2" Spacing="6" VerticalAlignment="Center">
-                                    <TextBlock Text="Before" FontWeight="SemiBold" />
+                                    <TextBlock Text="编译前" FontWeight="SemiBold" />
                                     <StackPanel HorizontalAlignment="Left" Spacing="2">
                                         <c:FrameGraph x:Name="BeforeGraph" Height="104" />
                                         <Grid x:Name="BeforeAxis">
@@ -105,7 +105,7 @@
                                             <TextBlock x:Name="BeforeEnd" Classes="Caption" HorizontalAlignment="Right" />
                                         </Grid>
                                     </StackPanel>
-                                    <TextBlock Text="After" FontWeight="SemiBold" Margin="0,4,0,0" />
+                                    <TextBlock Text="编译后" FontWeight="SemiBold" Margin="0,4,0,0" />
                                     <StackPanel HorizontalAlignment="Left" Spacing="2">
                                         <c:FrameGraph x:Name="AfterGraph" Height="104" />
                                         <Grid x:Name="AfterAxis">
@@ -152,8 +152,8 @@
                 </Border>
 
                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                    <Button x:Name="RecordAgain" Content="Record the after run again" Click="OnRecordAgain" />
-                    <Button Content="Start over" Click="OnStartOver" />
+                    <Button x:Name="RecordAgain" Content="重新录制编译后表现" Click="OnRecordAgain" />
+                    <Button Content="重新开始" Click="OnStartOver" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

@@ -100,7 +100,7 @@ public sealed partial class ReportWindow : Window
 
     void Fill()
     {
-        Heading.Text = $"Before and after · {game}";
+        Heading.Text = $"编译前后对比测试 · {game}";
         CardGame.Text = game.ToUpperInvariant();
         ShowIcon();
         var text = BeforeAfter.Report(game, r, Host.Core.Vendor.Vendor);
@@ -110,7 +110,7 @@ public sealed partial class ReportWindow : Window
         (LabelWorst.Text, TileWorst.Text) = text.Tiles[2];
 
         var (before, after) = (FrameData.Of(r.Before) with { Neutral = C.Dx11 }, FrameData.Of(r.After) with { Neutral = C.Dx11 });
-        if (C.Dx11) (LegendShader.IsVisible, LegendOther.Text) = (false, "stutter");
+        if (C.Dx11) (LegendShader.IsVisible, LegendOther.Text) = (false, "卡顿");
         double top = FrameGraph.TopFor(r.Before.Hitches.Concat(r.After.Hitches));
         double spp = Math.Max(Span(before), Span(after)) / 1000 / GraphWidth;
         Graph(BeforeGraph, BeforeAxis, BeforeEnd, before, C.Before);
@@ -119,7 +119,7 @@ public sealed partial class ReportWindow : Window
         {
             graph.Show(d, d.Play.From, d.Play.To, top, spp);
             axis.Width = graph.Width;
-            end.Text = BeforeAfter.Clock(run.PlaySeconds) + " of play";
+            end.Text = $"游玩时长 {BeforeAfter.Clock(run.PlaySeconds)}";
         }
 
         ShowGpu.IsChecked = Host.Core.Settings.BeforeAfterShowGpu;
@@ -128,7 +128,7 @@ public sealed partial class ReportWindow : Window
 
         Details.Children.Clear();
         Details.RowDefinitions.Clear();
-        Row(new("Details", "Before", "After"), header: true);
+        Row(new("详细指标", "编译前", "编译后"), header: true);
         foreach (var row in text.Rows) Row(row);
 
         Notes.Children.Clear();

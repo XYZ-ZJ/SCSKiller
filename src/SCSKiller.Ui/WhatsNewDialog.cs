@@ -41,6 +41,6 @@ public static class WhatsNewDialog
             panel.Children.Add(text);
         }
         // as tall as the window leaves room for: the release notes run long
-        return new ContentDialog { Title = $"What's new in {section.Version}", Content = panel, CloseButtonText = "Close", MaxWidth = 880, ContentMaxHeight = double.PositiveInfinity, Margin = new(0, 32) };
+        return new ContentDialog { Title = $"{section.Version} 版本更新说明", Content = panel, CloseButtonText = "关闭", MaxWidth = 880, ContentMaxHeight = double.PositiveInfinity, Margin = new(0, 32) };
     }
 }

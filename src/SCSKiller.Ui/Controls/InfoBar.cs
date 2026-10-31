@@ -39,8 +39,8 @@ public sealed class InfoBar : UserControl
 
     public InfoBar()
     {
-        AutomationProperties.SetName(close, "Close");
-        ToolTip.SetTip(close, "Close");
+        AutomationProperties.SetName(close, "关闭");
+        ToolTip.SetTip(close, "关闭");
         close.Click += (_, e) => { e.Handled = true; RaiseEvent(new RoutedEventArgs(CloseButtonClickEvent)); };
         var icon = new Panel { Margin = new(0, 16, 14, 16), VerticalAlignment = VerticalAlignment.Top, Children = { dot, mark } };
         var panel = new InfoBarPanel { Margin = new(0, 0, 16, 0), Children = { title, message, action } };

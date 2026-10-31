@@ -90,7 +90,7 @@ public sealed partial class SettingsPage : UserControl
     // Stands in for the website's recorder-anti-cheat page until it exists.
     public static ContentDialog AntiCheatDetailsDialog() => new()
     {
-        Title = "在包含反作弊的游戏中录制", CloseButtonText = "Close",
+        Title = "在包含反作弊的游戏中录制", CloseButtonText = "关闭",
         Content = "For one session, SCSKiller puts its recorder (a d3d12.dll) next to the game's exe.\n\n"
             + "Games with anti-cheat can treat the recorder as cheating and ban your account, during the session or later. No game is known to be safe.\n\n"
             + "SCSKiller removes every file it places when the game exits, or after a crash at your next logon.\n\n"
@@ -136,7 +136,7 @@ public sealed partial class SettingsPage : UserControl
                     new TextBlock { Text = Fmt.KeptSize(g.Kept!), Classes = { "Secondary" } },
                 },
             });
-            var remove = new Button { Content = "Remove", VerticalAlignment = VerticalAlignment.Center };
+            var remove = new Button { Content = "移除", VerticalAlignment = VerticalAlignment.Center };
             remove.Click += (_, _) => { Host.Core.DropKeptCache(g.Game.Id); rows.Children.Remove(row); Vm.Refresh(); };
             Grid.SetColumn(remove, 1);
             row.Children.Add(remove);
@@ -144,7 +144,7 @@ public sealed partial class SettingsPage : UserControl
         }
         return new()
         {
-            Title = "单独保留的备份", CloseButtonText = "Close",
+            Title = "单独保留的备份", CloseButtonText = "关闭",
             Content = new StackPanel
             {
                 Spacing = 14, MinWidth = 420,

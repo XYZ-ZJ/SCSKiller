@@ -54,7 +54,7 @@
                 </Button>
                 <Button x:Name="BellButton" Classes="Subtle" Width="46" Padding="0" VerticalAlignment="Stretch"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                        ToolTip.Tip="Notifications" AutomationProperties.Name="Notifications">
+                        ToolTip.Tip="消息通知" AutomationProperties.Name="消息通知">
                     <!-- sized to hold the badge, which hangs off the glyph's top-right corner -->
                     <Panel Width="32" Height="32">
                         <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Bell}" HorizontalAlignment="Center" VerticalAlignment="Center" />

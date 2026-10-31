@@ -117,7 +117,7 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     /// <summary>The row's note under the status: a few words (<see cref="Format.ShortNote"/>); null when the status says it all.</summary>
     public string? Note => Format.ShortNote(s);
     // a mod the compile runs through takes the note's place; the tooltip keeps the full reason
-    string? ListNote => s.ShaderModLayer ? $"{(s.Status == GameStatus.Warmed ? "Compiled" : "Compiles")} through {s.ShaderMod}" : Note;
+    string? ListNote => s.ShaderModLayer ? $"{(s.Status == GameStatus.Warmed ? "已通过" : "将通过")} {s.ShaderMod} 协同编译" : Note;
     public string RowNote => Playing ? "正在游玩" + (ListNote is { } n ? " · " + n : "") : fold ?? ListNote ?? "";
     string? fold;
     /// <summary>A fold's share moved: only a row whose line changed updates.</summary>
@@ -303,7 +303,7 @@ public sealed class LibraryVm : Bindable
     bool slowScan, forced, scanned;
     public bool ScanEmpty => slowScan && Games.Count == 0;
     public bool ScanBusy => slowScan && Games.Count > 0;
-    public string ScanEmptyNote => Fmt.AfterUpdateLine ?? $"Checking {Stores(Host.Platform.Stores)}, then which engine each game uses. The first scan reads every game's files, so it can take a minute.";
+    public string ScanEmptyNote => Fmt.AfterUpdateLine ?? $"正在检查 {Stores(Host.Platform.Stores)}，随后识别各游戏所用引擎。首次扫描需要读取游戏文件，可能需要一到两分钟。";
     static string Stores(IReadOnlyList<string> s) => s.Count > 1 ? $"{string.Join(", ", s.Take(s.Count - 1))} and {s[^1]}" : string.Join("", s);
     public string ScanTitle => Fmt.ScanProgress ?? "正在检查发生变动的游戏…";
     public string ScanEmptyTitle => Fmt.ScanProgress ?? "正在查找您的游戏…";
@@ -362,8 +362,8 @@ public sealed class LibraryVm : Bindable
         WaitingCount = queue.Count(q => q.Stage == QueueStage.Waiting);
         var storeText = Fmt.FoundIn(Games.Select(r => r.StoreName));
         bool allUnreal = list.Count > 0 && list.All(g => g.Engine?.Family == "Unreal");
-        Summary = Scanning && list.Count == 0 ? "Looking for games…"
-            : $"{list.Count} {(allUnreal ? "Unreal Engine " : "")}game{(list.Count == 1 ? "" : "s")} found{(storeText.Length > 0 ? " in " + storeText : "")} · {ready} ready to compile";
+        Summary = Scanning && list.Count == 0 ? "正在查找您的游戏…"
+            : $"共发现 {list.Count} 款{(allUnreal ? "虚幻引擎 (Unreal Engine) " : "")}游戏{(storeText.Length > 0 ? "（来自 " + storeText + "）" : "")} · {ready} 款可供编译";
 
         cache.Request();
         Changed();

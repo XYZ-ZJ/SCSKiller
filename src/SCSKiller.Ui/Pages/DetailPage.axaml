@@ -71,7 +71,7 @@
     <ScrollViewer x:Name="Scroller">
         <StackPanel Margin="36,24,36,28" Spacing="16">
             <StackPanel x:Name="Crumbs" Orientation="Horizontal">
-                <Button Classes="Crumb" Content="Library" Click="OnCrumb" />
+                <Button Classes="Crumb" Content="游戏库" Click="OnCrumb" />
                 <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.ChevronRight}" FontSize="12" Margin="2,0" VerticalAlignment="Center" />
                 <TextBlock x:Name="CrumbName" Margin="1,3,1,4" />
             </StackPanel>
@@ -82,9 +82,9 @@
                     <Button Content="Game folder…" Click="OnGameFolder" IsVisible="{Binding IsManual}"
                             ToolTip.Tip="SCSKiller 在录制前扫描反作弊组件的目标文件夹" />
                     <Button Content="Game exe…" Click="OnGameExe" IsVisible="{Binding CanChooseExe}" ToolTip.Tip="选择 SCSKiller 用于编译和录制的可执行文件" />
-                    <Button Content="Auto exe" Click="OnAutoExe" IsVisible="{Binding ExeChosen}" ToolTip.Tip="恢复为 SCSKiller 自动识别的可执行程序" />
-                    <Button Content="Open folder" Click="OnOpenExeFolder" ToolTip.Tip="打开游戏可执行文件所在的文件夹" />
-                    <Button Content="Remove from library" Click="OnRemoveGame" ToolTip.Tip="{Binding RemoveTip}" />
+                    <Button Content="自动主程序" Click="OnAutoExe" IsVisible="{Binding ExeChosen}" ToolTip.Tip="恢复为 SCSKiller 自动识别的可执行程序" />
+                    <Button Content="打开所在文件夹" Click="OnOpenExeFolder" ToolTip.Tip="打开游戏可执行文件所在的文件夹" />
+                    <Button Content="从游戏库移除" Click="OnRemoveGame" ToolTip.Tip="{Binding RemoveTip}" />
                     <Panel Background="Transparent" ToolTip.Tip="{Binding PlayTip}" IsVisible="{Binding ShowPlay}">
                         <Button Content="{Binding PlayText}" Click="OnPlay" IsEnabled="{Binding CanPlay}" />
                     </Panel>
@@ -118,7 +118,7 @@
                         <TextBlock Text="{Binding DeliveryLine}" IsVisible="{Binding HasDeliveryLine}" Classes="Secondary" TextWrapping="Wrap" />
                         <StackPanel Spacing="2" IsVisible="{Binding HasCleanupLine}">
                             <TextBlock Text="{Binding CleanupLine}" Classes="Secondary" TextWrapping="Wrap" />
-                            <HyperlinkButton Content="Keep Windows from clearing compiled shaders" Padding="0" Click="OnKeepShaders" IsEnabled="{Binding CanKeepShaders}" />
+                            <HyperlinkButton Content="防止 Windows 自动清理已编译着色器" Padding="0" Click="OnKeepShaders" IsEnabled="{Binding CanKeepShaders}" />
                         </StackPanel>
                         <TextBlock Text="{Binding VulkanRtNote}" IsVisible="{Binding HasVulkanRtNote}" Classes="Secondary" TextWrapping="Wrap" />
                         <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasKeptCache}">
@@ -136,9 +136,9 @@
                     <c:FlowPanel Grid.Row="1" Grid.ColumnSpan="2" Spacing="8" LineAlignment="Right">
                         <Button Content="Why?" Click="OnPartlyWhy" IsVisible="{Binding IsPartlyCompiled}" />
                         <Button Content="设置 AES 密钥" Click="OnSetAesKey" IsVisible="{Binding NeedsAesKey}" Classes="accent" />
-                        <Button Content="Change AES key" Click="OnChangeAesKey" IsVisible="{Binding CanChangeAesKey}" />
-                        <Button Content="Remove AES key" Click="OnRemoveAesKey" IsVisible="{Binding HasAesKey}" />
-                        <Button Content="Set game key" Click="OnSetGameKey" IsVisible="{Binding NeedsGameKey}" Classes="accent" />
+                        <Button Content="修改 AES 密钥" Click="OnChangeAesKey" IsVisible="{Binding CanChangeAesKey}" />
+                        <Button Content="删除 AES 密钥" Click="OnRemoveAesKey" IsVisible="{Binding HasAesKey}" />
+                        <Button Content="设置游戏密钥" Click="OnSetGameKey" IsVisible="{Binding NeedsGameKey}" Classes="accent" />
                         <!-- this font draws its glyph smaller: 18 px for WinUI's 14, and 2 px less padding keeps the button 38 wide -->
                         <Button Click="OnRefreshGame" IsEnabled="{Binding CanRefresh}" AutomationProperties.Name="Refresh" Padding="9,5,9,6"
                                 ToolTip.Tip="Re-read this game's cache size, recording and last session" VerticalAlignment="Stretch">
@@ -146,13 +146,13 @@
                         </Button>
                         <!-- tooltip on a hit-testable wrapper: a disabled button shows none -->
                         <Panel Background="Transparent" ToolTip.Tip="{Binding ReportTip}">
-                            <Button Content="Rate this compile" Click="OnSendReport" IsEnabled="{Binding CanReport}" />
+                            <Button Content="评价本次编译" Click="OnSendReport" IsEnabled="{Binding CanReport}" />
                         </Panel>
-                        <Button Content="报告问题" Click="OnReportProblem" ToolTip.Tip="Send the SCSKiller team what went wrong with this game" />
+                        <Button Content="报告问题" Click="OnReportProblem" ToolTip.Tip="向 SCSKiller 反馈此游戏遇到的问题" />
                         <Panel Background="Transparent" ToolTip.Tip="{Binding ClearCacheTip}" IsVisible="{Binding ShowClearCache}">
                             <Button Content="{Binding ClearCacheText}" Click="OnClearCache" IsEnabled="{Binding CanClearCache}" />
                         </Panel>
-                        <Button Content="Max compile" Click="OnMaxCompile" IsVisible="{Binding ShowMaxCompile}" IsEnabled="{Binding CanAdd}"
+                        <Button Content="极致编译" Click="OnMaxCompile" IsVisible="{Binding ShowMaxCompile}" IsEnabled="{Binding CanAdd}"
                                 ToolTip.Tip="Compiles every combination of this game's shaders, once" />
                         <Panel Background="Transparent" ToolTip.Tip="{Binding CompileTip}" IsVisible="{Binding CanCompile}">
                             <Button Classes.accent="{Binding CompileAccent}" Click="OnCompile" IsEnabled="{Binding CanAdd}" AutomationProperties.Name="{Binding AddText}">
@@ -167,11 +167,11 @@
                             <Button Content="{Binding BaText}" Classes.accent="{Binding BaAccent}" IsEnabled="{Binding BaEnabled}" Click="OnBeforeAfter"
                                     AutomationProperties.HelpText="{Binding BaTip}" />
                         </Panel>
-                        <Button Content="Compile again" Click="OnBaCompileAgain" IsVisible="{Binding BaCompileAgain}" />
-                        <Button Content="Record the after run again" Click="OnBaRecordAgain" IsVisible="{Binding BaDone}" />
-                        <Button Content="Start over" Click="OnBaStartOver" IsVisible="{Binding BaDone}" />
-                        <Button Content="How it works" Click="OnBaHowItWorks" IsVisible="{Binding BaHasMenu}" />
-                        <Button Content="Cancel the before and after recording" Click="OnBaCancel" IsVisible="{Binding BaInProgress}" />
+                        <Button Content="重新编译" Click="OnBaCompileAgain" IsVisible="{Binding BaCompileAgain}" />
+                        <Button Content="重新录制编译后表现" Click="OnBaRecordAgain" IsVisible="{Binding BaDone}" />
+                        <Button Content="重新开始" Click="OnBaStartOver" IsVisible="{Binding BaDone}" />
+                        <Button Content="运作原理" Click="OnBaHowItWorks" IsVisible="{Binding BaHasMenu}" />
+                        <Button Content="取消对比测试录制" Click="OnBaCancel" IsVisible="{Binding BaInProgress}" />
                     </c:FlowPanel>
                     <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding BaNote}" IsVisible="{Binding HasBaNote}"
                                Classes="Caption" TextWrapping="Wrap" TextAlignment="Right" />
@@ -326,7 +326,7 @@
                     </Grid>
                     <TextBlock Text="{Binding CoverageHeadline}" Classes="Secondary" TextWrapping="Wrap" IsVisible="{Binding HasRuleNote}" />
 
-                    <Expander x:Name="DetailsExpander" Header="Details" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander x:Name="DetailsExpander" Header="详细参数" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                         <ItemsControl ItemsSource="{Binding Details}" ItemTemplate="{StaticResource DetailRow}">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -366,13 +366,13 @@
                             <TextBlock Grid.Column="2" Text="{Binding GraphEnd}" Classes="CaptionText" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                         </Grid>
                     </StackPanel>
-                    <Expander x:Name="EarlierExpander" Header="Earlier sessions" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    <Expander x:Name="EarlierExpander" Header="历史游玩记录" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                               IsVisible="{Binding HasEarlierSessions}">
                         <ItemsControl ItemsSource="{Binding EarlierSessions}" ItemTemplate="{StaticResource DetailRow}" MaxWidth="620" HorizontalAlignment="Left">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </Expander>
-                    <Expander x:Name="SlowFramesExpander" Header="Slow frames" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    <Expander x:Name="SlowFramesExpander" Header="掉帧与卡顿详情" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                               IsVisible="{Binding HasFrames}">
                         <StackPanel Spacing="8" MaxWidth="620" HorizontalAlignment="Left">
                             <TextBlock Text="{Binding FramesSummary}" Classes="Secondary" TextWrapping="Wrap" />
@@ -445,7 +445,7 @@
                             <StackPanel Spacing="2">
                                 <TextBlock Text="使用共享着色器哈希" Classes="BodyStrong" />
                                 <TextBlock Text="{Binding SharedNote}" Classes="Secondary" TextWrapping="Wrap" />
-                                <HyperlinkButton Content="Follow Settings" Click="OnSharedFollow" Padding="0" Margin="0,2,0,0" IsVisible="{Binding ShowSharedFollow}" />
+                                <HyperlinkButton Content="跟随全局设置" Click="OnSharedFollow" Padding="0" Margin="0,2,0,0" IsVisible="{Binding ShowSharedFollow}" />
                             </StackPanel>
                             <ToggleSwitch x:Name="SharedSwitch" Grid.Column="1" IsChecked="{Binding SharedOn, Mode=OneWay}" IsCheckedChanged="OnSharedToggled"
                                           AutomationProperties.Name="使用共享着色器哈希" AutomationProperties.HelpText="{Binding SharedNote}" />
@@ -485,7 +485,7 @@
                             <TextBlock Text="{Binding RecordingPausedText}" Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap" IsVisible="{Binding RecordingPaused}" />
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                                 <TextBlock Text="{Binding RecordingSize}" Classes="Secondary" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                <Button Grid.Column="1" Content="Clear recording" Click="OnClearRecording" IsEnabled="{Binding CanClearRecording}"
+                                <Button Grid.Column="1" Content="清除录制数据" Click="OnClearRecording" IsEnabled="{Binding CanClearRecording}"
                                         ToolTip.Tip="{Binding ClearRecordingTip}" />
                             </Grid>
                         </StackPanel>

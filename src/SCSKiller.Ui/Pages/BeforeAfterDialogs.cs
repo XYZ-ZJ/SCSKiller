@@ -28,7 +28,7 @@ static class BeforeAfterDialogs
         static TextBlock Line(string text) => new() { Text = text, TextWrapping = TextWrapping.Wrap };
         var (step1, step3) = (Line(""), Line(""));
         void Steps() => (step1.Text, step3.Text) = (
-            $"1. SCSKiller deletes this game's shader caches ({(Host.Platform.SystemShaderCache ? "the driver's, Windows' and" : "the driver's and")} the game's own) and starts the game. Load a save you can load again and play. The {minutes} minutes count from the game's first frame, loading and pauses included.",
+            $"1. SCSKiller 会删除该游戏的着色器缓存（{(Host.Platform.SystemShaderCache ? "包含显卡驱动缓存、Windows 缓存及" : "包含显卡驱动缓存与")}游戏自身缓存）并启动游戏。请加载一个可重复加载的存档并开始游玩。{minutes} 分钟计时将从游戏第一帧开始计算，包含加载与暂停时间。",
             $"3. 加载相同的存档并游玩相同的 {minutes} 分钟。");
         Steps();
         var steps = new StackPanel
@@ -50,7 +50,7 @@ static class BeforeAfterDialogs
         };
         var sound = new CheckBox { Content = "时间到达时播放提示音", IsChecked = s.BeforeAfterSound };
         var overlay = new CheckBox { Content = "在游戏内显示倒计时浮窗", IsChecked = s.BeforeAfterOverlay };
-        ToolTip.SetTip(overlay, "A small panel at the top right of the game: the time left, your frame times and, on DirectX 12 and Vulkan, each shader compilation stutter. SCSKiller counts down here either way. It isn't shown with FSR or XeSS frame generation on.");
+        ToolTip.SetTip(overlay, "游戏右上角的小浮窗：显示剩余时间、实时帧时间，以及在 DirectX 12 和 Vulkan 下的每次着色器编译卡顿。无论是否开启浮窗，SCSKiller 都会在后台进行倒计时。若开启了 FSR 或 XeSS 帧生成，浮窗将自动隐藏。");
         var maxRun = new CheckBox { Content = "在编译后测试中采用极限模式编译", IsChecked = s.BeforeAfterMax, IsVisible = max };
         ToolTip.SetTip(maxRun, DetailVm.MaxCompileWhy);
         var checks = new StackPanel { VerticalAlignment = VerticalAlignment.Bottom, Children = { sound, overlay, maxRun } };
@@ -79,7 +79,7 @@ static class BeforeAfterDialogs
                         {
                             Bullet("两次测试之间请勿更改画质图像设置。"),
                             Bullet("该游戏当前的编译缓存将被删除，并将在第 2 步中重新编译。"),
-                            Bullet("A small d3d11.dll goes next to the game for this recording only, then it's removed.", frames11),
+                            Bullet("仅在此次录制期间在游戏目录旁临时添加小巧的 d3d11.dll，测试结束后将立即移除。", frames11),
                             Bullet("帧时间数据仅保存在此电脑上。若开启数据分享，仅会发送匿名哈希。"),
                         },
                     },
@@ -113,7 +113,7 @@ static class BeforeAfterDialogs
         var dialog = new ContentDialog
         {
             Title = "重新录制编译后测试？",
-            Content = "SCSKiller clears the caches and compiles again first, so the new run isn't helped by the last one. Then play the same save again.",
+            Content = "SCSKiller 会先清空缓存并重新编译，确保新的测试不会受到上次运行的缓存影响。随后请重新加载相同的存档进行游玩。",
             PrimaryButtonText = "重新录制", CloseButtonText = "取消", DefaultButton = ContentDialogButton.Primary,
         };
         if (await App.ShowAsync(dialog, on) != ContentDialogResult.Primary) return null;
@@ -126,7 +126,7 @@ static class BeforeAfterDialogs
         var dialog = new ContentDialog
         {
             Title = "取消编译前后对比测试？",
-            Content = "Its shader caches were cleared, so the game stutters until it's compiled again.",
+            Content = "该游戏的着色器缓存已被清除，若不重新编译，游玩时可能会出现卡顿。",
             PrimaryButtonText = "立即编译", SecondaryButtonText = "暂不编译", CloseButtonText = "继续测试", DefaultButton = ContentDialogButton.Primary,
         };
         var result = await App.ShowAsync(dialog);

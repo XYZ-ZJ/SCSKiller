@@ -116,7 +116,7 @@
                             <RadioButton GroupName="DriverMode" AutomationProperties.Name="Ask me"
                                          IsChecked="{Binding DriverMode, Converter={x:Static ui:Converters.Index}, ConverterParameter=0}">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Ask me" />
+                                    <TextBlock Text="每次询问我" />
                                     <TextBlock Text="{x:Static m:SettingsVm.AskNote}" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
@@ -159,14 +159,14 @@
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Notify me"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=1}">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Notify me" />
+                                    <TextBlock Text="通知我" />
                                     <TextBlock Text="通过系统通知提供“立即编译”选项，不会擅自开始编译。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Compile automatically and notify me"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=2}">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Compile automatically and notify me" />
+                                    <TextBlock Text="自动编译并通知我" />
                                     <TextBlock Text="在电脑空闲时自动编译，并在加入队列时通知您。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
@@ -193,9 +193,9 @@
                             </StackPanel>
                         </CheckBox>
                         <Rectangle Classes="Divider" />
-                        <CheckBox Content="Pause background compiling while another game is running" IsChecked="{Binding PauseWhileGaming, Mode=TwoWay}" />
+                        <CheckBox Content="运行其他游戏时暂停后台编译" IsChecked="{Binding PauseWhileGaming, Mode=TwoWay}" />
                         <Grid>
-                            <TextBlock Text="Threads for background rebuilds" />
+                            <TextBlock Text="后台重建缓存使用的线程数" />
                             <TextBlock Text="{Binding BackgroundThreadsText}" HorizontalAlignment="Right" />
                         </Grid>
                         <Slider Minimum="1" Maximum="{Binding MaxThreads, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True"
@@ -237,7 +237,7 @@
                                                Classes="Secondary" TextWrapping="Wrap" />
                                     <StackPanel Orientation="Horizontal" Spacing="12">
                                         <Button Classes="accent" Content="使用 Patreon 登录" Click="OnSignIn" IsEnabled="{Binding Idle}" />
-                                        <Button Content="Cancel" Click="OnCancelSignIn" IsVisible="{Binding SigningIn}" />
+                                        <Button Content="取消" Click="OnCancelSignIn" IsVisible="{Binding SigningIn}" />
                                     </StackPanel>
                                     <TextBlock Text="请在浏览器中完成登录操作，此处无需其他操作。" Classes="Caption" TextWrapping="Wrap"
                                                IsVisible="{Binding SigningIn}" />
@@ -354,7 +354,7 @@
 
                 <Border Grid.Row="1" Classes="Card" Padding="20">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="General" Classes="Section" />
+                        <TextBlock Text="通用设置" Classes="Section" />
                         <CheckBox IsChecked="{Binding StartWithWindows, Mode=TwoWay}" IsVisible="{Binding ShowsStartAtSignIn, Mode=OneTime}"
                                   AutomationProperties.Name="{x:Static m:SettingsVm.StartText}">
                             <StackPanel Spacing="2">
@@ -407,7 +407,7 @@
                             </StackPanel>
                         </CheckBox>
                         <StackPanel>
-                            <TextBlock Text="Theme" Classes="Header" />
+                            <TextBlock Text="外观主题" Classes="Header" />
                             <ComboBox ItemsSource="{Binding Themes, Mode=OneTime}" SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}" MinWidth="220"
                                       AutomationProperties.Name="Theme" />
                         </StackPanel>
@@ -432,7 +432,7 @@
                                                Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
-                            <HyperlinkButton Content="Details" Click="OnAntiCheatDetails" Padding="0" Margin="28,0,0,0" AutomationProperties.Name="Details on recording in games with anti-cheat" />
+                            <HyperlinkButton Content="详情" Click="OnAntiCheatDetails" Padding="0" Margin="28,0,0,0" AutomationProperties.Name="Details on recording in games with anti-cheat" />
                         </StackPanel>
                         <StackPanel Spacing="4" IsVisible="{Binding ShowsTraversal, Mode=OneTime}">
                             <Rectangle Classes="Divider" Margin="0,6" />
@@ -453,7 +453,7 @@
                         <TextBlock Text="统计游戏目录下的录制文件及 SCSKiller 的本地副本。达到上限后游戏仍可正常运行，仅不再记录新的管线。"
                                    Classes="Caption" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding RecordingSpace}" TextWrapping="Wrap" />
-                        <Expander Header="Space by game" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsVisible="{Binding HasRecordings}">
+                        <Expander Header="各游戏录制占用空间" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsVisible="{Binding HasRecordings}">
                             <ItemsControl ItemsSource="{Binding Recordings}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>

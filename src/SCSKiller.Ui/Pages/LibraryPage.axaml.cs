@@ -172,7 +172,7 @@ public sealed partial class LibraryPage : UserControl
         try { await Task.Run(() => added.AddFolder(path)); }
         catch (Exception ex) when (ex is ArgumentException or IOException or UnauthorizedAccessException)
         {
-            await Message("Couldn't add this folder", ex.Message);
+            await Message("无法添加此文件夹", ex.Message);
             return;
         }
         Vm.Rescan(force: false);
@@ -185,25 +185,25 @@ public sealed partial class LibraryPage : UserControl
         string? path;
         try
         {
-            var picked = await App.Main.StorageProvider.OpenFilePickerAsync(new() { Title = "Add game", FileTypeFilter = [new(".exe") { Patterns = ["*.exe"] }] });
+            var picked = await App.Main.StorageProvider.OpenFilePickerAsync(new() { Title = "添加游戏", FileTypeFilter = [new(".exe") { Patterns = ["*.exe"] }] });
             path = picked.FirstOrDefault()?.TryGetLocalPath();
         }
-        catch (Exception ex) { await Message("Couldn't open the file picker", ex.Message); return; }
+        catch (Exception ex) { await Message("无法打开文件选择器", ex.Message); return; }
         if (path == null) return;
         ManualAdd added;
         try { added = await Task.Run(() => Host.Core.PreviewManualGame(path)); }   // reads the install's files
         catch (Exception ex)   // a rejection's message, or a data folder SCSKiller couldn't read
         {
-            await Message("Couldn't add this game", ex.Message);
+            await Message("无法添加此游戏", ex.Message);
             return;
         }
         if (!added.Existed)
         {
-            if (await GameFolderDialog.ShowAsync(added.Game, $"Add {added.Game.Name}", "Add game") is not { } folder) return;
+            if (await GameFolderDialog.ShowAsync(added.Game, $"添加《{added.Game.Name}》", "添加游戏") is not { } folder) return;
             try { await Task.Run(() => Host.Core.AddManualGame(path, folder)); }
             catch (Exception ex)
             {
-                await Message("Couldn't add this game", ex.Message);
+                await Message("无法添加此游戏", ex.Message);
                 return;
             }
             Vm.Rescan(force: false);   // lists it under "Added by you" once its engine and anti-cheat are checked
@@ -211,17 +211,17 @@ public sealed partial class LibraryPage : UserControl
         }
         if (Host.Core.HiddenGames.Any(g => g.Id == added.Game.Id))
         {
-            await Message("Hidden from your library", $"You removed {added.Game.Name}. Show hidden brings it back.");
+            await Message("已从游戏库中隐藏", $"您之前移除了《{added.Game.Name}》。勾选“显示已隐藏”可重新显示。");
             return;
         }
         var listed = Host.Core.Games.Any(s => s.Game.Id == added.Game.Id);
-        var where = added.Game.Store == Store.Manual ? "you added it already" : $"SCSKiller found it in {Fmt.StoreName(added.Game)}";
-        if (listed && await App.ConfirmAsync("Already in your library", $"{added.Game.Name} is in the list: {where}.", "Open", ContentDialogButton.Primary))
+        var where = added.Game.Store == Store.Manual ? "您已添加过此游戏" : $"SCSKiller 已在 {Fmt.StoreName(added.Game)} 中找到它";
+        if (listed && await App.ConfirmAsync("已在游戏库中", $"《{added.Game.Name}》已在列表中：{where}。", "前往查看", ContentDialogButton.Primary))
             App.Main.Navigate(typeof(DetailPage), added.Game.Id);
-        else if (!listed) await Message("Already in your library", $"{added.Game.Name}: {where}. Refresh the library to see it.");
+        else if (!listed) await Message("已在游戏库中", $"《{added.Game.Name}》：{where}。请刷新游戏库查看。");
     }
 
-    static Task Message(string title, string text) => App.ShowAsync(new ContentDialog { Title = title, Content = text, CloseButtonText = "OK" });
+    static Task Message(string title, string text) => App.ShowAsync(new ContentDialog { Title = title, Content = text, CloseButtonText = "确定" });
 
     void OnAddAll(object? _, RoutedEventArgs __) => Vm.AddAllReady();
     void OnAddRecommended(object? _, RoutedEventArgs __) => Vm.AddAllRecommended();

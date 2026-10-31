@@ -81,7 +81,7 @@ public sealed partial class CachePage : UserControl
     void OnFreeOldDriver(object? _, RoutedEventArgs __) =>
         _ = Confirm($"{Vm.FreeText} the new driver no longer uses?", CacheGroupKind.OldDriver, Vm.OldDriverItems, "Free");
 
-    async Task Confirm(string title, CacheGroupKind kind, IReadOnlyList<CacheItem> items, string action = "Delete")
+    async Task Confirm(string title, CacheGroupKind kind, IReadOnlyList<CacheItem> items, string action = "删除")
     {
         var text = new TextBlock { Text = CacheVm.Consequence(kind, items), TextWrapping = TextWrapping.Wrap };
         if (await App.ShowAsync(App.Confirm(title, text, action)) == ContentDialogResult.Primary) await Vm.DeleteAsync(items);
