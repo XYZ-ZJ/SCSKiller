@@ -1,117 +1,56 @@
-# Build and package on a clean Windows runner. The C# tests don't run in CI.
-# One file serves both repos. Private repo: PRs, workflow_dispatch, the nightly schedule (skipped when main didn't
-# change) and release tags (release.yml), every job on the runner the repository variable SCSK_RUNNER names (the team's
-# self-hosted Windows runner). Public repo: only pushed release tags build (release.yml), never a workflow_dispatch on
-# one, GitHub-hosted.
-# The private repo's build job makes the Linux package too, in the self-hosted runner's WSL: no artifact passes between
-# jobs. The public repo's linux job makes it on a hosted Ubuntu from the build job's native files (artifact).
 name: build
 
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md']
-  pull_request:
-    branches: [main, 'release/**']
-    paths-ignore: ['**.md', 'docs*/**', 'tools*/linux/**']   # nothing the Windows build uses ('*': not read as a private path by the export's leak scan)
-  schedule:
-    - cron: '17 3 * * *'   # nightly, 03:17 UTC
   workflow_dispatch:
-  workflow_call:   # release.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  # a main run finishes instead of being cancelled by the next merge; queued main runs collapse to the newest
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  # Nightly only: did main get a commit in the last 25 h? (Linux, 1x minutes, a few seconds.) Not a numeric output:
-  # expressions coerce a skipped job's null and '0' both to 0.
-  changed:
-    if: github.event_name == 'schedule' && github.event.repository.private
-    runs-on: ${{ vars.SCSK_RUNNER && fromJSON(vars.SCSK_RUNNER) || 'ubuntu-latest' }}
-    timeout-minutes: 5
-    outputs:
-      unchanged: ${{ steps.c.outputs.unchanged }}
-    steps:
-      - id: c
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          at=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq '.commit.committer.date | fromdate')
-          if (( $(date +%s) - at > 90000 )); then echo "unchanged=yes" >> "$GITHUB_OUTPUT"; fi
-
-  build:
-    needs: changed
-    if: ${{ !cancelled() && needs.changed.outputs.unchanged != 'yes' }}
-    # VS 2022 (MSVC x64, MASM, Windows SDK) and CMake: preinstalled on windows-2025, installed on the self-hosted
-    # runner. The private repo's Linux steps need WSL's Ubuntu-24.04 with podman and the .NET SDK, which not every
-    # self-hosted runner has: SCSK_WSL_RUNNER names the ones that do.
+  build-windows:
+    name: Build Windows 11 Portable
     runs-on: windows-2025
-    # Windows alone takes 22-35 min with several runners on one PC, then the Linux steps, which take turns in the WSL VM
-    # the runners share (ci-linux-package.sh's lock, waited for at most an hour); a hang stops well short of 6 h
-    timeout-minutes: 120
+    timeout-minutes: 60
     env:
       DOTNET_NOLOGO: 'true'
       DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      # the newest .NET 10 SDK: builds work with any SDK of global.json's floor or newer (publish.ps1 reads the shipped
-      # runtime and package versions from the published output)
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68   # v6.0.0
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
         with:
           dotnet-version: 10.0.x
 
-      # A persistent runner's global packages folder and HTTP cache hold whatever earlier jobs (PRs included) put there,
-      # and restore uses them as they are: a release tag restores into folders of its own, from nuget.org only.
-      - name: Package folders of this run (release tags)
-        if: github.ref_type == 'tag'
-        shell: powershell
-        run: |
-          $d = Join-Path $env:RUNNER_TEMP "nuget-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
-          Remove-Item $d -Recurse -Force -ErrorAction SilentlyContinue
-          [IO.File]::AppendAllText($env:GITHUB_ENV, "NUGET_PACKAGES=$d\packages\`nNUGET_HTTP_CACHE_PATH=$d\http`n")   # UTF-8, no BOM; the trailing \ because csproj paths append to $(NuGetPackageRoot)
-
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9   # v6.1.0
-        if: github.ref_type != 'tag' && !vars.SCSK_RUNNER   # a self-hosted runner keeps its own packages folder
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: ~\.nuget\packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Proxy (CMake, MSVC, Release x64)
-        shell: cmd   # the self-hosted runner's default is Windows PowerShell 5.1, which has no &&
+        shell: cmd
         run: cmake -S proxy -B proxy/build -A x64 && cmake --build proxy/build --config Release -- /m
 
       - name: Build
         run: dotnet build SCSKiller.slnx -c Release
 
-      # No Oodle DLL in anything that leaves the build (THIRD-PARTY-NOTICES.md); the app downloads it on first use.
-      # Nothing is signed here: the release step signs these exact bytes after checking them against the sums.
-      # A tag build is stamped with the tag's version (publish.ps1 drops the v; a bad tag fails it), the nightly and a
-      # dispatch with 0.0.1-internal.<run> (vpk packs no version below 0.0.1), a PR with the dev default.
-      # Private-repo PRs publish native\ alone (the Linux package's input), the nightly still proves the whole packaging.
       - name: Publish
         shell: powershell
-        env:
-          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && format('0.0.1-internal.{0}', github.run_number) || '' }}
-          NATIVE_ONLY: ${{ github.event.repository.private && github.event_name == 'pull_request' && 'yes' || '' }}
         run: |
-          if ($env:VERSION) { ./build/publish.ps1 -NoOodle -Version $env:VERSION } elseif ($env:NATIVE_ONLY) { ./build/publish.ps1 -NoOodle -NativeOnly } else { ./build/publish.ps1 -NoOodle }
+          ./build/publish.ps1 -NoOodle -Version 1.4.3
           $dist = (Resolve-Path dist).Path
           $sums = Get-ChildItem dist -Recurse -File -Exclude SHA256SUMS-unsigned.txt | Sort-Object FullName | ForEach-Object {
               "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.FullName.Substring($dist.Length + 1).Replace('\', '/')
           }
-          [IO.File]::WriteAllText("$dist\SHA256SUMS-unsigned.txt", ($sums -join "`n") + "`n")   # sha256sum -c format (LF), paths relative to dist/
+          [IO.File]::WriteAllText("$dist\SHA256SUMS-unsigned.txt", ($sums -join "`n") + "`n")
 
-      # the public linux job's input
       - name: Package Velopack Portable
-        if: ${{ !inputs.filter }}
         shell: powershell
         run: |
           dotnet tool install -g vpk
@@ -120,196 +59,16 @@ jobs:
           $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
           if ($portZip) {
               Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
+              Write-Host "Windows Portable package created: $($portZip.FullName)"
+          } else {
+              Write-Error "Portable zip not found in dist/releases!"
+              exit 1
           }
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
-        if: ${{ !github.event.repository.private }}
-        with:
-          name: SCSKiller-native
-          path: |
-            dist/SCSKiller/native/
-            dist/SHA256SUMS-unsigned.txt
-          retention-days: 1
-          if-no-files-found: error
-
-      # Without SCSK_WSL_RUNNER the job may be on a runner with no WSL: the Windows steps run, the Linux ones stop here
-      - name: WSL runner (SCSK_WSL_RUNNER)
-        if: ${{ github.event.repository.private && !vars.SCSK_WSL_RUNNER }}
-        shell: cmd
-        run: |
-          echo ::error::SCSK_WSL_RUNNER isn't set: the Linux layer and package need a runner with WSL Ubuntu-24.04, podman and the .NET SDK
-          exit /b 1
-
-      # The Vulkan recorder layer for Linux, built in the Steam Runtime's sniper SDK with its glibc capped at 2.31
-      # (build/linux-layer.sh through build/ci-linux-package.sh --layer, podman in the runner's WSL Ubuntu-24.04), then
-      # `selftest_linux vkrec` on Mesa's lavapipe.
-      # The script is checked out again: git doesn't rewrite an unchanged file when its eol attribute changes, so a
-      # persistent workspace can still hold a CRLF copy.
-      - name: Linux layer (sniper SDK, WSL)
-        if: github.event.repository.private
-        shell: cmd
-        run: |
-          wsl -d Ubuntu-24.04 -e podman --version || (echo ::error::No WSL Ubuntu-24.04 with podman on this runner: SCSK_WSL_RUNNER names the runners that have it & exit /b 1)
-          pushd build && del linux-layer.sh && popd && git checkout -- build/linux-layer.sh && wsl -d Ubuntu-24.04 -e bash build/ci-linux-package.sh --layer
-
-      # The Linux package (build/ci-linux-package.sh in WSL): build/publish-linux.sh on Publish's native files and the
-      # Linux layer, then build/check-linux-package.sh, in a clone of this commit on WSL's own filesystem, where the
-      # package keeps its file modes. With Publish's version, vpk's Linux pack too, as a release packs it: a tag keeps
-      # the release files (dist/release-linux) for its draft, the nightly and a dispatch only prove the pack works.
-      # WSL's Ubuntu also needs the .NET SDK the script pins, python3, binutils, desktop-file-utils and squashfs-tools.
-      - name: Linux package (WSL)
-        if: github.event.repository.private
-        shell: powershell
-        env:
-          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && format('0.0.1-internal.{0}', github.run_number) || '' }}
-          RELEASE: ${{ github.ref_type == 'tag' && 'yes' || '' }}
-        run: |
-          $a = @(); if ($env:VERSION) { $a += '--version', $env:VERSION, '--pack' }
-          if ($env:RELEASE) { $a += '--release', 'dist/release-linux' }
-          wsl -d Ubuntu-24.04 -e bash build/ci-linux-package.sh @a
-
-      # Archived (not archive: false): `gh run download`, which the release step uses, can't read unarchived artifacts.
-      # release.yml's draft takes the zip and, from the private repo's runner, the Linux release files (public: the linux
-      # job's SCSKiller-linux).
-      - name: Package Velopack Portable
-        if: ${{ !inputs.filter }}
-        shell: powershell
-        run: |
-          dotnet tool install -g vpk
-          vpk pack -u SCSKiller -v 1.4.3 -p dist/SCSKiller -e SCSKiller.exe -o dist/releases
-          Get-ChildItem dist/releases
-          $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
-          if ($portZip) {
-              Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
-          }
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
-        if: ${{ github.ref_type == 'tag' && (github.event_name == 'push' || github.event.repository.private) }}   # private: storage is billed, only release tags need it
+      - name: Upload Windows 11 Portable Artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: SCSKiller-Portable
-          path: |
-            dist/SCSKiller.zip
-            dist/SHA256SUMS-unsigned.txt
-            dist/release-linux/
-          compression-level: 0    # the zip is already compressed
-          retention-days: 7       # artifact storage is billed on private repos
-          if-no-files-found: error
-
-  # Public repo: the Linux package and vpk's Linux pack on a hosted Ubuntu, natively, with the scripts the private repo's
-  # build job runs in WSL, on the build job's native files (artifact SCSKiller-native).
-  linux:
-    needs: build
-    if: ${{ !cancelled() && needs.build.result == 'success' && !github.event.repository.private }}   # changed is skipped here, and a skip carries down without !cancelled()
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    env:
-      DOTNET_NOLOGO: 'true'
-      DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
-      VERSION: ${{ github.ref_name }}   # the public repo builds release tags only
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
-        with:
-          persist-credentials: false
-
-      # dist/SCSKiller/native and dist/SHA256SUMS-unsigned.txt, as Publish left them
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c   # v8.0.1
-        with:
-          name: SCSKiller-native
-          path: dist
-
-      # the SDK ci-linux-package.sh pins, alone in its folder: the image's own SDKs would win global.json's roll-forward
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68   # v6.0.0
-        env:
-          DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
-        with:
-          dotnet-version: 10.0.402
-
-      # squashfs-tools makes the AppImage, desktop-file-utils checks its .desktop: noble's own builds, as WSL's Ubuntu-24.04
-      # has them. Lavapipe only runs the layer's selftest.
-      - name: Packages
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends squashfs-tools=1:4.6.1-1build1 desktop-file-utils=0.27-2build1 \
-            libvulkan1 mesa-vulkan-drivers
-          podman --version
-
-      - name: Linux layer (sniper SDK)
-        run: bash build/ci-linux-package.sh --layer
-
-      - name: Linux package
-        env:
-          CI_LINUX_DOTNET: ${{ runner.temp }}/dotnet
-        run: bash build/ci-linux-package.sh --version "$VERSION" --pack --release dist/release-linux
-
-      - name: AppImage runs
-        run: |
-          d=$(mktemp -d) && cd "$d"
-          "$GITHUB_WORKSPACE/dist/release-linux/SCSKiller-x86_64.AppImage" --appimage-extract >/dev/null
-          got=$(SCSKILLER_DATA_DIR="$d/data" squashfs-root/AppRun --cli --version)
-          [ "$got" = "${VERSION#v}" ] || { echo "::error::the AppImage's --cli --version prints '$got', not ${VERSION#v}"; exit 1; }
-          echo "SCSKiller --cli --version: $got"
-
-      # release.yml's draft takes them and attests them
-      - name: Package Velopack Portable
-        if: ${{ !inputs.filter }}
-        shell: powershell
-        run: |
-          dotnet tool install -g vpk
-          vpk pack -u SCSKiller -v 1.4.3 -p dist/SCSKiller -e SCSKiller.exe -o dist/releases
-          Get-ChildItem dist/releases
-          $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
-          if ($portZip) {
-              Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
-          }
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
-        with:
-          name: SCSKiller-linux
-          path: dist/release-linux/
-          compression-level: 0
+          path: dist/SCSKiller-Portable.zip
           retention-days: 7
           if-no-files-found: error
-
-  # macOS: the UI and Core publish for Apple silicon and Intel, then --screenshots renders the design data on the
-  # arm64 app. Private repo only, on the runner SCSK_MAC_RUNNER names, never a hosted one: skipped while it isn't set.
-  mac:
-    needs: changed
-    if: ${{ !cancelled() && needs.changed.outputs.unchanged != 'yes' && vars.SCSK_MAC_RUNNER && github.event.repository.private && github.event_name != 'push' }}
-    runs-on: ${{ fromJSON(vars.SCSK_MAC_RUNNER) }}
-    timeout-minutes: 30
-    env:
-      DOTNET_NOLOGO: 'true'
-      DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
-        with:
-          persist-credentials: false
-
-      # the runner's own .NET SDK, no download: a runner started with run.sh doesn't apply its .path
-      - name: .NET SDK on PATH
-        run: |
-          d=${DOTNET_ROOT:-$HOME/.dotnet}
-          "$d/dotnet" --version
-          echo "$d" >> "$GITHUB_PATH"
-
-      # NuGet's global packages folder stays, as on the Windows runners: it's the one the account's own builds fill
-      - name: Publish (osx-arm64, osx-x64)
-        run: |
-          for rid in osx-arm64 osx-x64; do
-            dotnet publish src/SCSKiller.Ui -c Release -f net10.0 -r "$rid" --self-contained -o "$RUNNER_TEMP/mac/ui-$rid"
-            dotnet publish src/SCSKiller.Core -c Release -f net10.0 -r "$rid" -o "$RUNNER_TEMP/mac/core-$rid"
-          done
-
-      # TMPDIR: the design data's temp folders end up in the run's folder too
-      - name: Screenshots (osx-arm64)
-        env:
-          TMPDIR: ${{ runner.temp }}/mac/tmp
-        run: |
-          mkdir -p "$TMPDIR"
-          dotnet "$RUNNER_TEMP/mac/ui-osx-arm64/SCSKiller.Ui.dll" --screenshots "$RUNNER_TEMP/mac/shots"
-          n=$(find "$RUNNER_TEMP/mac/shots" -name '*.png' | wc -l); echo "$n screenshots"; (( n > 0 ))
-
-      # the Mac has little free disk: nothing of a run stays behind
-      - name: Clean up
-        if: always()
-        run: rm -rf "$RUNNER_TEMP/mac" && git clean -ffdxq
