@@ -111,12 +111,9 @@ public sealed class AccountVm : Bindable
     public bool OffersBackToStable => Wired && Updater.Installed && AppVersion.Current.Channel != UpdateChannels.Stable;
     public bool ShowsUpdates => Entitled || OffersBackToStable || UpdatesFrom != null;
     public string ChannelNote => UpdatesFrom ?? (Updater.Checking ? "正在检查更新…"
-        : (InstallsAutomatically ? "更新会在后台自动下载，并在 SCSKiller 下次启动或退出时安装，绝不打扰使用。"
-            : "更新会在后台自动下载，点击“重启并更新”即可安装。") + " 切换离开尝鲜测试通道将保留当前版本，直至正式稳定版版本号超越该版本。");
         : Wired && Updater.Ready is { } v ? AutoInstall.ReadyNote(v, Updater.InstallsAutomatically)
-        : (InstallsAutomatically ? "Updates download in the background and install the next time SCSKiller starts or quits, never during a compile or a game."
-            : "Updates download in the background, and Restart to update installs them.") + " Leaving an early channel keeps this build until Stable passes it.");
-    // unwired, nothing is downloaded: the next download's channel is the chosen one, as Updater.Channel says then
+        : (InstallsAutomatically ? "更新会在后台自动下载，并在 SCSKiller 下次启动或退出时安装，绝不打扰使用。"
+            : "更新会在后台自动下载，点击“重启以应用更新”即可安装。") + " 切换离开尝鲜测试通道将保留当前版本，直至正式稳定版版本号超越该版本。");
     static bool InstallsAutomatically => Wired ? Updater.InstallsAutomatically : AutoInstall.On(Host.Core.Settings, Chosen);
     public string? UpdateProblem => Updater.Problem;
     public bool HasUpdateProblem => Updater.Problem != null;
