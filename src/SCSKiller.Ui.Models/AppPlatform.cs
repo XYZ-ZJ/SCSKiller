@@ -39,7 +39,7 @@ public sealed record AppPlatform
     public static readonly AppPlatform Windows = new()
     {
         Name = "Windows", Stores = ["Steam", "Epic", "Xbox", "EA", "GOG", "Ubisoft Connect", "Battle.net", "PURPLE", "HoYoPlay", "Gaijin", "Riot Client"],
-        UpdatingStores = "Steam or the Xbox app", SystemTheme = "Use Windows setting", Runtime = "Windows",
+        UpdatingStores = "Steam 或 Xbox 应用", SystemTheme = "跟随系统设置", Runtime = "Windows",
         AddGames = true, StartAtSignIn = true, Tray = true, DriverUpdateModes = true, AutoShaderCompilation = true, SystemShaderCache = true,
         RecordAntiCheatGames = true,
     };

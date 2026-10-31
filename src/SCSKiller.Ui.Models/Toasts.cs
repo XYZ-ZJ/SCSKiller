@@ -33,8 +33,8 @@ public static class Toasts
         var n = SCSKiller.Core.App.NewShaders.Count(games[0]);
         var one = $"{games[0].Game.Name} 有 {n:N0} 个新管线。";
         var (title, text) = compiling
-            ? ("Compiling new shaders", $"{(games.Count == 1 ? one : $"{games.Count} games have new shaders.")} {SCSKiller.Core.App.NewShaders.When(Host.Core.Settings)}")
-            : ("New shaders to compile", games.Count == 1 ? $"{one} Compile now so they don't stutter." : $"{games.Count} games have new shaders to compile");
+            ? ("正在编译新着色器", $"{(games.Count == 1 ? one : $"{games.Count} 款游戏发现了新着色器。")} {SCSKiller.Core.App.NewShaders.When(Host.Core.Settings)}")
+            : ("发现新着色器待编译", games.Count == 1 ? $"{one}立即编译可避免游玩时卡顿。" : $"{games.Count} 款游戏发现了新着色器待编译");
         return new(title, text, [Arg("action", "shaders-show"), Arg("games", ids)],
             [new("立即编译", [Arg("action", "shaders-compile"), Arg("games", ids)]), new("查看", [Arg("action", "shaders-show"), Arg("games", ids)])]);
     }
@@ -42,7 +42,7 @@ public static class Toasts
     /// <summary>An unread news item: its title and the first line of its body. A click opens the bell.</summary>
     public static Toast News(NewsItem item) => new(item.Title, NewsState.FirstLine(item.Body), [Arg("action", "news")], []);
 
-    public static Toast NewsMore(int n) => new("SCSKiller news", NewsState.MoreLine(n), [Arg("action", "news")], []);
+    public static Toast NewsMore(int n) => new("SCSKiller 动态资讯", NewsState.MoreLine(n), [Arg("action", "news")], []);
 
     /// <summary>The close button hid the window to the notification area, the first time ever.</summary>
     public static Toast TrayNotice { get; } = new("SCSKiller 仍在后台运行", "已最小化至系统托盘，右键点击图标可退出程序。",

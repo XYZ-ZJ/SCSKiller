@@ -107,9 +107,6 @@ public sealed class AboutVm : Bindable
     public bool CanCheck => !Updater.Checking && !Updater.Restarting;
     public string UpdateNote => Updater.Downloading is { } d ? $"正在下载 SCSKiller {d}…"
         : Updater.Checking ? "正在检查更新…"
-        : Updater.Problem is { } p ? p
-        : Updater.UpToDateOn is { } c ? UpdateChannels.UpToDate(c, Host.Core.Settings.UpdateChannel)
-        : Updater.Checking ? "Checking for updates…"
         : Wired && Updater.Ready is { } v ? AutoInstall.ReadyNote(v, Updater.InstallsAutomatically)
         : Updater.UpToDateOn is { } c ? UpdateChannels.UpToDate(c, Host.Core.Settings.UpdateChannel, AppVersion.Current.Channel) : "";
     public string? UpdateProblem => Updater.Problem;

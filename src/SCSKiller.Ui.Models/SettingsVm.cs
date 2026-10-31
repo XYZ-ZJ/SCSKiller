@@ -59,7 +59,7 @@ public sealed class SettingsVm : Bindable
     // Mesa's RADV, ANV and NVK: each Steam game's folder, one file with no size limit
     bool Mesa => MesaLinux.Is(V.Caps);
 
-    public static readonly string[] AutoLevels = ["Low", "Medium", "High"];   // AutoShaderCompilation.Low..High, as the NVIDIA App names them
+    public static readonly string[] AutoLevels = ["低", "中", "高"];   // AutoShaderCompilation.Low..High, as the NVIDIA App names them
     public bool? AutoOn { get; set; }
     public int AutoLevelIndex { get; set; } = 1;
     public AutoShaderCompilation AutoChoice => AutoOn == true ? (AutoShaderCompilation)(Math.Clamp(AutoLevelIndex, 0, 2) + 1) : AutoShaderCompilation.Off;
@@ -94,10 +94,10 @@ public sealed class SettingsVm : Bindable
 
     public string CurrentLimit => read == null ? Format.Dash : read.Value.Limit switch
     {
-        null => "Unknown",
-        { Bytes: null } => "Unlimited",
-        { Bytes: 0 } => "Disabled",
-        { Bytes: { } b, IsDriverDefault: var d } => Format.Bytes(b) + (V.Caps.PerGameCacheCap != null ? " per game" : "") + (d ? " (driver default)" : ""),
+        null => "未知",
+        { Bytes: null } => "无限制",
+        { Bytes: 0 } => "已禁用",
+        { Bytes: { } b, IsDriverDefault: var d } => Format.Bytes(b) + (V.Caps.PerGameCacheCap != null ? " / 游戏" : "") + (d ? " (驱动默认)" : ""),
     };
     public string Used => read is { Usage: var u } ? (u.UpperBound ? "≤ " : "") + Format.Bytes(u.BytesOnDisk) : Format.Dash;
     public bool HasAmdUse => amdUsed != null;
@@ -162,8 +162,8 @@ public sealed class SettingsVm : Bindable
     }
     public void GamesChanged() => Changed();   // no driver-cache re-read (Refresh)
     public bool RecordAllGames { get => S.RecordAllGames; set { if (value != S.RecordAllGames) Save(S with { RecordAllGames = value }); } }   // the core reconciles off this thread
-    public string RecordAllGamesNote => "Adds a small d3d12.dll or d3d11.dll to games without anti-cheat to catch shaders the plan missed and time each frame, so the game page "
-        + $"shows what stuttered. Frame times stay on this PC. Never used in games with anti-cheat{(ShowsRecordAntiCheatGames ? " unless you allow it below" : "")}. "
+    public string RecordAllGamesNote => "在无反作弊的游戏中添加小巧的 d3d12.dll 或 d3d11.dll，以捕获编译计划遗漏的着色器并统计每帧耗时，以便在游戏页面直观展示卡顿原因。"
+        + $"帧时间数据仅保留在本机。绝不会用于包含反作弊的游戏{(ShowsRecordAntiCheatGames ? "（除非您在下方明确允许）" : "")}。"
         + "关闭此项将从所有未主动开启录制的游戏中移除录制器。";
     public bool ShowsRecordAntiCheatGames => Host.Platform.RecordAntiCheatGames;
     // where the OS has no risk sessions it reads as off and is never saved: settings.json keeps the user's value
@@ -299,7 +299,7 @@ public sealed class SettingsVm : Bindable
         }
     }
 
-    public IReadOnlyList<string> Themes { get; } = [Host.Platform.SystemTheme, "Light", "Dark"];   // AppTheme.System..Dark
+    public IReadOnlyList<string> Themes { get; } = [Host.Platform.SystemTheme, "浅色", "深色"];   // AppTheme.System..Dark
     public int ThemeIndex
     {
         get => (int)(S.Theme ?? AppTheme.System);
@@ -359,7 +359,7 @@ public sealed class SettingsVm : Bindable
         Changed();
         (ShaderCleanupMessage, ShaderCleanupSeverity) = await KeepShadersAsync(D3DSCache.CleanupKept() != true) switch
         {
-            null => ("Cancelled.", InfoBarSeverity.Informational),
+            null => ("已取消。", InfoBarSeverity.Informational),
             { Ok: true } r => (r.Message, InfoBarSeverity.Success),
             var r => ("未作更改: " + r.Message, InfoBarSeverity.Error),
         };
@@ -386,8 +386,8 @@ public sealed class SettingsVm : Bindable
         var size = limit.IsDriverDefault ? "default" : limit.Bytes is { } b ? (b / (double)(1L << 30)).ToString(System.Globalization.CultureInfo.InvariantCulture) : "unlimited";
         (ApplyMessage, ApplySeverity) = await AsAdminAsync(() => { V.SetCacheLimit(limit); return ""; }, () => ["cache", "set", size, .. RunningGpu]) switch
         {
-            null => ("Cancelled.", InfoBarSeverity.Informational),
-            { Ok: true } => ($"Shader cache limit set to {label}.", InfoBarSeverity.Success),
+            null => ("已取消。", InfoBarSeverity.Informational),
+            { Ok: true } => ($"着色器缓存上限已设置为 {label}。", InfoBarSeverity.Success),
             var r => ("上限未更改: " + r.Message, InfoBarSeverity.Error),
         };
         CanApplyLimit = true;
@@ -420,7 +420,7 @@ public sealed class SettingsVm : Bindable
             if (result is { Ok: false } && Host.Core is ScsKiller k) k.Log?.Report($"Auto Shader Compilation {level}: {result.Message}");
             (AutoMessage, AutoSeverity) = result switch
             {
-                null => ("Cancelled.", InfoBarSeverity.Informational),
+                null => ("已取消。", InfoBarSeverity.Informational),
                 { Ok: true } r => (r.Message is { Length: > 0 } m ? m : NvidiaBackend.AutoShaderOutcome(level, changed: true), InfoBarSeverity.Success),
                 var r => ("应用失败: " + r.Message.Split('\n')[0], InfoBarSeverity.Error),   // NvOSC's full output goes to the log only
             };

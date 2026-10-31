@@ -107,15 +107,22 @@ public static partial class UpdateChannels
     /// <summary>About's channel: the running build's, or the one checked and why.</summary>
     public static string Shown(string? chosen, string buildChannel, IReadOnlyCollection<string>? ent, bool signedIn) =>
         SteppedDown(chosen, buildChannel, ent, signedIn) is { } c
-            ? $"{Shown(c)} ({(signedIn ? "your Patreon membership doesn't include" : "sign in with Patreon for")} {chosen ?? buildChannel} builds)"
+            ? $"{Shown(c)} ({(signedIn ? "您的赞助权限不包含" : "请登录以获取")} {chosen ?? buildChannel} 版本)"
             : Shown(buildChannel);
 
-    public static string Shown(string channel) => char.ToUpperInvariant(channel[0]) + channel[1..] + " channel";
+    public static string Shown(string channel) => channel switch
+    {
+        Stable => "正式稳定版通道",
+        Beta => "Beta 测试通道",
+        Alpha => "Alpha 尝鲜通道",
+        Internal => "内部测试通道",
+        _ => char.ToUpperInvariant(channel[0]) + channel[1..] + " 通道"
+    };
 
     /// <summary>The note after a check of <paramref name="checkedChannel"/> found nothing newer: it names that channel when it
     /// isn't the wanted one.</summary>
     public static string UpToDate(string checkedChannel, string? chosen, string buildChannel) =>
-        checkedChannel == (chosen ?? buildChannel) ? "SCSKiller is up to date." : $"SCSKiller is up to date on the {checkedChannel} channel.";
+        checkedChannel == (chosen ?? buildChannel) ? "SCSKiller 已是最新版本。" : $"SCSKiller 在 {checkedChannel} 通道上已是最新版本。";
 
     /// <summary>A download from the <paramref name="staged"/> channel's feed still installs: it is the feed <see cref="Effective"/>
     /// picks. With the entitlements unknown (null: signed in, but no token read since the start, as at a logon without
@@ -303,8 +310,8 @@ public static class AutoInstall
         && (AppVersion.Parse(staged.Version) is { } v && v.CompareTo(current) > 0 || backToStable && staged.Channel == UpdateChannels.Stable);
 
     public static string ReadyNote(string version, bool auto) => auto
-        ? $"SCSKiller {version} is ready: it installs the next time SCSKiller starts or quits, or use Restart to update at the top."
-        : $"SCSKiller {version} is ready: use Restart to update at the top.";
+        ? $"SCSKiller {version} 已就绪：将在 SCSKiller 下次启动或退出时自动安装，也可点击顶部的“重启以应用更新”。"
+        : $"SCSKiller {version} 已就绪：请点击顶部的“重启以应用更新”进行安装。";
 }
 
 /// <summary>Where updates and their source come from. <see cref="GhRepo"/> is compiled in: renaming the public repo
