@@ -30,7 +30,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Library" Style="{StaticResource TitleTextBlockStyle}" TextLineBounds="TrimToBaseline" VerticalAlignment="Bottom" />
+                        <TextBlock Text="游戏库" Style="{StaticResource TitleTextBlockStyle}" TextLineBounds="TrimToBaseline" VerticalAlignment="Bottom" />
                         <TextBlock Grid.Column="1" Text="{x:Bind Vm.Summary, Mode=OneWay}" Style="{StaticResource Secondary}"
                                    TextLineBounds="TrimToBaseline" VerticalAlignment="Bottom" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
                     </Grid>
@@ -40,19 +40,19 @@
                     <Button AutomationProperties.Name="Refresh" ToolTipService.ToolTip="Re-reads every game's cache size, recordings and status, and finds new games. Shift+click also re-checks every game's engine and anti-cheat (slower)." Click="OnRefresh">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <ProgressRing Width="16" Height="16" IsActive="{x:Bind Vm.Refreshing, Mode=OneWay}" Visibility="{x:Bind Vm.Refreshing, Mode=OneWay}" />
-                            <TextBlock Text="Refresh" />
+                            <TextBlock Text="刷新" />
                         </StackPanel>
                     </Button>
                     <Button AutomationProperties.Name="Add a game" ToolTipService.ToolTip="Add a game no store lists (another launcher, or a game in a folder of its own) by picking its .exe" Click="OnAddGame">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE710;" FontSize="14" />
-                            <TextBlock Text="Add a game…" />
+                            <TextBlock Text="添加游戏…" />
                         </StackPanel>
                     </Button>
                     <DropDownButton AutomationProperties.Name="Game folders" ToolTipService.ToolTip="Folders of games no store lists: SCSKiller looks in them at every scan">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE8B7;" FontSize="14" />
-                            <TextBlock Text="Game folders" />
+                            <TextBlock Text="游戏文件夹" />
                         </StackPanel>
                         <DropDownButton.Flyout>
                             <MenuFlyout x:Name="FoldersMenu" Placement="Bottom" Opening="OnFoldersOpening" />
@@ -98,7 +98,7 @@
             </Grid.ColumnDefinitions>
             <Border Style="{StaticResource Card}">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Shader cache" Style="{StaticResource Secondary}" />
+                    <TextBlock Text="显卡驱动着色器缓存" Style="{StaticResource Secondary}" />
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="{x:Bind Vm.CacheUsed, Mode=OneWay}" Style="{StaticResource Big}" />
                         <TextBlock Text="{x:Bind Vm.CacheLimitText, Mode=OneWay}" Style="{StaticResource Secondary}" VerticalAlignment="Bottom" Margin="0,0,0,3" />
@@ -132,7 +132,7 @@
             </Border>
             <Border Grid.Column="2" Style="{StaticResource Card}">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Compile speed" Style="{StaticResource Secondary}" />
+                    <TextBlock Text="编译速度" Style="{StaticResource Secondary}" />
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="{x:Bind Vm.Threads, Mode=OneWay}" Style="{StaticResource Big}" />
                         <TextBlock Text="{x:Bind Vm.ThreadsOf, Mode=OneWay}" Style="{StaticResource Secondary}" VerticalAlignment="Bottom" Margin="0,0,0,3" />
@@ -162,12 +162,12 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <AutoSuggestBox x:Name="Search" PlaceholderText="Search by name, store or engine" QueryIcon="Find"
+                    <AutoSuggestBox x:Name="Search" PlaceholderText="按名称、平台或引擎搜索" QueryIcon="Find"
                                     TextChanged="OnSearch" KeyDown="OnSearchKey" AutomationProperties.Name="Search games" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                         <ComboBox ItemsSource="{x:Bind local:LibraryVm.ShowLabels}" SelectedIndex="{x:Bind Vm.ShowIndex, Mode=TwoWay}"
                                   MinWidth="200" AutomationProperties.Name="Show games by status" />
-                        <CheckBox Content="Show hidden" IsChecked="{x:Bind Vm.ShowHidden, Mode=TwoWay}" Visibility="{x:Bind Vm.HasHidden, Mode=OneWay}"
+                        <CheckBox Content="显示已隐藏" IsChecked="{x:Bind Vm.ShowHidden, Mode=TwoWay}" Visibility="{x:Bind Vm.HasHidden, Mode=OneWay}"
                                   MinWidth="0" ToolTipService.ToolTip="Games you removed from the library" />
                     </StackPanel>
                     <TextBlock Grid.Column="2" Text="{x:Bind Vm.ShownText, Mode=OneWay}" Visibility="{x:Bind Vm.Filtering, Mode=OneWay}"
@@ -180,7 +180,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="12" MinHeight="32">
                                     <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
                                     <TextBlock Text="{x:Bind Store}" Style="{StaticResource Caption}" VerticalAlignment="Center" />
-                                    <HyperlinkButton Content="Show in library" Click="OnShowGame" Padding="0" VerticalAlignment="Center"
+                                    <HyperlinkButton Content="在库中重新显示" Click="OnShowGame" Padding="0" VerticalAlignment="Center"
                                                      AutomationProperties.Name="{x:Bind ShowName}" />
                                 </StackPanel>
                             </DataTemplate>

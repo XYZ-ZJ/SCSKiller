@@ -1,12 +1,12 @@
-{
-  "title": "Welcome to SCSKiller",
+﻿{
+  "title": "欢迎使用 SCSKiller",
   "paragraphs": [
-    "SCSKiller is free and open source. Everything it does on your PC is free, with no account needed.",
-    "Patreon supporters get access to the community shader hash database and to beta and alpha builds. Patreon pays for the servers that run it.",
-    "Once a day the app can tell our server that an install is active, with its version and GPU vendor and no identifier. This helps us count active installs so we can size our servers. You can turn this on or off in Settings."
+    "SCSKiller 是一款免费且开源的工具。在您电脑上执行的所有本地操作均完全免费，无需登录账户即可使用。",
+    "Patreon 赞助者可访问社区着色器哈希数据库，并提前体验 Beta 与 Alpha 测试版本。Patreon 赞助资金用于维持服务器的日常运转。",
+    "本软件每天可向我们的服务器发送一次安装活跃状态报告（仅包含版本号和 GPU 厂商信息，不含任何个人身份标识符）。这有助于我们统计活跃安装量以合理规划服务器容量。您随时可以在“设置”中开启或关闭此功能。"
   ],
-  "link": { "text": "About supporting SCSKiller", "url": "https://scskiller.com/support" },
-  "share": "Help improve the community shader hash database (shared anonymously)",
-  "signIn": "Sign in with Patreon",
-  "dismiss": "Continue without"
+  "link": { "text": "关于支持 SCSKiller", "url": "https://scskiller.com/support" },
+  "share": "协助完善社区着色器哈希数据库（匿名共享）",
+  "signIn": "使用 Patreon 登录",
+  "dismiss": "暂不登录，直接继续"
 }

@@ -33,7 +33,7 @@
 
     <ScrollViewer x:Name="Scroller">
         <StackPanel Margin="36,28,36,28" Spacing="16">
-            <TextBlock Text="Settings" Classes="Title" />
+            <TextBlock Text="设置" Classes="Title" />
 
             <Border Classes="Card" Padding="20">
                 <StackPanel Spacing="14">
@@ -43,11 +43,11 @@
                     </StackPanel>
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Current limit" Classes="Caption" />
+                            <TextBlock Text="当前上限" Classes="Caption" />
                             <TextBlock Text="{Binding CurrentLimit}" Classes="Section" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="2">
-                            <TextBlock Text="Used now" Classes="Caption" />
+                            <TextBlock Text="当前已用" Classes="Caption" />
                             <TextBlock Text="{Binding Used}" Classes="Section" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="2">
@@ -57,7 +57,7 @@
                     </Grid>
                     <StackPanel Spacing="14" IsVisible="{Binding Configurable, Mode=OneTime}">
                         <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="12">
-                            <TextBlock x:Name="NewLimitLabel" Text="New limit" VerticalAlignment="Center" />
+                            <TextBlock x:Name="NewLimitLabel" Text="新上限" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{x:Static m:SettingsVm.SizeLabels}" MinWidth="220"
                                       SelectedIndex="{Binding SizeIndex, Mode=TwoWay}" AutomationProperties.LabeledBy="{Binding #NewLimitLabel}" />
                             <Button Grid.Column="3" Classes="accent" Click="OnApply" AutomationProperties.Name="Apply (needs administrator)" IsEnabled="{Binding CanApplyLimit}">
@@ -68,7 +68,7 @@
                             </Button>
                         </Grid>
                         <c:InfoBar IsVisible="{Binding HasApplyMessage}" Message="{Binding ApplyMessage}" Severity="{Binding ApplySeverity}" IsClosable="False" />
-                        <TextBlock Text="You can switch back to the driver default here at any time." Classes="Caption" />
+                        <TextBlock Text="您可以随时在此处切换回显卡驱动的默认值。" Classes="Caption" />
                     </StackPanel>
                     <StackPanel Spacing="6" IsVisible="{Binding HasAmdUse}">
                         <TextBlock Text="{Binding AmdUse}" TextWrapping="Wrap" />
@@ -78,8 +78,8 @@
                     <c:InfoBar IsVisible="{Binding HasAmdAlwaysOn}" Severity="Warning" IsClosable="False" Message="{Binding AmdAlwaysOn}" />
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" IsVisible="{Binding IsAmd, Mode=OneTime}">
                         <StackPanel Spacing="2">
-                            <TextBlock Text="Keep compiled caches aside" Classes="BodyStrong" />
-                            <TextBlock Text="Puts a game's compiled cache back after the driver removes it." Classes="Secondary" TextWrapping="Wrap" />
+                            <TextBlock Text="单独保留编译缓存备份" Classes="BodyStrong" />
+                            <TextBlock Text="当显卡驱动清除游戏缓存后，自动放回保留的备份。" Classes="Secondary" TextWrapping="Wrap" />
                             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0" IsVisible="{Binding HasKept}">
                                 <TextBlock Text="{Binding KeptSummary}" VerticalAlignment="Center" TextWrapping="Wrap" />
                                 <Button Content="Manage…" Click="OnManageKept" />
@@ -90,8 +90,8 @@
                     <StackPanel Spacing="8" IsVisible="{Binding ShowsShaderCleanup, Mode=OneTime}">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <StackPanel Spacing="2" VerticalAlignment="Center">
-                                <TextBlock Text="Windows' automatic disk cleanup" Classes="BodyStrong" />
-                                <TextBlock Text="Storage Sense can delete the DirectX shader cache." Classes="Secondary" TextWrapping="Wrap" />
+                                <TextBlock Text="Windows 自动磁盘清理（存储感知）" Classes="BodyStrong" />
+                                <TextBlock Text="存储感知可能会自动删除 DirectX 着色器缓存。" Classes="Secondary" TextWrapping="Wrap" />
                             </StackPanel>
                             <Button Grid.Column="1" Click="OnShaderCleanup" VerticalAlignment="Center" AutomationProperties.Name="{Binding ShaderCleanupAction}" IsEnabled="{Binding CanApplyShaderCleanup}">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -109,8 +109,8 @@
 
                 <Border Classes="Card" Padding="20">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="After a driver update" Classes="Section" />
-                        <TextBlock Text="A new driver throws away every compiled shader, so compiled games stutter again until they are rebuilt."
+                        <TextBlock Text="显卡驱动更新后" Classes="Section" />
+                        <TextBlock Text="安装新驱动会清空所有已编译的着色器，已编译游戏在重新构建前会再次出现卡顿。"
                                    Classes="Secondary" TextWrapping="Wrap" />
                         <StackPanel Classes="Radios" AutomationProperties.Name="When to rebuild" IsVisible="{Binding ShowsDriverModes, Mode=OneTime}">
                             <RadioButton GroupName="DriverMode" AutomationProperties.Name="Ask me"
@@ -131,64 +131,64 @@
                                          IsChecked="{Binding DriverMode, Converter={x:Static ui:Converters.Index}, ConverterParameter=2}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Automatically, right away" />
-                                    <TextBlock Text="Starts at once and pauses while a game runs." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="立即开始，并在游戏运行时自动暂停。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton GroupName="DriverMode" AutomationProperties.Name="Off"
                                          IsChecked="{Binding DriverMode, Converter={x:Static ui:Converters.Index}, ConverterParameter=3}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Off" />
-                                    <TextBlock Text="Rebuild games yourself from the Library." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="由您自行在游戏库中手动重新构建游戏。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                         </StackPanel>
                         <TextBlock Text="{Binding DriverModesNote, Mode=OneTime}" IsVisible="{Binding HasDriverModesNote, Mode=OneTime}" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding LastRebuilt}" Classes="Caption" IsVisible="{Binding HasLastRebuilt}" />
                         <Rectangle Classes="Divider" />
-                        <TextBlock x:Name="NewShadersHeader" Text="When games have new shaders" Classes="Section" />
-                        <TextBlock Text="A compiled game gains pipelines from its recording, the shared shader hashes or an SCSKiller update. Never while you play."
+                        <TextBlock x:Name="NewShadersHeader" Text="当游戏检测到新着色器时" Classes="Section" />
+                        <TextBlock Text="已编译游戏可通过录制、共享着色器哈希或 SCSKiller 更新获取新管线。绝不会在您游玩时后台抢占资源。"
                                    Classes="Secondary" TextWrapping="Wrap" />
                         <StackPanel Classes="Radios" AutomationProperties.Name="When games have new shaders">
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Off"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=0}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Off" />
-                                    <TextBlock Text="Compile games yourself from the Library." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="由您自行在游戏库中手动编译游戏。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Notify me"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=1}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Notify me" />
-                                    <TextBlock Text="A notification offers Compile now. Nothing starts on its own." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="通过系统通知提供“立即编译”选项，不会擅自开始编译。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Compile automatically and notify me"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=2}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Compile automatically and notify me" />
-                                    <TextBlock Text="Compiles while the PC is idle and tells you it's queued." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="在电脑空闲时自动编译，并在加入队列时通知您。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton GroupName="NewShaders" AutomationProperties.Name="Compile automatically, silently"
                                          IsChecked="{Binding NewShadersChoice, Converter={x:Static ui:Converters.Index}, ConverterParameter=3}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="Compile automatically, silently" />
-                                    <TextBlock Text="Compiles while the PC is idle with no notification." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="在电脑空闲时静默自动编译，不发送通知打扰。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </RadioButton>
                         </StackPanel>
                         <CheckBox IsChecked="{Binding NewShadersRightAway, Mode=TwoWay}" AutomationProperties.Name="Compile new shaders right away">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Compile new shaders right away" TextWrapping="Wrap" />
-                                <TextBlock Text="Automatic compiles start when the game exits, not when the PC is idle."
+                                <TextBlock Text="立即编译新着色器" TextWrapping="Wrap" />
+                                <TextBlock Text="退出游戏后立即开始自动编译，而无需等待电脑空闲。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <CheckBox IsChecked="{Binding CompileNewGames, Mode=TwoWay}" AutomationProperties.Name="Compile new games automatically">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Compile new games automatically" TextWrapping="Wrap" />
-                                <TextBlock Text="Games you never compiled compile while the PC is idle, as Add all ready would."
+                                <TextBlock Text="自动编译新发现的游戏" TextWrapping="Wrap" />
+                                <TextBlock Text="从未编译过的游戏将在电脑空闲时自动编译，效果等同于“添加全部就绪”。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
@@ -205,7 +205,7 @@
                                 <CheckBox x:Name="AutoBox" Content="Auto Shader Compilation (NVIDIA beta)" IsChecked="{Binding AutoOn, Mode=TwoWay}" />
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                     <StackPanel>
-                                        <TextBlock Text="System utilization" Classes="Header" />
+                                        <TextBlock Text="系统利用率" Classes="Header" />
                                         <ComboBox ItemsSource="{x:Static m:SettingsVm.AutoLevels}" SelectedIndex="{Binding AutoLevelIndex, Mode=TwoWay}"
                                                   IsEnabled="{Binding #AutoBox.IsChecked}" MinWidth="140" AutomationProperties.Name="System utilization" />
                                     </StackPanel>
@@ -229,27 +229,27 @@
 
                     <Border x:Name="PatreonCard" Classes="Card" Padding="20">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Patreon and community database" Classes="Section" />
+                            <TextBlock Text="Patreon 与社区数据库" Classes="Section" />
                             <!-- the account's part: its DataContext is the page's AccountVm -->
                             <StackPanel x:Name="AccountPart" x:DataType="m:AccountVm" Spacing="12">
                                 <StackPanel Spacing="12" IsVisible="{Binding SignedOut}">
-                                    <TextBlock Text="Patreon supporters get the community shader hash database and beta and alpha builds. Sign in with the Patreon account you support SCSKiller with."
+                                    <TextBlock Text="Patreon 赞助者享有社区着色器哈希数据库以及 Beta / Alpha 尝鲜构建版本。请使用赞助 SCSKiller 的 Patreon 账号登录。"
                                                Classes="Secondary" TextWrapping="Wrap" />
                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <Button Classes="accent" Content="Sign in with Patreon" Click="OnSignIn" IsEnabled="{Binding Idle}" />
+                                        <Button Classes="accent" Content="使用 Patreon 登录" Click="OnSignIn" IsEnabled="{Binding Idle}" />
                                         <Button Content="Cancel" Click="OnCancelSignIn" IsVisible="{Binding SigningIn}" />
                                     </StackPanel>
-                                    <TextBlock Text="Finish signing in in your browser. Nothing else is needed here." Classes="Caption" TextWrapping="Wrap"
+                                    <TextBlock Text="请在浏览器中完成登录操作，此处无需其他操作。" Classes="Caption" TextWrapping="Wrap"
                                                IsVisible="{Binding SigningIn}" />
                                 </StackPanel>
                                 <StackPanel Spacing="12" IsVisible="{Binding SignedIn}">
                                     <StackPanel Spacing="2">
-                                        <TextBlock Text="Signed in with Patreon" />
+                                        <TextBlock Text="已使用 Patreon 登录" />
                                         <TextBlock Text="{Binding Benefits}" Classes="Caption" TextWrapping="Wrap" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <Button Content="Refresh status" Click="OnRefreshAccount" IsEnabled="{Binding Idle}" />
-                                        <Button Content="Sign out" Click="OnSignOut" IsEnabled="{Binding CanSignOut}" />
+                                        <Button Content="刷新状态" Click="OnRefreshAccount" IsEnabled="{Binding Idle}" />
+                                        <Button Content="退出登录" Click="OnSignOut" IsEnabled="{Binding CanSignOut}" />
                                         <c:ProgressRing IsActive="{Binding Busy}" IsVisible="{Binding Busy}" Width="16" Height="16" />
                                     </StackPanel>
                                     <c:InfoBar IsVisible="{Binding OffersSharing}" Severity="Success" IsClosable="False"
@@ -257,8 +257,8 @@
                                                Message="Your game shader hashes are shared anonymously, never linked to your Patreon account.">
                                         <c:InfoBar.ActionButton>
                                             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
-                                                <Button Classes="accent" Content="Share anonymously" Click="OnShare" />
-                                                <Button Content="Not now" Click="OnNotNow" />
+                                                <Button Classes="accent" Content="匿名共享" Click="OnShare" />
+                                                <Button Content="暂不开启" Click="OnNotNow" />
                                             </StackPanel>
                                         </c:InfoBar.ActionButton>
                                     </c:InfoBar>
@@ -267,20 +267,20 @@
                                 <StackPanel Spacing="8" IsVisible="{Binding ShowsUpdates}">
                                     <Rectangle Classes="Divider" />
                                     <StackPanel IsVisible="{Binding ShowsChannels}">
-                                        <TextBlock Text="Update channel" Classes="Header" />
+                                        <TextBlock Text="更新通道" Classes="Header" />
                                         <ComboBox x:Name="ChannelBox" ItemsSource="{Binding ChannelLabels}" SelectedIndex="{Binding ChannelIndex, Mode=OneWay}" SelectionChanged="OnChannelPicked"
                                                   IsEnabled="{Binding CanPickChannel}" MinWidth="260" AutomationProperties.Name="Update channel" />
                                     </StackPanel>
                                     <TextBlock Text="{Binding ChannelNote}" Classes="Caption" TextWrapping="Wrap" />
-                                    <Button Content="Go back to stable now" Click="OnBackToStable" IsEnabled="{Binding CanPickChannel}" IsVisible="{Binding OffersBackToStable}" />
+                                    <Button Content="立即切回稳定正式版" Click="OnBackToStable" IsEnabled="{Binding CanPickChannel}" IsVisible="{Binding OffersBackToStable}" />
                                     <c:InfoBar IsVisible="{Binding HasUpdateProblem}" Message="{Binding UpdateProblem}" Severity="Warning" IsClosable="False" />
                                 </StackPanel>
                                 <Rectangle Classes="Divider" />
                                 <StackPanel Spacing="4">
                                     <CheckBox IsChecked="{Binding UseCommunityDb, Mode=TwoWay}" IsEnabled="{Binding HasDb}" AutomationProperties.Name="Download shared shader hashes">
                                         <StackPanel Spacing="2">
-                                            <TextBlock Text="Download shared shader hashes" TextWrapping="Wrap" />
-                                            <TextBlock Text="Compile your games with hashes other players recorded." Classes="Caption" TextWrapping="Wrap" />
+                                            <TextBlock Text="下载共享着色器哈希" TextWrapping="Wrap" />
+                                            <TextBlock Text="使用其他玩家录制共享的着色器哈希编译您的游戏。" Classes="Caption" TextWrapping="Wrap" />
                                         </StackPanel>
                                     </CheckBox>
                                     <TextBlock Text="{Binding DbNote}" IsVisible="{Binding HasDbNote}" Classes="Caption" TextWrapping="Wrap" Margin="28,0,0,0" />
@@ -288,46 +288,46 @@
                             </StackPanel>
                             <CheckBox IsChecked="{Binding ShareDiagnostics, Mode=TwoWay}" AutomationProperties.Name="Share diagnostics to help fix problems">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Share diagnostics to help fix problems" TextWrapping="Wrap" />
-                                    <TextBlock Text="When a compile fails, send its error codes, once per compile." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="分享诊断数据以协助排查问题" TextWrapping="Wrap" />
+                                    <TextBlock Text="当编译失败时发送错误代码（每次编译仅发送一次）。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
                             <CheckBox IsChecked="{Binding ShareRecordings, Mode=TwoWay}" AutomationProperties.Name="Share anonymous shader hashes">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Share anonymous shader hashes" TextWrapping="Wrap" />
-                                    <TextBlock Text="Share your recorded hashes, GPU model and driver version. Never linked to your account." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="匿名共享着色器哈希" TextWrapping="Wrap" />
+                                    <TextBlock Text="共享您录制的哈希数据、显卡型号与驱动版本。绝不与您的个人账户关联。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
-                            <HyperlinkButton Content="What's shared" NavigateUri="https://scskiller.com/privacy" Padding="0" />
+                            <HyperlinkButton Content="共享数据说明" NavigateUri="https://scskiller.com/privacy" Padding="0" />
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Row="1" Classes="Card" Padding="20">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Compile speed when you run the queue" Classes="Section" />
+                            <TextBlock Text="运行队列时的编译速度" Classes="Section" />
                             <StackPanel Spacing="4" IsVisible="{Binding HasGpuChoices, Mode=OneTime}">
-                                <TextBlock Text="GPU to compile for" Classes="Header" />
+                                <TextBlock Text="用于编译的显卡 (GPU)" Classes="Header" />
                                 <ComboBox ItemsSource="{Binding GpuLabels, Mode=OneTime}" SelectedIndex="{Binding GpuIndex, Mode=TwoWay}"
                                           MinWidth="220" AutomationProperties.Name="GPU to compile for" />
-                                <TextBlock Text="Pick the GPU your games run on. SCSKiller switches to it after a restart."
+                                <TextBlock Text="选择您游戏实际运行所在的显卡。SCSKiller 将在重启后生效。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                             <CheckBox IsChecked="{Binding ExperimentalIntel, Mode=TwoWay}" IsVisible="{Binding HasIntelGpu, Mode=OneTime}"
                                       AutomationProperties.Name="Experimental: compile on Intel GPUs">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Experimental: compile on Intel GPUs" TextWrapping="Wrap" />
-                                    <TextBlock Text="Only measured on Intel Arc. Applies after a restart." Classes="Caption" TextWrapping="Wrap" />
+                                    <TextBlock Text="实验性功能：在 Intel 显卡上编译" TextWrapping="Wrap" />
+                                    <TextBlock Text="目前仅在 Intel Arc 显卡上进行了实测，重启后生效。" Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
                             <Grid>
-                                <TextBlock Text="Compile threads" />
+                                <TextBlock Text="编译线程数" />
                                 <TextBlock Text="{Binding ThreadsText}" HorizontalAlignment="Right" />
                             </Grid>
                             <Slider Minimum="1" Maximum="{Binding MaxThreads, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True"
                                     Value="{Binding Threads, Mode=TwoWay}" AutomationProperties.Name="Compile threads" />
                             <TextBlock Text="{Binding PriorityNote}" Classes="Caption" />
                             <Grid>
-                                <TextBlock Text="Maximum memory for compiling" />
+                                <TextBlock Text="编译最大可用内存" />
                                 <TextBlock Text="{Binding MaxCompileMemoryText}" HorizontalAlignment="Right" />
                             </Grid>
                             <Slider Minimum="0" Maximum="{Binding MaxCompileMemoryMax, Mode=OneTime}" TickFrequency="1" IsSnapToTickEnabled="True"
@@ -336,15 +336,15 @@
                             <Rectangle Classes="Divider" />
                             <CheckBox IsChecked="{Binding MaximumPlans, Mode=TwoWay}" AutomationProperties.Name="Maximum mode: also compile every shader pairing">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Maximum mode: also compile every shader pairing" TextWrapping="Wrap" />
-                                    <TextBlock Text="Seems to help most on AMD. Compiles take longer and use more disk space."
+                                    <TextBlock Text="极限模式：编译每种着色器配对组合" TextWrapping="Wrap" />
+                                    <TextBlock Text="在 AMD 显卡上提升最显著。编译耗时更长且占用更多磁盘空间。"
                                                Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
                             <CheckBox IsChecked="{Binding CompileRayTracing, Mode=TwoWay}" AutomationProperties.Name="Compile ray tracing shaders">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Compile ray tracing shaders" TextWrapping="Wrap" />
-                                    <TextBlock Text="Off: skipped, the game builds them when you turn ray tracing on in it."
+                                    <TextBlock Text="编译光线追踪着色器" TextWrapping="Wrap" />
+                                    <TextBlock Text="关闭后：跳过光追编译，仅在您在游戏中开启光线追踪时由游戏自身实时构建。"
                                                Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
@@ -365,32 +365,32 @@
                         <CheckBox IsChecked="{Binding CloseQuits, Mode=TwoWay}" IsVisible="{Binding ShowsCloseQuits, Mode=OneTime}"
                                   AutomationProperties.Name="Closing the window quits SCSKiller">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Closing the window quits SCSKiller" TextWrapping="Wrap" />
+                                <TextBlock Text="关闭窗口时直接退出程序" TextWrapping="Wrap" />
                                 <TextBlock Text="{Binding CloseQuitsNote}" Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <CheckBox IsChecked="{Binding BeforeAfter, Mode=TwoWay}" AutomationProperties.Name="Before and after recording">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Before and after recording" TextWrapping="Wrap" />
-                                <TextBlock Text="Measure a game cold, compile it, measure it again, and get a report you can share."
+                                <TextBlock Text="编译前后对比测试" TextWrapping="Wrap" />
+                                <TextBlock Text="测试冷启动表现、进行编译、再次测试，并获得可分享的对比报告。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <CheckBox IsChecked="{Binding ScanAtStart, Mode=TwoWay}" AutomationProperties.Name="Scan games when SCSKiller starts">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Scan games when SCSKiller starts" TextWrapping="Wrap" />
+                                <TextBlock Text="SCSKiller 启动时扫描游戏" TextWrapping="Wrap" />
                                 <TextBlock Text="{Binding ScanAtStartNote, Mode=OneTime}" Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <CheckBox IsChecked="{Binding HddMode, Mode=TwoWay}" AutomationProperties.Name="HDD mode">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="HDD mode" TextWrapping="Wrap" />
-                                <TextBlock Text="Reads a game's files only when you open or compile it."
+                                <TextBlock Text="机械硬盘 (HDD) 优化模式" TextWrapping="Wrap" />
+                                <TextBlock Text="仅在您打开游戏详情页或开始编译时才读取游戏文件。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <StackPanel Spacing="2" Margin="28,0,0,0" IsVisible="{Binding ShowsHddDrives}">
-                            <TextBlock Text="Or only for games on these drives:" Classes="Caption" TextWrapping="Wrap" />
+                            <TextBlock Text="或仅对位于以下驱动器盘符的游戏生效：" Classes="Caption" TextWrapping="Wrap" />
                             <ItemsControl ItemsSource="{Binding HddDrives}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="m:HddDriveRow">
@@ -401,8 +401,8 @@
                         </StackPanel>
                         <CheckBox IsChecked="{Binding ActiveCheck, Mode=TwoWay}" AutomationProperties.Name="Send an anonymous daily check">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Send an anonymous daily check" TextWrapping="Wrap" />
-                                <TextBlock Text="Helps us count active installs so we can size our servers. Once a day, the app's version and GPU vendor, no identifier."
+                                <TextBlock Text="发送匿名每日安装活跃检查" TextWrapping="Wrap" />
+                                <TextBlock Text="帮助我们统计活跃安装量以规划服务器容量。每天发送一次，仅含软件版本号和显卡厂商信息，不含个人标识符。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
@@ -418,7 +418,7 @@
                     <StackPanel Spacing="8">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Record in all compatible games" Classes="Section" />
+                                <TextBlock Text="在所有兼容游戏中自动开启录制" Classes="Section" />
                                 <TextBlock Text="{Binding RecordAllGamesNote, Mode=OneTime}" Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding RecordAllGames, Mode=TwoWay}" AutomationProperties.Name="Record in all compatible games" />
@@ -427,8 +427,8 @@
                         <StackPanel Spacing="4" IsVisible="{Binding ShowsRecordAntiCheatGames, Mode=OneTime}">
                             <CheckBox IsChecked="{Binding RecordAntiCheatGames, Mode=TwoWay}" AutomationProperties.Name="Allow the recorder in games with anti-cheat (at your own risk)">
                                 <StackPanel Spacing="2">
-                                    <TextBlock Text="Allow the recorder in games with anti-cheat (at your own risk)" TextWrapping="Wrap" />
-                                    <TextBlock Text="Some games contain anti-cheat that can ban accounts using the recorder. Turn this on to enable it per game, at your own risk. SCSKiller isn't responsible for bans."
+                                    <TextBlock Text="允许在包含反作弊的游戏中启用录制器（风险自负）" TextWrapping="Wrap" />
+                                    <TextBlock Text="部分游戏包含的反作弊系统可能会封禁使用外置录制器的账号。开启此项可在单款游戏页面自行授权启用，一切风险自负。SCSKiller 对账号被封概不负责。"
                                                Classes="Caption" TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox>
@@ -437,7 +437,7 @@
                         <StackPanel Spacing="4" IsVisible="{Binding ShowsTraversal, Mode=OneTime}">
                             <Rectangle Classes="Divider" Margin="0,6" />
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <TextBlock x:Name="TraversalLabel" Text="Traversal stutter fix (experimental)" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                <TextBlock x:Name="TraversalLabel" Text="场景遍历加载卡顿修复 (实验性)" VerticalAlignment="Center" TextWrapping="Wrap" />
                                 <ComboBox Grid.Column="1" ItemsSource="{x:Static m:SettingsVm.TraversalChoices}" MinWidth="140"
                                           SelectedIndex="{Binding TraversalIndex, Mode=TwoWay}" AutomationProperties.LabeledBy="{Binding #TraversalLabel}" />
                             </Grid>
@@ -446,11 +446,11 @@
                         </StackPanel>
                         <Rectangle Classes="Divider" Margin="0,6" />
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <TextBlock x:Name="RecordingLimitLabel" Text="Recording limit per game" VerticalAlignment="Center" />
+                            <TextBlock x:Name="RecordingLimitLabel" Text="单个游戏录制数据上限" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{x:Static m:SettingsVm.RecordingLimitLabels}" MinWidth="140"
                                       SelectedIndex="{Binding RecordingLimitIndex, Mode=TwoWay}" AutomationProperties.LabeledBy="{Binding #RecordingLimitLabel}" />
                         </Grid>
-                        <TextBlock Text="Counts the recording in the game's folder and SCSKiller's copy of it. At the limit the game plays as usual: new pipelines just aren't recorded."
+                        <TextBlock Text="统计游戏目录下的录制文件及 SCSKiller 的本地副本。达到上限后游戏仍可正常运行，仅不再记录新的管线。"
                                    Classes="Caption" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding RecordingSpace}" TextWrapping="Wrap" />
                         <Expander Header="Space by game" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsVisible="{Binding HasRecordings}">
@@ -476,9 +476,9 @@
                         <StackPanel x:Name="RemoveRecordersPart" Spacing="8">
                             <Rectangle Classes="Divider" Margin="0,6" />
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <TextBlock Text="Removes the recorder from every game and quits. Use it before deleting the AppImage."
+                                <TextBlock Text="从所有游戏中移除录制器组件并退出程序。可在卸载前使用。"
                                            Classes="Caption" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                <Button Grid.Column="1" Content="Remove recorders" Click="OnRemoveRecorders" />
+                                <Button Grid.Column="1" Content="移除所有录制器" Click="OnRemoveRecorders" />
                             </Grid>
                         </StackPanel>
                     </StackPanel>

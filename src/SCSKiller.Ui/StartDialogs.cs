@@ -19,7 +19,7 @@ static class StartDialogs
         if (!core.Settings.WelcomeSeen)
         {
             WhatsNew.AtStart(Host.Store, firstRun: true, AppVersion.Current);
-            var fetch = WelcomeContent.FetchAsync();   // at most 3 s, from now rather than from the first show
+            var fetch = Task.FromResult<WelcomeContent?>(WelcomeContent.Default);   // at most 3 s, from now rather than from the first show
             run = async () =>
             {
                 if (await StartFlow.WelcomeAsync(core, () => AskWelcomeAsync(fetch))) App.SignInWithPatreon();
@@ -57,8 +57,8 @@ static class StartDialogs
         foreach (var p in c.Paragraphs) panel.Children.Add(new TextBlock { Text = p, TextWrapping = TextWrapping.Wrap });
         if (c.Link != null) panel.Children.Add(new HyperlinkButton { Content = c.Link.Text, NavigateUri = new Uri(c.Link.Url), Padding = new(0) });
         var share = Box(c.Share);
-        var diagnostics = Box("Share diagnostics to help fix problems");
-        var active = Box("Send an anonymous daily check", "Helps us count active installs so we can size our servers. Once a day, the app's version and GPU vendor, no identifier.");
+        var diagnostics = Box("分享诊断数据以协助排查问题");
+        var active = Box("发送匿名每日活跃检查", "帮助我们统计活跃安装量以规划服务器容量。每天发送一次，仅含软件版本号和显卡厂商信息，不含个人标识符。");
         panel.Children.AddRange([share, diagnostics, active]);
         var dialog = new ContentDialog { Title = c.Title, Content = panel, PrimaryButtonText = c.SignIn, CloseButtonText = c.Dismiss, DefaultButton = ContentDialogButton.Primary };
         return (dialog, result => new(share.IsChecked == true, diagnostics.IsChecked == true, active.IsChecked == true, result == ContentDialogResult.Primary));
@@ -78,7 +78,7 @@ static class StartDialogs
 
     public static ContentDialog ActiveCheckDialog() => new()
     {
-        Title = "Anonymous daily check",
+        Title = "匿名每日活跃检查",
         Content = new StackPanel
         {
             Spacing = 8,
@@ -86,14 +86,14 @@ static class StartDialogs
             {
                 new TextBlock
                 {
-                    Text = "Once a day SCSKiller can tell our server that an install is active, with its version and GPU vendor and no identifier. "
-                        + "This helps us count active installs so we can size our servers. It's off until you turn it on.",
+                    Text = "SCSKiller 每天可以向我们的服务器发送一次匿名状态报告，仅包含软件版本号和显卡厂商信息，不含任何可识别身份的数据。 "
+                        + "这有助于我们统计活跃安装量以合理规划服务器容量。默认保持关闭，除非您主动开启。",
                     TextWrapping = TextWrapping.Wrap,
                 },
-                new TextBlock { Text = "Change it any time in Settings.", TextWrapping = TextWrapping.Wrap, Classes = { "Caption" } },
+                new TextBlock { Text = "您随时可以在“设置”中更改此项。", TextWrapping = TextWrapping.Wrap, Classes = { "Caption" } },
             },
         },
-        PrimaryButtonText = "Turn it on", CloseButtonText = "Keep it off", DefaultButton = ContentDialogButton.None,   // no nudge either way
+        PrimaryButtonText = "开启", CloseButtonText = "保持关闭", DefaultButton = ContentDialogButton.None,   // no nudge either way
     };
 
     static async Task<TraversalMode?> AskTraversalAsync() => await TryShowAsync(TraversalDialog(TraversalFix.LowVram(Host.Core.Vendor.Gpu))) is { } r
@@ -116,8 +116,8 @@ static class StartDialogs
 
     static async Task<bool?> AskDiagnosticsAsync() => await TryShowAsync(new ContentDialog
     {
-        Title = "Share diagnostics to help fix problems?",
-        Content = "When a compile fails, send its error codes, once per compile. You can change this in Settings.",
-        PrimaryButtonText = "Share diagnostics", CloseButtonText = "No thanks", DefaultButton = ContentDialogButton.Close,
+        Title = "分享诊断数据以协助解决问题？",
+        Content = "当编译失败时发送错误代码（每次编译仅发送一次）。您可以在“设置”中更改此项。",
+        PrimaryButtonText = "分享诊断数据", CloseButtonText = "暂不需要", DefaultButton = ContentDialogButton.Close,
     }) is { } r ? r == ContentDialogResult.Primary : null;
 }

@@ -47,11 +47,11 @@ jobs:
 
   build:
     needs: changed
-    if: ${{ !cancelled() && needs.changed.outputs.unchanged != 'yes' && (github.event_name == 'push' && github.ref_type == 'tag' || github.event.repository.private && github.event_name != 'push') }}
+    if: ${{ !cancelled() && needs.changed.outputs.unchanged != 'yes' }}
     # VS 2022 (MSVC x64, MASM, Windows SDK) and CMake: preinstalled on windows-2025, installed on the self-hosted
     # runner. The private repo's Linux steps need WSL's Ubuntu-24.04 with podman and the .NET SDK, which not every
     # self-hosted runner has: SCSK_WSL_RUNNER names the ones that do.
-    runs-on: ${{ vars.SCSK_WSL_RUNNER && fromJSON(vars.SCSK_WSL_RUNNER) || vars.SCSK_RUNNER && fromJSON(vars.SCSK_RUNNER) || 'windows-2025' }}
+    runs-on: windows-2025
     # Windows alone takes 22-35 min with several runners on one PC, then the Linux steps, which take turns in the WSL VM
     # the runners share (ci-linux-package.sh's lock, waited for at most an hour); a hang stops well short of 6 h
     timeout-minutes: 120
@@ -110,6 +110,18 @@ jobs:
           [IO.File]::WriteAllText("$dist\SHA256SUMS-unsigned.txt", ($sums -join "`n") + "`n")   # sha256sum -c format (LF), paths relative to dist/
 
       # the public linux job's input
+      - name: Package Velopack Portable
+        if: ${{ !inputs.filter }}
+        shell: powershell
+        run: |
+          dotnet tool install -g vpk
+          vpk pack -u SCSKiller -v 1.4.3 -p dist/SCSKiller -e SCSKiller.exe -o dist/releases
+          Get-ChildItem dist/releases
+          $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
+          if ($portZip) {
+              Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
+          }
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
         if: ${{ !github.event.repository.private }}
         with:
@@ -159,10 +171,22 @@ jobs:
       # Archived (not archive: false): `gh run download`, which the release step uses, can't read unarchived artifacts.
       # release.yml's draft takes the zip and, from the private repo's runner, the Linux release files (public: the linux
       # job's SCSKiller-linux).
+      - name: Package Velopack Portable
+        if: ${{ !inputs.filter }}
+        shell: powershell
+        run: |
+          dotnet tool install -g vpk
+          vpk pack -u SCSKiller -v 1.4.3 -p dist/SCSKiller -e SCSKiller.exe -o dist/releases
+          Get-ChildItem dist/releases
+          $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
+          if ($portZip) {
+              Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
+          }
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
         if: ${{ github.ref_type == 'tag' && (github.event_name == 'push' || github.event.repository.private) }}   # private: storage is billed, only release tags need it
         with:
-          name: SCSKiller-unsigned
+          name: SCSKiller-Portable
           path: |
             dist/SCSKiller.zip
             dist/SHA256SUMS-unsigned.txt
@@ -226,6 +250,18 @@ jobs:
           echo "SCSKiller --cli --version: $got"
 
       # release.yml's draft takes them and attests them
+      - name: Package Velopack Portable
+        if: ${{ !inputs.filter }}
+        shell: powershell
+        run: |
+          dotnet tool install -g vpk
+          vpk pack -u SCSKiller -v 1.4.3 -p dist/SCSKiller -e SCSKiller.exe -o dist/releases
+          Get-ChildItem dist/releases
+          $portZip = Get-ChildItem dist/releases -Filter "*Portable*.zip" | Select-Object -First 1
+          if ($portZip) {
+              Copy-Item $portZip.FullName dist/SCSKiller-Portable.zip -Force
+          }
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a   # v7.0.1
         with:
           name: SCSKiller-linux

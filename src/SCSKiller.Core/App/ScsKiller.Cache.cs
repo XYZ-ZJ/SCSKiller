@@ -121,7 +121,7 @@ public sealed partial class ScsKiller
     {
         var (own, folders) = AppCache switch
         {
-            NvidiaAppCache nv => (GpuVendor.Nvidia, new List<(string, string, bool)> { ("DirectX 12 and 11", nv.Dir, true) }),
+            NvidiaAppCache nv => (GpuVendor.Nvidia, new List<(string, string, bool)> { ("DirectX 12 与 11", nv.Dir, true) }),
             AmdAppCache amd => (GpuVendor.Amd, [("DirectX 12", amd.DxcDir, true), ("DirectX 11", amd.DxDir, false)]),
             IntelAppCache intel => (GpuVendor.Intel, [("DirectX 12 and 11", intel.Dir, true)]),
             _ => (GpuVendor.Unknown, []),

@@ -207,7 +207,7 @@ public sealed partial class ReportWindow : Window
             {
                 SuggestedFileName = BeforeAfter.ImageName(game), DefaultExtension = "png",
                 SuggestedStartLocation = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Pictures),
-                FileTypeChoices = [new("PNG image") { Patterns = ["*.png"] }],
+                FileTypeChoices = [new("PNG 图片") { Patterns = ["*.png"] }],
             });
             if (file == null) return;
             using (var image = CardImage())
@@ -247,7 +247,7 @@ public sealed partial class ReportWindow : Window
                 return true;
             }
             // Avalonia's clipboard reads the bitmap when an app pastes: it stays undisposed
-            var clipboard = Clipboard ?? throw new InvalidOperationException("No clipboard");
+            var clipboard = Clipboard ?? throw new InvalidOperationException("剪贴板不可用");
             var item = new DataTransferItem();
             if (bitmap != null) item.SetBitmap(bitmap);
             if (text != null) item.Set(DataFormat.Text, text);
@@ -262,17 +262,17 @@ public sealed partial class ReportWindow : Window
 
     async void OnCopy(object? _, RoutedEventArgs __)
     {
-        if (await CopyAsync(image: true, Text())) Tell("Image copied");
+        if (await CopyAsync(image: true, Text())) Tell("图片已复制");
     }
 
     async void OnDiscord(object? _, RoutedEventArgs __)
     {
-        if (await CopyAsync(image: true, Text())) Tell("Image and text copied: paste them in Discord");
+        if (await CopyAsync(image: true, Text())) Tell("图片和文本已复制：可直接粘贴到聊天中");
     }
 
     async void OnCopyText(object? _, RoutedEventArgs __)
     {
-        if (Text() is { } text && await CopyAsync(image: false, text)) Tell("Text copied");
+        if (Text() is { } text && await CopyAsync(image: false, text)) Tell("文本已复制");
     }
 
     // neither composer takes an image from a link: it goes to the clipboard, and a toast over the browser says to paste it
@@ -284,11 +284,11 @@ public sealed partial class ReportWindow : Window
         if (Text() is not { } text || !await CopyAsync(image: true, null)) return;
         try
         {
-            if (!await Launcher.LaunchUriAsync(new Uri(url(text)))) throw new InvalidOperationException("No browser");
+            if (!await Launcher.LaunchUriAsync(new Uri(url(text)))) throw new InvalidOperationException("未找到默认浏览器");
         }
         catch (Exception e) { Tell("Couldn't open the browser: " + BeforeAfterUi.Describe(e), InfoBarSeverity.Error); return; }
         Tell("Paste (Ctrl+V) to add the image", InfoBarSeverity.Informational);
-        App.Hint?.Invoke("The image is copied", "Press Ctrl+V in the post to add it.");
+        App.Hint?.Invoke("图片已复制", "Press Ctrl+V in the post to add it.");
     }
 
     async void OnRecordAgain(object? _, RoutedEventArgs __)

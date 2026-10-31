@@ -13,14 +13,14 @@ public sealed record Notice(string Name, string Version, string Licence, string 
     /// <summary>The SPDX id, or what a LicenseRef / NOASSERTION means in words.</summary>
     public string LicenceName => Licence switch
     {
-        "NOASSERTION" => "No licence stated",
-        _ when Licence.StartsWith("LicenseRef-Microsoft") => "Microsoft licence",
-        _ when Licence.EndsWith("Proprietary") => "Proprietary",
+        "NOASSERTION" => "未声明许可证",
+        _ when Licence.StartsWith("LicenseRef-Microsoft") => "微软专有许可证",
+        _ when Licence.EndsWith("Proprietary") => "专有闭源",
         _ => Licence,
     };
     public string Detail => $"{LicenceName} · {Copyright}";
     public bool HasNote => Note.Length > 0;
-    public string Body => Text.Length > 0 ? Text : "No licence text is published with it.";
+    public string Body => Text.Length > 0 ? Text : "未附带单独的许可证文本。";
 }
 
 public sealed class AboutVm : Bindable
@@ -43,7 +43,7 @@ public sealed class AboutVm : Bindable
             Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true })?.Dispose();
             return;
         }
-        (SourceIdle, SourceStatus) = (false, "Downloading…");
+        (SourceIdle, SourceStatus) = (false, "正在下载源码…");
         Changed();
         try
         {
@@ -55,9 +55,9 @@ public sealed class AboutVm : Bindable
             var file = Path.Combine(DownloadsFolder(), $"SCSKiller-source-{v}.zip");
             await using (var f = File.Create(file + ".partial")) await r.Content.CopyToAsync(f);
             File.Move(file + ".partial", file, overwrite: true);
-            SourceStatus = "Saved to " + file;
+            SourceStatus = "源码已保存至 " + file;
         }
-        catch (Exception e) { SourceStatus = "Couldn't download it: " + e.Message; }
+        catch (Exception e) { SourceStatus = "下载失败: " + e.Message; }
         SourceIdle = true;
         Changed();
     }
@@ -105,7 +105,10 @@ public sealed class AboutVm : Bindable
     public bool UpdatedElsewhere => UpdatesFrom != null;
     public bool ShowsAutoInstall => ShowsCheck && (!Wired || Updater.Channel != UpdateChannels.Internal);
     public bool CanCheck => !Updater.Checking && !Updater.Restarting;
-    public string UpdateNote => Updater.Downloading is { } d ? $"Downloading SCSKiller {d}…"
+    public string UpdateNote => Updater.Downloading is { } d ? $"正在下载 SCSKiller {d}…"
+        : Updater.Checking ? "正在检查更新…"
+        : Updater.Problem is { } p ? p
+        : Updater.UpToDateOn is { } c ? UpdateChannels.UpToDate(c, Host.Core.Settings.UpdateChannel)
         : Updater.Checking ? "Checking for updates…"
         : Wired && Updater.Ready is { } v ? AutoInstall.ReadyNote(v, Updater.InstallsAutomatically)
         : Updater.UpToDateOn is { } c ? UpdateChannels.UpToDate(c, Host.Core.Settings.UpdateChannel, AppVersion.Current.Channel) : "";

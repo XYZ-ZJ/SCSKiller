@@ -21,6 +21,7 @@
     <!-- DISABLE_XAML_GENERATED_MAIN: Program.cs is the entry point (one instance per session). -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <WinAppSdkRuntimeVersion>2.5.1</WinAppSdkRuntimeVersion>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

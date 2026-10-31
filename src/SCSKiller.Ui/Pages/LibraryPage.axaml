@@ -12,7 +12,7 @@
                 <StackPanel Spacing="4">
                     <!-- bottoms on the title's baseline: the summary's margin is the two fonts' descent difference -->
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <TextBlock Text="Library" Classes="Title" VerticalAlignment="Bottom" />
+                        <TextBlock Text="游戏库" Classes="Title" VerticalAlignment="Bottom" />
                         <TextBlock Grid.Column="1" Text="{Binding Summary}" Classes="Secondary" Margin="0,0,0,4"
                                    VerticalAlignment="Bottom" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
                     </Grid>
@@ -21,24 +21,24 @@
                 </StackPanel>
                 <WrapPanel Grid.Row="1" ItemSpacing="12" LineSpacing="12" ItemsAlignment="End">
                     <Button x:Name="RefreshButton" Click="OnRefresh" AutomationProperties.Name="Refresh"
-                            ToolTip.Tip="Re-reads every game's cache size, recordings and status, and finds new games. Shift+click also re-checks every game's engine and anti-cheat (slower).">
+                            ToolTip.Tip="重新读取每款游戏的缓存大小、录制数据和状态，并检测新游戏。按住 Shift 点击可深度重新检查每款游戏的引擎与反作弊信息（较慢）。">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <c:ProgressRing Width="16" Height="16" IsActive="{Binding Refreshing}" IsVisible="{Binding Refreshing}" />
-                            <TextBlock Text="Refresh" />
+                            <TextBlock Text="刷新" />
                         </StackPanel>
                     </Button>
-                    <Button AutomationProperties.Name="Add a game" Click="OnAddGame" IsVisible="{Binding CanAddGames, Mode=OneTime}"
-                            ToolTip.Tip="Add a game no store lists (another launcher, or a game in a folder of its own) by picking its .exe">
+                    <Button AutomationProperties.Name="添加游戏" Click="OnAddGame" IsVisible="{Binding CanAddGames, Mode=OneTime}"
+                            ToolTip.Tip="通过选择 .exe 文件添加未被平台商店列出的游戏（其他启动器或独立文件夹中的游戏）">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Add}" FontSize="14" VerticalAlignment="Center" />
-                            <TextBlock Text="Add a game…" />
+                            <TextBlock Text="添加游戏…" />
                         </StackPanel>
                     </Button>
-                    <DropDownButton x:Name="FoldersButton" AutomationProperties.Name="Game folders" ToolTip.Tip="Folders of games no store lists: SCSKiller looks in them at every scan"
+                    <DropDownButton x:Name="FoldersButton" AutomationProperties.Name="游戏文件夹" ToolTip.Tip="商店未列出游戏的文件夹目录：SCSKiller 每次扫描均会检查它们"
                                     IsVisible="{Binding CanAddGames, Mode=OneTime}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Folder}" FontSize="14" VerticalAlignment="Center" />
-                            <TextBlock Text="Game folders" />
+                            <TextBlock Text="游戏文件夹" />
                         </StackPanel>
                         <DropDownButton.Flyout>
                             <MenuFlyout Placement="Bottom" Opening="OnFoldersOpening" />
@@ -46,7 +46,7 @@
                     </DropDownButton>
                     <Button Content="{Binding AddAllText}" Click="OnAddAll" IsEnabled="{Binding CanAddAll}" />
                     <Panel>
-                        <Button ToolTip.Tip="Queue every game that stutters without a compile and is ready for one" Click="OnAddRecommended"
+                        <Button ToolTip.Tip="将所有未经编译即会出现卡顿且已准备就绪的游戏加入编译队列" Click="OnAddRecommended"
                                 IsVisible="{Binding CanAddRecommended}" BorderBrush="{DynamicResource AccentFillColorDefaultBrush}" BorderThickness="1.5"
                                 AutomationProperties.Name="{Binding AddRecommendedText}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -79,7 +79,7 @@
             <Border Classes="Card" Padding="16,8">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                     <WrapPanel ItemSpacing="12" LineSpacing="2">
-                        <TextBlock Text="Shader cache" Classes="Caption" VerticalAlignment="Center" />
+                        <TextBlock Text="显卡驱动着色器缓存" Classes="Caption" VerticalAlignment="Center" />
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4" IsVisible="{Binding CacheWarn}">
                             <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Warning}" FontSize="12" Foreground="{DynamicResource WarnBrush}" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="1" Text="{Binding CacheWarnText}" Classes="CaptionText" Foreground="{DynamicResource WarnBrush}"
@@ -87,7 +87,7 @@
                         </Grid>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding HasOldDriver}">
                             <TextBlock Text="{Binding OldDriverNote}" Classes="Caption" TextWrapping="Wrap" VerticalAlignment="Center" />
-                            <HyperlinkButton Grid.Column="1" Content="Free it" Padding="0" FontSize="12" Click="OnCache" VerticalAlignment="Center"
+                            <HyperlinkButton Grid.Column="1" Content="立即释放" Padding="0" FontSize="12" Click="OnCache" VerticalAlignment="Center"
                                              AutomationProperties.Name="Free the cache the new driver no longer uses" />
                         </Grid>
                     </WrapPanel>
@@ -98,7 +98,7 @@
             </Border>
             <Border Grid.Column="1" Classes="Card" Padding="16,8">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="2">
-                    <TextBlock Text="Compile speed" Classes="Caption" />
+                    <TextBlock Text="编译速度" Classes="Caption" />
                     <HyperlinkButton Grid.Column="1" Content="Change" Padding="0" FontSize="12" Click="OnSettings" AutomationProperties.Name="Change compile speed" />
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="{Binding Threads}" Classes="BodyStrong" />
@@ -112,7 +112,7 @@
             <Grid RowDefinitions="Auto,40,*">
                 <!-- Search: filters as you type (name, store or engine); Esc or the clear button resets it. -->
                 <Grid Margin="20,14,20,4" ColumnDefinitions="320,Auto,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="12">
-                    <TextBox x:Name="Search" PlaceholderText="Search by name, store or engine" TextChanged="OnSearch" KeyDown="OnSearchKey"
+                    <TextBox x:Name="Search" PlaceholderText="按名称、平台或引擎搜索" TextChanged="OnSearch" KeyDown="OnSearchKey"
                              AutomationProperties.Name="Search games">
                         <TextBox.Styles>
                             <Style Selector="TextBox#Search Button.Clear">
@@ -136,7 +136,7 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                         <ComboBox ItemsSource="{x:Static m:LibraryVm.ShowLabels}" SelectedIndex="{Binding ShowIndex, Mode=TwoWay}"
                                   MinWidth="200" AutomationProperties.Name="Show games by status" />
-                        <CheckBox Content="Show hidden" IsChecked="{Binding ShowHidden, Mode=TwoWay}" IsVisible="{Binding HasHidden}"
+                        <CheckBox Content="显示已隐藏" IsChecked="{Binding ShowHidden, Mode=TwoWay}" IsVisible="{Binding HasHidden}"
                                   MinWidth="0" ToolTip.Tip="Games you removed from the library" />
                     </StackPanel>
                     <TextBlock Grid.Column="2" Text="{Binding ShownText}" IsVisible="{Binding Filtering}" Classes="Caption" VerticalAlignment="Center" />
@@ -148,7 +148,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="12" MinHeight="32">
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding Store}" Classes="Caption" VerticalAlignment="Center" />
-                                    <HyperlinkButton Content="Show in library" Click="OnShowGame" Padding="0" VerticalAlignment="Center"
+                                    <HyperlinkButton Content="在库中重新显示" Click="OnShowGame" Padding="0" VerticalAlignment="Center"
                                                      AutomationProperties.Name="{Binding ShowName}" />
                                 </StackPanel>
                             </DataTemplate>

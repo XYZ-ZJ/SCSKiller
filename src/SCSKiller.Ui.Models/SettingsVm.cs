@@ -10,7 +10,7 @@ public sealed class SettingsVm : Bindable
     public static readonly (string Label, CacheLimit Limit)[] Sizes =
     [
         ("512 MB", new(512L << 20, false)), ("1 GB", new(1L << 30, false)), ("4 GB", new(4L << 30, false)), ("5 GB", new(5L << 30, false)),
-        ("10 GB", new(10L << 30, false)), ("12 GB", new(12L << 30, false)), ("16 GB (driver default)", new(16L << 30, true)), ("24 GB", new(24L << 30, false)),
+        ("10 GB", new(10L << 30, false)), ("12 GB", new(12L << 30, false)), ("16 GB (驱动默认值)", new(16L << 30, true)), ("24 GB", new(24L << 30, false)),
         ("32 GB", new(32L << 30, false)), ("48 GB", new(48L << 30, false)), ("64 GB", new(64L << 30, false)), ("100 GB", new(100L << 30, false)),
         ("Unlimited", new(null, false)),
     ];
@@ -65,18 +65,18 @@ public sealed class SettingsVm : Bindable
     public AutoShaderCompilation AutoChoice => AutoOn == true ? (AutoShaderCompilation)(Math.Clamp(AutoLevelIndex, 0, 2) + 1) : AutoShaderCompilation.Off;
     public string AutoShaderText => read == null ? Format.Dash : read.Value.Auto switch
     {
-        null => "Couldn't read the setting",
-        { Level: AutoShaderCompilation.Off } => "Now: Off",
+        null => "无法读取该设置",
+        { Level: AutoShaderCompilation.Off } => "当前: 关闭",
         { TaskReady: true, Level: var l } => $"Now: On, {l}",
-        _ => "Setting on but the NVIDIA task isn't set up: click Apply to repair",
+        _ => "设置已开启但 NVIDIA 任务未就绪：点击“应用”进行修复",
     };
     public string? AutoMessage { get; set; }
     public InfoBarSeverity AutoSeverity { get; set; }
     public bool HasAutoMessage => AutoMessage != null;
     public string CacheIntro => Mesa ? "Each game has a cache of its own, in Steam's shader cache folder."
         : V.Caps.PerGameCacheCap != null ? "Each game has a cache of its own. When it's full the driver deletes that game's older files, and it stutters again."
-        : (IsNvidia ? "Global driver setting, the same one as NVIDIA App › Graphics › Shader Cache Size. " : "Global driver setting. ")
-        + (KeptOn ? "When the cache is full the driver deletes older entries. Kept games are put back." : "When the cache is full the driver deletes older entries, and those games stutter again.");
+        : (IsNvidia ? "全局显卡驱动设置，与 NVIDIA App › 图形 › 着色器缓存大小 相同。" : "全局显卡驱动设置。 ")
+        + (KeptOn ? "当缓存满时，驱动会自动删除较旧的条目。被保留备份的游戏会自动放回。" : "当缓存满时，驱动会自动删除较旧的条目，这些游戏将再次出现卡顿。");
     public bool Configurable => V.Caps.CacheSizeConfigurable;
     public bool NotConfigurable => !Configurable;
     public string? AmdAlwaysOn => ScsKiller.AmdAlwaysOnLine(V);
@@ -140,7 +140,7 @@ public sealed class SettingsVm : Bindable
             if (value < 0 || value == DriverMode) return;
             Save(DriverUpdateChoice.With(S, value));
             try { Host.Core.ApplyDriverUpdateMode(); }  // user action: registers or removes the sign-in check
-            catch (Exception e) { ApplyMessage = "Couldn't update the sign-in check: " + e.Message; ApplySeverity = InfoBarSeverity.Error; Changed(); }
+            catch (Exception e) { ApplyMessage = "无法更新登录检查状态: " + e.Message; ApplySeverity = InfoBarSeverity.Error; Changed(); }
         }
     }
     public bool? PauseWhileGaming { get => S.PauseWhileGaming; set { if (value is { } v && v != S.PauseWhileGaming) Save(S with { PauseWhileGaming = v }); } }
@@ -164,7 +164,7 @@ public sealed class SettingsVm : Bindable
     public bool RecordAllGames { get => S.RecordAllGames; set { if (value != S.RecordAllGames) Save(S with { RecordAllGames = value }); } }   // the core reconciles off this thread
     public string RecordAllGamesNote => "Adds a small d3d12.dll or d3d11.dll to games without anti-cheat to catch shaders the plan missed and time each frame, so the game page "
         + $"shows what stuttered. Frame times stay on this PC. Never used in games with anti-cheat{(ShowsRecordAntiCheatGames ? " unless you allow it below" : "")}. "
-        + "Switch off to remove it from every game you haven't turned it on for yourself.";
+        + "关闭此项将从所有未主动开启录制的游戏中移除录制器。";
     public bool ShowsRecordAntiCheatGames => Host.Platform.RecordAntiCheatGames;
     // where the OS has no risk sessions it reads as off and is never saved: settings.json keeps the user's value
     public bool? RecordAntiCheatGames
@@ -209,7 +209,7 @@ public sealed class SettingsVm : Bindable
         .Select(g => new DetailRow(g.Game.Name, Format.Bytes(g.RecordingBytes), g.RecordingPaused ? ScsKiller.PausedNote(S) : null)).ToList();
     public bool HasRecordings => Host.Core.Games.Any(g => g.RecordingBytes > 0);
     public string RecordingSpace => Host.Core.Games.Where(g => g.RecordingBytes > 0).ToList() is { Count: > 0 } r
-        ? $"Recordings use {Format.Bytes(r.Sum(g => g.RecordingBytes))} in {r.Count} game{(r.Count == 1 ? "" : "s")}" : "No recordings on disk";
+        ? $"Recordings use {Format.Bytes(r.Sum(g => g.RecordingBytes))} in {r.Count} game{(r.Count == 1 ? "" : "s")}" : "磁盘上暂无录制数据";
     public bool ShowsStartAtSignIn => Host.Platform.StartAtSignIn;
     /// <summary>The entry as read back where it can be (<see cref="Host.StartsAtSignIn"/>), else the setting.</summary>
     public bool? StartWithWindows
@@ -227,14 +227,14 @@ public sealed class SettingsVm : Bindable
         try { await Host.StartWithWindowsChanged(); }
         finally { Changed(nameof(StartWithWindows)); }
     }
-    public static string StartText { get; } = OperatingSystem.IsWindows() ? "Start SCSKiller when Windows starts" : "Start when you sign in";
-    public static string StartNote { get; } = OperatingSystem.IsWindows() ? "It waits in the notification area, next to the clock, to offer a rebuild after a driver update."
+    public static string StartText { get; } = OperatingSystem.IsWindows() ? "开机时自动启动 SCSKiller" : "登录系统时自动启动";
+    public static string StartNote { get; } = OperatingSystem.IsWindows() ? "软件常驻于任务栏托盘区域，以便在驱动更新后及时提醒您重新构建缓存。"
         : "It waits in the background to offer a rebuild after a driver update.";
     // no sign-in task on Linux: the running app notifies
-    public static string AskNote { get; } = OperatingSystem.IsWindows() ? "A notification offers Compile now, When idle, or Skip. Nothing starts on its own."
-        : "While SCSKiller runs, a notification offers Compile now, When idle, or Skip.";
+    public static string AskNote { get; } = OperatingSystem.IsWindows() ? "通过系统通知提供“立即编译”、“空闲时编译”或“跳过”选项，不会擅自开始编译。"
+        : "运行期间将通过通知提供“立即编译”、“空闲时编译”或“跳过”选项。";
     // Linux has no input idle time: the background compile starts at once and pauses only for a game
-    public static string WhenIdleNote { get; } = OperatingSystem.IsWindows() ? "Stops the moment you touch the mouse or keyboard and picks up where it left off."
+    public static string WhenIdleNote { get; } = OperatingSystem.IsWindows() ? "一旦检测到鼠标或键盘操作立即暂停，并在再次空闲时自动继续。"
         : "Rebuilds in the background and pauses while a game runs.";
     public bool? BeforeAfter { get => S.BeforeAfter; set { if (value is { } v && v != S.BeforeAfter) Save(S with { BeforeAfter = v }); } }
     public int NewShadersChoice
@@ -248,7 +248,7 @@ public sealed class SettingsVm : Bindable
         }
     }
     public bool? NewShadersRightAway { get => S.NewShadersRightAway; set { if (value is { } v && v != S.NewShadersRightAway) Save(S with { NewShadersRightAway = v }); } }
-    public string ScanAtStartNote => "Reads again what changed in each game's folders. Off: the last list shows, and a game is read again when you refresh, "
+    public string ScanAtStartNote => "重新扫描各游戏目录的变动。关闭后：显示上次列表，仅在手动刷新时重新读取。 "
         + $"when it exits, or when {Host.Platform.UpdatingStores} updates it.";
     public bool? ScanAtStart { get => S.ScanAtStart; set { if (value is { } v && v != S.ScanAtStart) Save(S with { ScanAtStart = v }); } }
     public bool? HddMode { get => S.HddMode; set { if (value is { } v && v != S.HddMode) Save(S with { HddMode = v }); } }
@@ -268,8 +268,8 @@ public sealed class SettingsVm : Bindable
     public bool ShowsCloseQuits => Host.Platform.Tray;
     public bool? CloseQuits { get => S.CloseQuits; set { if (value is { } v && v != S.CloseQuits) Save(S with { CloseQuits = v }); } }
     public string CloseQuitsNote => Host.Tray.Shown
-        ? "A running compile finishes saving first, like Quit in the notification area. Off: closing the window keeps SCSKiller in the tray. Right-click its icon to quit."
-        : "No tray icon on this desktop, so closing the window quits.";
+        ? "正在运行的编译将先安全保存缓存后退出。关闭后：点击窗口关闭按钮将最小化至托盘。右键点击托盘图标可彻底退出。"
+        : "当前桌面环境无系统托盘，关闭窗口将直接退出程序。";
 
     /// <summary>While the page is shown: the close note follows the tray host as it comes and goes.</summary>
     public void Watch(bool on)
@@ -320,7 +320,7 @@ public sealed class SettingsVm : Bindable
     public string MaxCompileMemoryNote => $"Auto picks the best limit for this PC's memory ({ScsKiller.AutoCompileMemoryGB()} GB here, with {ScsKiller.RamGB()} GB of RAM). Set it lower to keep more memory free while compiling, higher to compile faster.";
     public double MaxCompileMemoryMax => ScsKiller.MaxCompileMemoryGB(GC.GetGCMemoryInfo().TotalAvailableMemoryBytes);
     public string MaxCompileMemoryText => S.MaxCompileMemoryGB > 0 ? $"{S.MaxCompileMemoryGB} GB" : $"Auto ({ScsKiller.AutoCompileMemoryGB()} GB)";
-    public string PriorityNote => (S.Priority == WarmPriority.BelowNormal ? "Below-normal priority." : "Idle priority.") + " Fewer threads = slower compile, quieter PC.";
+    public string PriorityNote => (S.Priority == WarmPriority.BelowNormal ? "低于正常优先级。" : "空闲优先级。") + " 较少线程 = 编译稍慢，电脑更安静。";
 
     /// <summary>A Yes/No question before an admin-only change: title, text, the Yes button's text.</summary>
     public delegate Task<bool> Confirm(string title, string text, string yes);
@@ -344,10 +344,10 @@ public sealed class SettingsVm : Bindable
     /// <summary>Keeps Windows' automatic disk cleanup from clearing compiled shaders, or allows it again, behind one UAC
     /// prompt. A design window writes nothing. Null = the user cancelled the prompt.</summary>
     public static Task<Elevated.Result?> KeepShadersAsync(bool keep) =>
-        AsAdminAsync(() => Host.Design != null ? "Design data: nothing changed." : D3DSCache.KeepFromCleanup(keep), () => ["shader-cleanup", keep ? "keep" : "allow"]);
+        AsAdminAsync(() => Host.Design != null ? "设计时示例数据：未做更改。" : D3DSCache.KeepFromCleanup(keep), () => ["shader-cleanup", keep ? "keep" : "allow"]);
 
     public bool ShowsShaderCleanup => D3DSCache.CleanupKept() != null;
-    public string ShaderCleanupAction => D3DSCache.CleanupKept() == true ? "Let Windows clear them again" : "Keep Windows from clearing compiled shaders";
+    public string ShaderCleanupAction => D3DSCache.CleanupKept() == true ? "恢复允许 Windows 自动清理" : "阻止 Windows 自动清理已编译着色器";
     public bool CanApplyShaderCleanup { get; private set; } = true;
     public string? ShaderCleanupMessage { get; set; }
     public InfoBarSeverity ShaderCleanupSeverity { get; set; }
@@ -361,7 +361,7 @@ public sealed class SettingsVm : Bindable
         {
             null => ("Cancelled.", InfoBarSeverity.Informational),
             { Ok: true } r => (r.Message, InfoBarSeverity.Success),
-            var r => ("Not changed: " + r.Message, InfoBarSeverity.Error),
+            var r => ("未作更改: " + r.Message, InfoBarSeverity.Error),
         };
         CanApplyShaderCleanup = true;
         Changed();
@@ -377,9 +377,9 @@ public sealed class SettingsVm : Bindable
         if (!await confirm($"Set the shader cache limit to {label}?",
                 $"This is a global {Fmt.Vendor(V.Vendor)} driver setting: it applies to every game on this PC, not only the ones SCSKiller compiles, " +
                 "and stays until you change it. Windows will ask for administrator permission.\n\n" +
-                "Raising it deletes nothing. Lowering it below what is used now makes the driver delete older entries, and those games stutter again. " +
-                "You can switch back to the driver default here at any time.",
-                "Change limit")) return;
+                "调大上限不会删除任何内容。若调低至低于当前使用量，驱动将清理旧条目，这些游戏会再次出现卡顿。 " +
+                "您可以随时在此处切换回显卡驱动的默认值。",
+                "修改上限")) return;
 
         CanApplyLimit = false;
         Changed();
@@ -388,7 +388,7 @@ public sealed class SettingsVm : Bindable
         {
             null => ("Cancelled.", InfoBarSeverity.Informational),
             { Ok: true } => ($"Shader cache limit set to {label}.", InfoBarSeverity.Success),
-            var r => ("The limit was not changed: " + r.Message, InfoBarSeverity.Error),
+            var r => ("上限未更改: " + r.Message, InfoBarSeverity.Error),
         };
         CanApplyLimit = true;
         Refresh();
@@ -411,8 +411,8 @@ public sealed class SettingsVm : Bindable
                 (AutoMessage, AutoSeverity) = (NvidiaBackend.AutoShaderOutcome(level, changed: false), InfoBarSeverity.Success);
                 return;
             }
-            if (!await confirm(level == AutoShaderCompilation.Off ? "Turn off NVIDIA Auto Shader Compilation?" : $"Turn on NVIDIA Auto Shader Compilation ({level})?",
-                    "Auto Shader Compilation is a beta feature by NVIDIA®.", level == AutoShaderCompilation.Off ? "Turn off" : "Turn on")) return;
+            if (!await confirm(level == AutoShaderCompilation.Off ? "关闭 NVIDIA 自动着色器编译？" : $"Turn on NVIDIA Auto Shader Compilation ({level})?",
+                    "Auto Shader Compilation is a beta feature by NVIDIA®.", level == AutoShaderCompilation.Off ? "关闭" : "开启")) return;
 
             // --for-user: the elevated CLI refuses when UAC elevated another administrator (NvOSC would register the task for them).
             var result = await AsAdminAsync(() => V.SetAutoShaderCompilation(level),
@@ -422,7 +422,7 @@ public sealed class SettingsVm : Bindable
             {
                 null => ("Cancelled.", InfoBarSeverity.Informational),
                 { Ok: true } r => (r.Message is { Length: > 0 } m ? m : NvidiaBackend.AutoShaderOutcome(level, changed: true), InfoBarSeverity.Success),
-                var r => ("Couldn't apply: " + r.Message.Split('\n')[0], InfoBarSeverity.Error),   // NvOSC's full output goes to the log only
+                var r => ("应用失败: " + r.Message.Split('\n')[0], InfoBarSeverity.Error),   // NvOSC's full output goes to the log only
             };
         }
         finally

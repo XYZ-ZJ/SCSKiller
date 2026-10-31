@@ -30,13 +30,13 @@ static class GameFolderDialog
                 Spacing = 4, MaxWidth = 520,
                 Children =
                 {
-                    new TextBlock { TextWrapping = TextWrapping.Wrap, Text = "Before it records, SCSKiller checks the whole game folder for anti-cheat. "
-                        + "Pick the game's own folder, not one that holds other games." },
+                    new TextBlock { TextWrapping = TextWrapping.Wrap, Text = "在开始录制前，SCSKiller 需要扫描整个游戏文件夹以检测反作弊组件。 "
+                        + "请选择该游戏自身的独立文件夹，不要选择包含其他游戏的主目录。" },
                     Label("Game"),
                     new TextBlock { Text = game.Name, TextWrapping = TextWrapping.Wrap },
-                    Label("Program (the recorder goes next to it)"),
+                    Label("游戏主程序（录制器将置于其旁）"),
                     new SelectableTextBlock { Text = game.ExePath, TextWrapping = TextWrapping.Wrap },
-                    Label("Game folder"),
+                    Label("游戏文件夹"),
                     row,
                     problem,
                 },
@@ -56,7 +56,7 @@ static class GameFolderDialog
         {
             try
             {
-                if ((await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "Use this folder" })).FirstOrDefault()?.TryGetLocalPath() is { } picked) folder = picked;
+                if ((await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "使用此文件夹" })).FirstOrDefault()?.TryGetLocalPath() is { } picked) folder = picked;
             }
             catch (Exception e)
             {

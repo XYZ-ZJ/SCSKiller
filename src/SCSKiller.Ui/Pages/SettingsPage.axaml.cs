@@ -90,19 +90,19 @@ public sealed partial class SettingsPage : UserControl
     // Stands in for the website's recorder-anti-cheat page until it exists.
     public static ContentDialog AntiCheatDetailsDialog() => new()
     {
-        Title = "Recording in games with anti-cheat", CloseButtonText = "Close",
+        Title = "在包含反作弊的游戏中录制", CloseButtonText = "Close",
         Content = "For one session, SCSKiller puts its recorder (a d3d12.dll) next to the game's exe.\n\n"
             + "Games with anti-cheat can treat the recorder as cheating and ban your account, during the session or later. No game is known to be safe.\n\n"
             + "SCSKiller removes every file it places when the game exits, or after a crash at your next logon.\n\n"
-            + "Enabling the recorder in these games is at your own risk. SCSKiller isn't responsible for bans.",
+            + "在这些游戏中启用录制器一切后果自负。SCSKiller 对账号被封锁概不负责。",
     };
 
     async void OnAntiCheatDetails(object? _, RoutedEventArgs __) => await App.ShowAsync(AntiCheatDetailsDialog());
 
     async void OnRemoveRecorders(object? _, RoutedEventArgs __)
     {
-        if (Host.Core is not ScsKiller real || !await App.ConfirmAsync("Remove recorders?",
-                "SCSKiller removes its recorder from every game, then quits. Close your games first: a game that's running keeps its recorder. Recording resumes when SCSKiller starts again.", "Remove and quit")) return;
+        if (Host.Core is not ScsKiller real || !await App.ConfirmAsync("移除所有录制器？",
+                "SCSKiller 将从所有游戏中移除其录制器组件，然后退出程序。请先关闭正在运行的游戏。重新启动 SCSKiller 时将恢复录制。", "移除并退出")) return;
         var removed = await Task.Run(real.RemoveRecorders);
         string[] left = [.. removed.Games.Where(r => r.Left != null).Select(r => $"{real.Games.FirstOrDefault(s => s.Game.Id == r.GameId)?.Game.Name ?? r.Folder}: {r.Left}"),
             .. removed.VulkanLeft is { } vulkan ? [$"Vulkan recorders' registrations: {vulkan}"] : Array.Empty<string>()];
@@ -114,7 +114,7 @@ public sealed partial class SettingsPage : UserControl
         // SCSKiller stays open, so the user can remove them again once a game is closed
         await App.ShowAsync(new ContentDialog
         {
-            Title = "Some recorders are still in place",
+            Title = "部分录制器仍未移除",
             Content = new TextBlock { Text = string.Join("\n", left) + "\n\nClose any game named here, then select Remove recorders again.", TextWrapping = TextWrapping.Wrap },
             CloseButtonText = "OK",
         });
@@ -144,13 +144,13 @@ public sealed partial class SettingsPage : UserControl
         }
         return new()
         {
-            Title = "Kept aside", CloseButtonText = "Close",
+            Title = "单独保留的备份", CloseButtonText = "Close",
             Content = new StackPanel
             {
                 Spacing = 14, MinWidth = 420,
                 Children =
                 {
-                    new TextBlock { Text = "Removing frees the space. The game is kept again after its next compile.", TextWrapping = TextWrapping.Wrap },
+                    new TextBlock { Text = "移除可释放该空间。游戏在下次编译后将重新进行保留备份。", TextWrapping = TextWrapping.Wrap },
                     new ScrollViewer { MaxHeight = 360, Content = rows },
                 },
             },

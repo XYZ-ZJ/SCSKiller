@@ -32,37 +32,37 @@
 
     <ScrollViewer x:Name="Scroller">
         <StackPanel Margin="36,28,36,28" Spacing="16">
-            <TextBlock Text="About" Classes="Title" />
+            <TextBlock Text="关于" Classes="Title" />
 
             <Border Classes="Card" Padding="20">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <TextBlock Classes="Icon" Text="{x:Static ui:Glyphs.Bolt}" FontSize="36" VerticalAlignment="Top" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
                     <StackPanel Grid.Column="1" Spacing="4">
                         <TextBlock Text="SCSKiller" Classes="Section" FontSize="20" />
-                        <TextBlock Text="Shader Compilation Stutter Killer" Classes="Secondary" />
+                        <TextBlock Text="着色器编译卡顿消除器" Classes="Secondary" />
                         <SelectableTextBlock Text="{Binding Version}" Classes="Caption" />
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0" IsVisible="{Binding ShowsCheck}">
-                            <Button Content="Check for updates" Click="OnCheckForUpdates" IsEnabled="{Binding CanCheck}" />
+                            <Button Content="检查更新" Click="OnCheckForUpdates" IsEnabled="{Binding CanCheck}" />
                             <TextBlock Text="{Binding UpdateNote}" Classes="Caption" VerticalAlignment="Center" TextWrapping="Wrap" />
                         </StackPanel>
                         <TextBlock Text="{Binding UpdatesFrom}" Classes="Caption" Margin="0,4,0,0" TextWrapping="Wrap" IsVisible="{Binding UpdatedElsewhere}" />
                         <CheckBox IsChecked="{Binding InstallUpdatesAutomatically, Mode=TwoWay}" IsVisible="{Binding ShowsAutoInstall}"
                                   AutomationProperties.Name="Install updates automatically">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="Install updates automatically" TextWrapping="Wrap" />
-                                <TextBlock Text="A downloaded update installs the next time SCSKiller starts or quits, never during a compile, an offline session or a game. Off: only Restart to update installs it."
+                                <TextBlock Text="自动安装更新" TextWrapping="Wrap" />
+                                <TextBlock Text="已下载的更新将在 SCSKiller 下次启动或退出时自动安装，绝不会在编译中、离线录制或游戏中打扰。关闭后：仅在点击“重启以应用更新”时才会安装。"
                                            Classes="Caption" TextWrapping="Wrap" />
                             </StackPanel>
                         </CheckBox>
                         <c:InfoBar IsVisible="{Binding HasUpdateProblem}" Message="{Binding UpdateProblem}" Severity="Warning" IsClosable="False" />
                         <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0" IsVisible="{Binding ShowsSource}">
-                            <Button Content="Download source code" Click="OnSource" IsEnabled="{Binding SourceIdle}" />
+                            <Button Content="下载源代码" Click="OnSource" IsEnabled="{Binding SourceIdle}" />
                             <SelectableTextBlock Text="{Binding SourceStatus}" Classes="Caption" VerticalAlignment="Center" TextWrapping="Wrap" />
                         </StackPanel>
                         <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
-                                   Text="Compiles your games' shaders into the graphics driver's cache ahead of time, so they don't stutter the first time you play them." />
+                                   Text="提前将您游戏的着色器编译到显卡驱动缓存中，彻底避免首次遇到着色器时的编译卡顿。" />
                         <TextBlock Margin="0,8,0,0" Classes="Secondary" TextWrapping="Wrap">
-                            <Run Text="SCSKiller licence:" FontWeight="SemiBold" /><Run Text=" GPL-3.0-or-later, with an additional permission for Oodle, the Windows App SDK and graphics driver libraries (LICENSE-EXCEPTION.txt)" />
+                            <Run Text="SCSKiller 许可证：" FontWeight="SemiBold" /><Run Text=" GPL-3.0-or-later, with an additional permission for Oodle, the Windows App SDK and graphics driver libraries (LICENSE-EXCEPTION.txt)" />
                         </TextBlock>
                         <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
                             <HyperlinkButton Content="What's new" Classes="Link" Click="OnWhatsNew" />
@@ -75,8 +75,8 @@
             </Border>
 
             <StackPanel Spacing="8">
-                <TextBlock Text="Problem reports you sent" Classes="Section" />
-                <TextBlock Text="Reports sent from earlier versions aren't listed." Classes="Secondary" TextWrapping="Wrap" IsVisible="{Binding NoProblems}" />
+                <TextBlock Text="您已提交的问题报告" Classes="Section" />
+                <TextBlock Text="较早版本提交的报告不在此列出。" Classes="Secondary" TextWrapping="Wrap" IsVisible="{Binding NoProblems}" />
                 <ItemsControl ItemsSource="{Binding Problems}" Focusable="False">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -95,7 +95,7 @@
             </StackPanel>
 
             <StackPanel Spacing="8">
-                <TextBlock Text="Use at your own risk" Classes="Section" />
+                <TextBlock Text="风险自负提示" Classes="Section" />
                 <TextBlock Text="SCSKiller is provided as is, without warranty. It checks each game for anti-cheat before adding its recorder, but that check can miss one. You use it at your own risk, and its authors are not responsible for bans, crashes or lost data."
                            Classes="Secondary" TextWrapping="Wrap" />
             </StackPanel>

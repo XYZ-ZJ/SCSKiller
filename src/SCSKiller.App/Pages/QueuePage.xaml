@@ -31,7 +31,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Compile queue" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="编译队列" Style="{StaticResource TitleTextBlockStyle}" />
                     <TextBlock Text="{x:Bind Vm.Summary, Mode=OneWay}" Style="{StaticResource Secondary}" />
                     <TextBlock Text="{x:Bind Vm.PlanChecks, Mode=OneWay}" Visibility="{x:Bind Vm.HasPlanChecks, Mode=OneWay}" Style="{StaticResource Caption}"
                                ToolTipService.ToolTip="After an update SCSKiller rebuilds the plans of compiled games in the background, without compiling. A game with more to compile shows it in the Library." />
@@ -43,7 +43,7 @@
                             Visibility="{x:Bind Vm.Idle, Mode=OneWay}" IsEnabled="{x:Bind Vm.CanStart, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE945;" FontSize="14" />
-                            <TextBlock Text="Compile queue" />
+                            <TextBlock Text="编译队列" />
                         </StackPanel>
                     </Button>
                     <Button Content="{x:Bind Vm.PauseText, Mode=OneWay}" Click="OnPause" Visibility="{x:Bind Vm.HasCurrent, Mode=OneWay}" />
@@ -73,21 +73,21 @@
                             <ColumnDefinition Width="80" />
                             <ColumnDefinition Width="320" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Text="Game (in run order)" Style="{StaticResource Caption}" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="4" Text="Time" Style="{StaticResource Caption}" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="5" Text="Cache" Style="{StaticResource Caption}" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Text="游戏（按运行顺序）" Style="{StaticResource Caption}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="4" Text="耗时" Style="{StaticResource Caption}" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="5" Text="缓存" Style="{StaticResource Caption}" TextAlignment="Right" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{x:Bind Vm.CanClear, Mode=OneWay}">
                             <!-- tooltip on a hit-testable wrapper: a disabled button shows none -->
                             <Grid Background="Transparent" ToolTipService.ToolTip="Ctrl+click or Shift+click to select several games">
                                 <HyperlinkButton x:Name="RemoveSelected" Content="Remove selected" FontSize="12" IsEnabled="False" Click="OnRemoveSelected" />
                             </Grid>
-                            <HyperlinkButton Content="Clear queue" FontSize="12" Click="OnClearQueue" ToolTipService.ToolTip="Removes every game but the one compiling" />
+                            <HyperlinkButton Content="清空队列" FontSize="12" Click="OnClearQueue" ToolTipService.ToolTip="Removes every game but the one compiling" />
                         </StackPanel>
                     </Grid>
                     <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" />
 
                     <StackPanel Padding="20,32" Spacing="6" HorizontalAlignment="Center" Visibility="{x:Bind Vm.Empty, Mode=OneWay}">
-                        <TextBlock Text="Add games from the Library" Style="{StaticResource Section}" HorizontalAlignment="Center" />
+                        <TextBlock Text="从游戏库中添加游戏" Style="{StaticResource Section}" HorizontalAlignment="Center" />
                         <TextBlock Text="Press Add to queue on a game, then Compile queue." Style="{StaticResource Secondary}" HorizontalAlignment="Center" />
                         <HyperlinkButton Content="Open the Library" Click="OnLibrary" HorizontalAlignment="Center" />
                     </StackPanel>

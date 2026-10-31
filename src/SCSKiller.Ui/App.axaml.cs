@@ -140,7 +140,7 @@ public partial class App : Application
     // flushed: kept after the app quits where the system can (X11 drops it unless a clipboard manager takes it)
     static async Task CopyText(string text)
     {
-        var clipboard = Main.Clipboard ?? throw new InvalidOperationException("No clipboard");
+        var clipboard = Main.Clipboard ?? throw new InvalidOperationException("剪贴板不可用");
         await clipboard.SetTextAsync(text);
         await clipboard.FlushAsync();
     }
@@ -270,7 +270,7 @@ public partial class App : Application
         Updater.Start();
         // a launch, not a toast's relaunch: its activation wouldn't survive the restart
         if (!args.Any(a => a.StartsWith(InstanceIdentity.ToastRelaunchArg, StringComparison.Ordinal))) _ = Updater.ApplyAtStartAsync(args);
-        if (Updater.HasResume)   // restarted by "Restart to update": the queue goes on once the games are known
+        if (Updater.HasResume)   // restarted by "重启以应用更新": the queue goes on once the games are known
             _ = real.ScanAsync(CancellationToken.None).ContinueWith(_ => Host.Ui.TryEnqueue(Updater.ResumeQueue));
         CreateTray(desktop);
         return Activation.Start(real, args, () => QuitAsync(desktop), toast: signedIn == null) ? Main : null;

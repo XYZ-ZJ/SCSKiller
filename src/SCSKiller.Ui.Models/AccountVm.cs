@@ -67,24 +67,24 @@ public sealed class AccountVm : Bindable
             Changed();
         }
     }
-    public string? DbNote => !A.SignedIn ? "The list of games it covers is checked for everyone. The shared hashes need a Patreon subscription."
+    public string? DbNote => !A.SignedIn ? "收录游戏列表对所有用户开放查询。共享哈希数据需要 Patreon 赞助会员。"
         : A.Status is not { } st ? null   // not read yet: the status line above says "Checking…"
-        : !A.HasDb ? "Your Patreon membership doesn't include it right now. What was downloaded before keeps working."
+        : !A.HasDb ? "您当前的 Patreon 会员暂不包含社区数据库权益。此前已下载的数据可继续使用。"
         : (Host.Core as ScsKiller)?.Community?.Problem;
     public bool HasDbNote => DbNote != null;
 
     public string Benefits => A.Status switch
     {
-        null => A.Busy ? "Checking your supporter status…" : "Supporter status not checked yet.",
+        null => A.Busy ? "正在检查您的赞助者身份…" : "赞助者身份尚未检查。",
         { Benefits: { } b } => b,   // the flag names live in Core (AccountStatus) so they're testable
-        _ => "No supporter benefits right now. They start once your Patreon membership is active: then click Refresh status.",
+        _ => "当前暂无赞助者权益。Patreon 会员生效后即可享用：届时请点击“刷新状态”。",
     };
 
     // Update channel: a picker only when the token grants more than stable.
     static readonly Dictionary<string, string> ChannelNames = new()
     {
-        [UpdateChannels.Stable] = "Stable", [UpdateChannels.Beta] = "Beta (Patreon supporter)",
-        [UpdateChannels.Alpha] = "Alpha (Patreon backer)", [UpdateChannels.Internal] = "Internal",
+        [UpdateChannels.Stable] = "稳定正式版", [UpdateChannels.Beta] = "Beta 测试版（Patreon 赞助者）",
+        [UpdateChannels.Alpha] = "Alpha 尝鲜版（Patreon 早期支持者）", [UpdateChannels.Internal] = "Internal",
     };
     static IReadOnlyList<string> Offered => UpdateChannels.Offered(A.Status?.Ent);
     static string Chosen => UpdateChannels.Effective(Host.Core.Settings.UpdateChannel, AppVersion.Current.Channel, A.Status?.Ent);
@@ -110,7 +110,9 @@ public sealed class AccountVm : Bindable
     /// <summary>"Go back to stable now": on an installed pre-release build, whatever the account.</summary>
     public bool OffersBackToStable => Wired && Updater.Installed && AppVersion.Current.Channel != UpdateChannels.Stable;
     public bool ShowsUpdates => Entitled || OffersBackToStable || UpdatesFrom != null;
-    public string ChannelNote => UpdatesFrom ?? (Updater.Checking ? "Checking for updates…"
+    public string ChannelNote => UpdatesFrom ?? (Updater.Checking ? "正在检查更新…"
+        : (InstallsAutomatically ? "更新会在后台自动下载，并在 SCSKiller 下次启动或退出时安装，绝不打扰使用。"
+            : "更新会在后台自动下载，点击“重启并更新”即可安装。") + " 切换离开尝鲜测试通道将保留当前版本，直至正式稳定版版本号超越该版本。");
         : Wired && Updater.Ready is { } v ? AutoInstall.ReadyNote(v, Updater.InstallsAutomatically)
         : (InstallsAutomatically ? "Updates download in the background and install the next time SCSKiller starts or quits, never during a compile or a game."
             : "Updates download in the background, and Restart to update installs them.") + " Leaving an early channel keeps this build until Stable passes it.");

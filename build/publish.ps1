@@ -153,6 +153,12 @@ foreach ($n in @(
     Copy-Item (Join-Path $nuget $n[0].ToLowerInvariant()) (Join-Path $out "notices\$($n[1])")   # THIRD-PARTY-NOTICES.md lists the versions shipped
 }
 
+# 4c. 移除非简体中文的多余语言附属文件夹，保持目录整洁
+$keepDirs = @("cli", "native", "notices", "Assets", "zh-Hans", "zh-CN")
+Get-ChildItem -Path $out -Directory | Where-Object {
+    $_.Name -notin $keepDirs -and ($_.Name -match '^[a-z]{2,3}(-[A-Za-z]+)*$' -or $_.Name -match '^[a-z]{2}-[A-Za-z]+-[A-Za-z]+$')
+} | Remove-Item -Recurse -Force
+
 # 5. layout check, including self-contained .NET (no "install .NET" prompt): the runtime next to each exe and
 #    runtimeconfig.json listing includedFrameworks rather than a shared framework
 $expected = "SCSKiller.exe", "oodle-data-shared.dll", "zlib-ng2.dll", "cli\scskiller.exe", "cli\scskillerw.exe",

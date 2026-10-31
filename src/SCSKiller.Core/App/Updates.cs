@@ -282,11 +282,11 @@ public enum StartStep { Apply, Installed, Failed, Older }
 /// A download from the internal channel's feed never installs by itself.</summary>
 public static class AutoInstall
 {
-    public const string Off = "Automatic install is off.";
-    public const string Internal = "Updates on the internal channel install only through Restart to update.";
-    public const string Compiling = "A compile is running.";
-    public const string Offline = "A recording session's game or cleanup is running. The update installs once it has ended.";
-    public const string Playing = "A game is running, or the games aren't known yet.";
+    public const string Off = "自动安装更新已关闭。";
+    public const string Internal = "内部测试通道的更新仅能通过“重启并更新”进行安装。";
+    public const string Compiling = "编译正在运行中。";
+    public const string Offline = "录制会话的游戏或清理进程正在运行。更新将在其结束后安装。";
+    public const string Playing = "游戏正在运行，或尚未获取游戏状态。";
 
     /// <summary>Whether a download from <paramref name="channel"/>'s feed installs by itself at a start or quit.</summary>
     public static bool On(Settings s, string channel) => s.InstallUpdatesAutomatically && channel != UpdateChannels.Internal;
@@ -669,20 +669,20 @@ public sealed class FeedTrust(AppStore store, IReadOnlyDictionary<string, string
         try
         {
             var j = JsonDocument.Parse(sig).RootElement;
-            if (j.GetProperty("v").GetInt32() != 1) throw new FeedRejectedException("unknown signature version");
-            if (j.GetProperty("channel").GetString() != channel) throw new FeedRejectedException("the signature is for another channel");
+            if (j.GetProperty("v").GetInt32() != 1) throw new FeedRejectedException("未知的签名版本");
+            if (j.GetProperty("channel").GetString() != channel) throw new FeedRejectedException("此签名属于其他通道");
             (signedAt, sha, kid) = (j.GetProperty("signed_at").GetString()!, j.GetProperty("feed_sha256").GetString()!, j.GetProperty("kid").GetString()!);
             signature = Convert.FromBase64String(j.GetProperty("sig").GetString()!);
         }
         catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or FormatException or NullReferenceException)
         {
-            throw new FeedRejectedException("malformed signature file");
+            throw new FeedRejectedException("签名文件格式错误");
         }
         if (!keys.TryGetValue(kid, out var pub)) throw new FeedRejectedException($"unknown key '{kid}'");
         if (!PublicKey.TryImport(Ed, Convert.FromBase64String(pub), KeyBlobFormat.RawPublicKey, out var key) || !Ed.Verify(key!, Message(channel, signedAt, sha), signature))
-            throw new FeedRejectedException("bad signature");
+            throw new FeedRejectedException("签名无效");
         if (!string.Equals(Convert.ToHexStringLower(SHA256.HashData(feed)), sha, StringComparison.OrdinalIgnoreCase))
-            throw new FeedRejectedException("the feed doesn't match its signature");
+            throw new FeedRejectedException("更新源与签名不匹配");
         return DateTimeOffset.TryParse(signedAt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var at)
             ? at : throw new FeedRejectedException("malformed signed_at");
     }

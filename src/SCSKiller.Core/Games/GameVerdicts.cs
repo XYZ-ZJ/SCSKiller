@@ -27,11 +27,11 @@ public sealed class GameVerdicts
     /// <summary>The reason codes this version shows in its own words. Codes are [a-z0-9-]; "other" takes the entry's note.</summary>
     public static readonly IReadOnlyDictionary<string, string> Reasons = new Dictionary<string, string>
     {
-        ["engine-precompiles"] = "Its engine prepares shaders at startup",
-        ["driver-cache-ignored"] = "The driver doesn't use a compile's cache for this game",
-        ["anti-cheat"] = "Its anti-cheat doesn't allow it",
-        ["crashes"] = "Compiling crashes this game or the driver",
-        ["engine-unreadable"] = "SCSKiller can't read this game's shaders yet",
+        ["engine-precompiles"] = "游戏引擎在启动时自行准备着色器",
+        ["driver-cache-ignored"] = "显卡驱动未为此游戏使用编译产生的缓存",
+        ["anti-cheat"] = "游戏的反作弊系统不允许此操作",
+        ["crashes"] = "编译会导致游戏或显卡驱动崩溃",
+        ["engine-unreadable"] = "SCSKiller 尚无法读取此游戏的着色器",
     };
 
     /// <summary>A verdict for one game: what it is and the line the app shows.</summary>
@@ -91,7 +91,7 @@ public sealed class GameVerdicts
     /// <summary>The line for a reason code: the app's own, else the note, else one for the verdict.</summary>
     public static string Text(string verdict, string reason, string? note) =>
         reason != OtherReason && Reasons.TryGetValue(reason, out var own) ? own
-        : note ?? (verdict == NoStutterVerdict ? "This game prepares its shaders itself" : "SCSKiller can't compile this game");
+        : note ?? (verdict == NoStutterVerdict ? "此游戏自行预处理着色器" : "SCSKiller 无法编译此游戏");
 
     public static GameVerdicts Embedded { get => field ??= TryParse(ContentFile.Embedded("SCSKiller.Core.Games." + FileName))!; }
 

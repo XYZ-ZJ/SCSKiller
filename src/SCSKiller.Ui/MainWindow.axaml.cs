@@ -235,7 +235,7 @@ public sealed partial class MainWindow : Window
             Children =
             {
                 new TextBlock { Text = "Notifications", Classes = { "Section" } },
-                shownNews.Count == 0 ? new TextBlock { Text = "Nothing new.", Classes = { "Secondary" } } : new ScrollViewer { MaxHeight = 480, Content = list },
+                shownNews.Count == 0 ? new TextBlock { Text = "暂无新消息。", Classes = { "Secondary" } } : new ScrollViewer { MaxHeight = 480, Content = list },
             },
         };
     }
@@ -257,7 +257,7 @@ public sealed partial class MainWindow : Window
         if (item.Link != null) actions.Children.Add(new HyperlinkButton { Content = "Open", NavigateUri = new Uri(item.Link) });
         if (item.Game != null)
         {
-            var go = new Button { Content = "Go to game" };
+            var go = new Button { Content = "前往该游戏" };
             go.Click += (_, _) => { BellFlyout.Hide(); Navigate(typeof(DetailPage), item.Game); };
             actions.Children.Add(go);
         }

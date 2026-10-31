@@ -8,7 +8,7 @@ namespace SCSKiller.Core.App;
 
 /// <summary>Velopack in the app. Checks at start and every hour and downloads in the
 /// background (nothing touches the install); applies only while no queue item runs anywhere (<see cref="Busy"/>): on
-/// "Restart to update", and with <see cref="AutoInstall"/> on at the next start or at the tray's Quit. A build Velopack
+/// "重启以应用更新", and with <see cref="AutoInstall"/> on at the next start or at the tray's Quit. A build Velopack
 /// didn't install (dev, the zip), a Flatpak and a package never check (<see cref="Installation"/>).</summary>
 public static class Updater
 {
@@ -64,7 +64,7 @@ public static class Updater
     static int failures;   // consecutive checks that couldn't reach the feed
     static volatile FeedRead? lastRead;   // the last check that read every feed
     sealed record FeedRead(long At, string Channel);   // At: Environment.TickCount64
-    static volatile bool asked;   // "Check for updates" was clicked: the running or next check shows its failure at once
+    static volatile bool asked;   // "检查更新" was clicked: the running or next check shows its failure at once
 
     /// <summary>Raised on any thread after <see cref="Ready"/>, <see cref="Checking"/>, <see cref="Downloading"/>,
     /// <see cref="UpToDate"/> or <see cref="Problem"/> changed.</summary>
@@ -126,7 +126,7 @@ public static class Updater
     /// <summary>The channel the last check found nothing newer on, while it is still the one checked; null: none.</summary>
     public static string? UpToDateOn => UpToDate && upToDateOn == Chosen() ? upToDateOn : null;
     public static string? Problem { get; private set; }
-    /// <summary>"Restart to update" waits for the compile: the channel stays as it is meanwhile.</summary>
+    /// <summary>"重启以应用更新" waits for the compile: the channel stays as it is meanwhile.</summary>
     public static bool Restarting { get; private set; }
 
     static Velo Manager(string channel, bool downgrade) =>
@@ -175,7 +175,7 @@ public static class Updater
         }
     }
 
-    /// <summary>The one way an update is applied (Quit, "Restart to update"), in order: the check's lock (a check may be
+    /// <summary>The one way an update is applied (Quit, "重启以应用更新"), in order: the check's lock (a check may be
     /// replacing the download; <paramref name="wait"/> at most); the ready download read again; its file whole on disk,
     /// else deleted so the next check downloads it again; every other package deleted, so Update.exe has nothing else to
     /// fall back on; then, last, no compile running anywhere (<see cref="Busy.Handover"/>), the channel still the chosen
@@ -186,16 +186,16 @@ public static class Updater
         try
         {
             if (Usable(ready) is not { M: var m, R: var r } d)
-                return Fail("The update changed meanwhile. Restart to update again once it is ready.");
+                return Fail("更新在此期间发生变动。请在更新准备就绪后重新重启以应用更新。");
             if (!await m.OnDisk(r))
             {
                 m.Delete(r);
                 Stage(null);
-                return Fail("The downloaded update is no longer whole on disk. It downloads again at the next check.");
+                return Fail("已下载的更新在磁盘上不再完整。将在下次检查时重新下载。");
             }
-            if (!m.OnlyThis(r)) return Fail("An older downloaded update couldn't be removed. The update installs at a later quit.");
+            if (!m.OnlyThis(r)) return Fail("无法清理旧的已下载更新文件。更新将在稍后退出程序时安装。");
             if (Busy.Handover(DataDir, DateTimeOffset.UtcNow) is { } busy) return Undo(busy);   // writes the marker, kept only on null
-            if (Usable(ready) is null) return Undo("The update channel changed meanwhile. Restart to update again once it is ready.");
+            if (Usable(ready) is null) return Undo("更新通道在此期间发生变动。请在更新准备就绪后重新重启以应用更新。");
             if (still?.Invoke(d) == false) return Undo(null);
             if (OfflineBlocks()) return Undo(OfflineRunning);
             Log($"Handing the update to {r.Version} to Update.exe");
@@ -204,7 +204,7 @@ public static class Updater
         }
         catch (Exception e)
         {
-            var undone = Undo("Couldn't hand the update to the installer: " + e.Message);   // the marker first, whatever the log does
+            var undone = Undo("无法将更新移交给安装程序: " + e.Message);   // the marker first, whatever the log does
             Log($"Handing the update to Update.exe failed: {e}");
             return undone;
         }
@@ -264,7 +264,7 @@ public static class Updater
     /// <summary>App start (a launch, not a toast: its activation wouldn't survive the restart), before anything has begun:
     /// an update an earlier run downloaded installs from the disk, without the network (a logon may have none yet), once the
     /// first scan knows the games and none runs, and the app restarts into it with <paramref name="args"/>. Not after a handover whose new version never started: a failed
-    /// apply must not restart the app in a loop, so it waits for "Restart to update" or a quit. Once the user has queued a
+    /// apply must not restart the app in a loop, so it waits for "重启以应用更新" or a quit. Once the user has queued a
     /// game or quits, the update waits as well.</summary>
     public static async Task ApplyAtStartAsync(string[] args)
     {
@@ -298,7 +298,7 @@ public static class Updater
             }, now => Untouched() && !GameRunning() && AutoInstall.On(Host.Core.Settings, now.Channel)))   // exits this process
         {
             EndUpdate();
-            Log($"The update to {r.S.Version} didn't install at the start: {Problem ?? "the queue started or SCSKiller quit meanwhile."}");
+            Log($"The update to {r.S.Version} didn't install at the start: {Problem ?? "编译队列已启动或 SCSKiller 在此期间已退出。"}");
         }
         if (Usable(ready) is null) await CheckAsync();   // the timer's first check skips while this one runs
 
@@ -316,7 +316,7 @@ public static class Updater
 
     static bool GameRunning() => Host.Core is ScsKiller k ? k.GameRunning() : Host.Core.Games.Any(g => g.Playing);
 
-    /// <summary>About's "Check for updates": checks and downloads now. A click while a check runs joins it, and that
+    /// <summary>About's "检查更新": checks and downloads now. A click while a check runs joins it, and that
     /// check's failure shows at once.</summary>
     public static Task CheckNowAsync()
     {
@@ -397,15 +397,15 @@ public static class Updater
         }
         catch (HttpRequestException e) when (e.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
         {
-            Log("The update server asked SCSKiller to wait (429)");
+            Log("更新服务器请求稍候再试 (429)");
             Problem = asked ? "The update server asked SCSKiller to wait. It checks again by itself later." : null;
         }
         catch (Exception e) when (e is HttpRequestException or TaskCanceledException or IOException)
         {
             Log($"Couldn't check for updates: {e.GetType().Name}: {e.Message}");
             // offline or a hiccup: the next check retries; say so only once it has kept failing for a day
-            Problem = ++failures >= 24 ? "Couldn't reach the update server for a while. SCSKiller keeps trying."
-                : asked ? "Couldn't reach the update server. SCSKiller tries again within the hour." : null;
+            Problem = ++failures >= 24 ? "暂时无法连接到更新服务器，SCSKiller 将持续重试。"
+                : asked ? "无法连接到更新服务器，SCSKiller 将在 1 小时内重试。" : null;
         }
         catch (Exception e)
         {
@@ -451,11 +451,11 @@ public static class Updater
         if (!await ApplyAsync(TimeSpan.FromSeconds(30), (m, r) => m.WaitExitThenApplyUpdates(r, silent: true, restart: false), now => !GameRunning() && AutoInstall.On(Host.Core.Settings, now.Channel)))
         {
             EndUpdate();
-            Log($"The update to {d.S.Version} didn't install at the quit: {Problem ?? "a game started meanwhile."}");
+            Log($"The update to {d.S.Version} didn't install at the quit: {Problem ?? "在此期间游戏已启动。"}");
         }
     }
 
-    /// <summary>"Restart to update": stops the queue gracefully (in-flight compiles finish, the driver writes its cache),
+    /// <summary>"重启以应用更新": stops the queue gracefully (in-flight compiles finish, the driver writes its cache),
     /// waits for it, remembers what was queued, and restarts into the new version, which resumes the queue where it
     /// stopped (each game's ResumeAt). False (and <see cref="Problem"/>) when the driver-update task's compile still runs.</summary>
     public static async Task<bool> RestartAsync()
@@ -505,7 +505,7 @@ public static class Updater
 
     public static bool HasResume => File.Exists(ResumeFile);
 
-    /// <summary>After "Restart to update": the queue as it was, each game from where its warm stopped.</summary>
+    /// <summary>After "重启以应用更新": the queue as it was, each game from where its warm stopped.</summary>
     public static void ResumeQueue()
     {
         if (!HasResume) return;
@@ -541,7 +541,7 @@ public static class Updater
                 Fetched[c] = f;
                 var more = VelopackAssetFeed.FromJson(Encoding.UTF8.GetString(f.Feed));
                 // Velopack falls back to SHA-1 for an asset without SHA-256: a signed feed must pin every package by SHA-256
-                if (more.Assets.Any(a => string.IsNullOrEmpty(a.SHA256))) throw new FeedRejectedException("a package without a SHA-256");
+                if (more.Assets.Any(a => string.IsNullOrEmpty(a.SHA256))) throw new FeedRejectedException("缺少 SHA-256 校验的软件包");
                 var have = parsed.Assets.Select(a => a.FileName).ToHashSet();
                 parsed.Assets = [.. parsed.Assets, .. more.Assets.Where(a => c == channel || a.Type == VelopackAssetType.Full && !have.Contains(a.FileName))];
             }

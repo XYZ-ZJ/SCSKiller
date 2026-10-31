@@ -52,13 +52,13 @@ public static class ProblemReport
         b.AppendLine($"GPU: {gpu ?? "unknown"} ({vendor ?? "unknown vendor"}), driver {driver ?? "unknown"}");
         b.AppendLine(system);
         b.AppendLine();
-        b.AppendLine("On the game's page:");
+        b.AppendLine("游戏页面状态信息:");
         foreach (var (label, value) in page)
             if (!string.IsNullOrWhiteSpace(value)) b.AppendLine($"{label}: {value.ReplaceLineEndings(" ")}");
         if (log != null)
         {
             b.AppendLine();
-            b.AppendLine("app.log, the latest lines about this game:");
+            b.AppendLine("app.log 中关于此游戏的最新日志行:");
             var any = false;
             foreach (var line in log)
             {
@@ -163,16 +163,16 @@ public static class ProblemReport
                 return (s, null);
             return (null, r.StatusCode switch
             {
-                HttpStatusCode.NotFound or HttpStatusCode.NotImplemented => "Problem reports aren't open yet.",
-                HttpStatusCode.RequestEntityTooLarge => "The report is too long. Leave the log lines out and try again.",
-                HttpStatusCode.TooManyRequests => "Too many reports today. Try again tomorrow.",
-                HttpStatusCode.BadRequest => "The server didn't take this report.",
-                _ => "Not sent. Try again later.",
+                HttpStatusCode.NotFound or HttpStatusCode.NotImplemented => "问题报告功能暂未开放。",
+                HttpStatusCode.RequestEntityTooLarge => "报告内容过长。请取消勾选日志行后重试。",
+                HttpStatusCode.TooManyRequests => "今日提交报告过多，请明天再试。",
+                HttpStatusCode.BadRequest => "服务器未能接收此报告。",
+                _ => "发送失败，请稍后重试。",
             });
         }
         catch (Exception) when (!ct.IsCancellationRequested)   // offline, or an answer this version can't read
         {
-            return (null, "Not sent. Try again later.");
+            return (null, "发送失败，请稍后重试。");
         }
     }
 }

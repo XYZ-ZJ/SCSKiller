@@ -12,7 +12,7 @@ public sealed class StutterList
 {
     public const string ContentPath = "v1/content/known-stutter.json";
     /// <summary>The source of an entry SCSKiller measured itself; any other source is an https URL.</summary>
-    public const string OwnMeasurement = "SCSKiller measurement";
+    public const string OwnMeasurement = "SCSKiller 实测数据";
     public const int MaxBytes = ContentFile.MaxBytes, MaxGames = 200;
     static readonly string[] Stores = ["steam", "xbox", "epic", "ea", "gog", "ubisoft", "battlenet", "purple", "hoyoplay", "gaijin", "riot"];
 

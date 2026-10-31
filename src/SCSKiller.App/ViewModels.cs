@@ -48,7 +48,7 @@ static class Fmt
         ? $"{(k.Severity == StutterSeverity.Severe ? "Severe" : "Moderate")} shader-compilation stutter: {k.Reason}.\nSource: {k.Source} (checked {k.Date})" : null;
     /// <summary>Library sections, in list order. GOG, Ubisoft, Battle.net, PURPLE, HoYoPlay, Gaijin and Riot Client games are Store.Other: told apart by their id prefix.</summary>
     public static readonly string[] Stores = ["Steam", "Epic Games", "Xbox / Game Pass", "EA app", "GOG", "Ubisoft Connect", "Battle.net", "PURPLE", "HoYoPlay", "Gaijin", "Riot Client", "Other", AddedByYou];
-    public const string AddedByYou = "Added by you";
+    public const string AddedByYou = "手动添加";
     public static string StoreName(Game g) => g.Store switch
     {
         Store.Steam => "Steam", Store.Epic => "Epic Games", Store.Xbox => "Xbox / Game Pass", Store.EA => "EA app", Store.Manual => AddedByYou,
@@ -359,18 +359,18 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     bool PartlyCompiled => ScsKiller.IsPartlyCompiled(s);
     public string StatusText => s.Status switch
     {
-        _ when s.CompileUnreached => "The compile didn't help",
-        _ when PartlyCompiled => "Partly compiled",
-        _ when ScsKiller.NotReached(s.StatusReason) => "Not reached yet",
+        _ when s.CompileUnreached => "编译未改善",
+        _ when PartlyCompiled => "部分编译",
+        _ when ScsKiller.NotReached(s.StatusReason) => "尚未到达",
         GameStatus.Warmed when Partly => "Partly warmed",
         GameStatus.Warmed when s.Plan?.RecordedOnly == true => "Warmed (recorded pipelines only)",
-        GameStatus.Warmed => "Warmed",
-        GameStatus.Ready => "Ready to compile",
+        GameStatus.Warmed => "已预热",
+        GameStatus.Ready => "待编译",
         _ when ScsKiller.NeedsOfflineSession(s) => "Needs an offline session",
         _ when ScsKiller.NeedsSteamStart(s) => "Start it once from Steam",
         GameStatus.NeedsRecording when ScsKiller.NeverRecorded(s) => ScsKiller.NothingRecordedTitle,
         GameStatus.NeedsRecording => ScsKiller.RecordedEnough(s) ? "Needs a recording" : "Needs a 5-min recording",
-        GameStatus.Stale => "Needs rebuilding",
+        GameStatus.Stale => "需要重新构建",
         _ when s.StatusReason == ScsKiller.CheckingReason => "Checking…",
         _ when s.StatusReason == ScsKiller.NotCheckedReason => "Not checked",
         _ when s.StatusReason == ScsKiller.CantReachReason => "Not compatible",
@@ -411,7 +411,7 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     public bool Queued => queued;
     public bool InAddAllReady => ScsKiller.InAddAllReady(s);
     public bool IsAdd => s.Status is GameStatus.Ready or GameStatus.Stale && !s.CompileUnreached;
-    public string AddText => queued ? "In queue" : "Add to queue";
+    public string AddText => queued ? "排队中" : "加入队列";
     public bool CanAdd => !queued;
     public bool IsRecord => s.Status == GameStatus.NeedsRecording && !s.RecorderInstalled && s.NoStutter == null && !ScsKiller.NeedsOfflineSession(s) && !ScsKiller.NeedsSteamStart(s) && !s.RiskEligible && !Shared;
     bool Shared => Collections.RecordedBy(s.Game.Id) != null;   // recorded by its collection's first game's recorder, switched on that game's page
@@ -424,8 +424,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     public bool CanLaunch { get; private set; } = BeforeAfterUi.Launchable(s);
     public bool Compiling => compiling;
     public bool CanPlay => !Playing && !compiling;
-    public string PlayText => Playing ? "Running" : "Play";
-    public string PlayTip => Playing ? $"{Name} is running" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
+    public string PlayText => Playing ? "运行中" : "开始游玩";
+    public string PlayTip => Playing ? $"{Name} 正在运行" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
 
     public override string ToString() => $"{Name}, {StatusText}, {RowTip}";   // list item name for screen readers
 
@@ -475,7 +475,7 @@ public sealed class LibraryVm : Bindable
     string filter = "";
     public string Filter { get => filter; set { if (value.Trim() != filter) { filter = value.Trim(); ApplyFilter(); Changed(); } } }
     LibraryShow show;
-    public static readonly string[] ShowLabels = ["All games", "Not supported", "Ready to compile", "Compiled", "Compiled by SCSKiller"];
+    public static readonly string[] ShowLabels = ["全部游戏", "暂不支持", "待编译", "已编译", "由 SCSKiller 编译"];
     public int ShowIndex { get => (int)show; set { if (value >= 0 && (LibraryShow)value != show) { show = (LibraryShow)value; ApplyFilter(); Changed(); } } }
     int shown;
     public bool Filtering => filter.Length > 0 || show != LibraryShow.All;
@@ -506,9 +506,9 @@ public sealed class LibraryVm : Bindable
         Refresh();
     }
     string Arrow(LibrarySort up, LibrarySort down) => sort == up ? " ↑" : sort == down ? " ↓" : "";
-    public string GameHeader => "Game" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
-    public string PipelinesHeader => "Pipelines" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
-    public string CacheHeader => "Cache" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
+    public string GameHeader => "游戏" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
+    public string PipelinesHeader => "管线" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
+    public string CacheHeader => "缓存" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
     public bool Scanning { get; private set; }
     int refreshing;   // Rescan calls not finished: the scan, then a user refresh's server fetches
     public bool Refreshing => refreshing > 0;
@@ -528,13 +528,13 @@ public sealed class LibraryVm : Bindable
     public string Summary { get; private set; } = "";
     public int ReadyCount { get; private set; }     // ready, not queued yet and not a no-stutter game
     public int WaitingCount { get; private set; }
-    public string AddAllText => $"Add all ready ({ReadyCount})";
+    public string AddAllText => $"全部待编译 ({ReadyCount})";
     public bool CanAddAll => ReadyCount > 0 && !Scanning;
     public int RecommendedCount { get; private set; }   // stutters without a compile, ready and not queued yet
-    public string AddRecommendedText => $"Add all recommended ({RecommendedCount})";
+    public string AddRecommendedText => $"全部推荐 ({RecommendedCount})";
     public bool CanAddRecommended => RecommendedCount > 0 && !Scanning;
     public bool CannotAddRecommended => !CanAddRecommended;   // the plain, disabled twin of the accent button (theme brushes stay in XAML)
-    public string CompileQueueText => $"Compile queue ({WaitingCount})";
+    public string CompileQueueText => $"编译队列 ({WaitingCount})";
     public bool CanCompileQueue => WaitingCount > 0;
 
     public string CacheUsed { get; private set; } = "";
@@ -560,7 +560,7 @@ public sealed class LibraryVm : Bindable
         _ => "Rebuild games yourself from the Library",
     };
     public string Threads => App.Core.Settings.Threads.ToString();
-    public string ThreadsOf => $"of {Environment.ProcessorCount} threads";
+    public string ThreadsOf => $"共 {Environment.ProcessorCount} 线程";
     public string SpeedNote { get; private set; } = "";
 
     public void Load()
@@ -890,7 +890,7 @@ public sealed class DetailVm(string id) : Bindable
     bool BaLaunchable => BeforeAfterUi.Launchable(s);
     public string BaText => Ba switch
     {
-        null => "Before and after",
+        null => "编译前后对比测试",
         _ when BaVoided => "Start over",
         { Stage: BeforeAfterStage.BeforeArmed, ClearPending: true } => "Clear the cache and try again",
         { Stage: BeforeAfterStage.BeforeArmed or BeforeAfterStage.AfterArmed } => BaLaunchable ? $"Start {Name}" : $"Start {Name} as usual",
@@ -1615,7 +1615,7 @@ public sealed class QueueVm : Bindable
         var pending = queue.Where(Fmt.Active).ToList();
         var total = TimeSpan.FromTicks(pending.Sum(q => Left(q)?.Ticks ?? 0));
         bool unknown = pending.Any(q => Left(q) is null && !ScsKiller.Stalled(q));
-        Summary = pending.Count == 0 ? "Nothing queued"
+        Summary = pending.Count == 0 ? "队列为空"
             : $"{pending.Count} game{(pending.Count == 1 ? "" : "s")} · "
               + (total > TimeSpan.Zero ? $"about {Format.Duration(total)} in total{(unknown ? ", plus plans to build" : "")}" : "time known once the plans are built")
               + (cur == null && !core.QueueRunning ? " · not started" : "");
@@ -2069,7 +2069,7 @@ public sealed class CacheVm : Bindable
     }
 
     public CacheInventory? Inventory => read;
-    public string Total => read == null ? "Reading the caches…" : split;
+    public string Total => read == null ? "正在读取缓存…" : split;
     public bool NoFolders => read is { Folders.Count: 0, Groups.Count: 0 };
 
     public bool Deleting { get; private set; }

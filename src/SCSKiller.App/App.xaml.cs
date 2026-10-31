@@ -164,7 +164,7 @@ public partial class App : Application
             WhatsNew.AtStart(Store, firstRun: true, AppVersion.Current);
             WhenShown(async root =>
             {
-                await ShowWelcomeAsync(root, Core is FakeScsKiller ? Task.FromResult<WelcomeContent?>(null) : WelcomeContent.FetchAsync());
+                await ShowWelcomeAsync(root, Task.FromResult<WelcomeContent?>(WelcomeContent.Default));
                 if (TraversalFix.Asks(Core.Settings)) await AskTraversalAsync(root);
             });
         }

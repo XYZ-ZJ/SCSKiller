@@ -83,7 +83,7 @@ public sealed class Planner(string? packDir = null, string? sharedPackDir = null
     /// <summary>A staged D3D11 warm compiles the vertex shaders too (else they need the game's recorded layouts).</summary>
     public static bool D3D11CoversVs(VendorCaps caps) => D3D11Stages(caps)?.Contains(Stage.Vertex) != false;
 
-    public const string D3D11VsRecord = "a 5-min recording covers those";
+    public const string D3D11VsRecord = "录制 5 分钟即可覆盖这些顶点着色器";
 
     /// <summary>The vendor's driver caches a ray tracing collection on its own, so a collection compiled by the warm makes
     /// the game's pipelines linking it cheap (NVIDIA, selftest dxr: per-shader collections cached across processes,
@@ -123,17 +123,17 @@ public sealed class Planner(string? packDir = null, string? sharedPackDir = null
     /// <summary>A shader D3D11 takes: VS/PS/DS/HS/GS/CS in DXBC up to SM 5.0 (5.1 and DXIL are D3D12 only).</summary>
     internal static bool IsD3D11(ShaderInfo s) => s.Stage <= Stage.Compute && s.ShaderModel[^3..] is "4_0" or "4_1" or "5_0";
 
-    public const string NoRecording = "no recording needed";
+    public const string NoRecording = "无需录制";
     /// <summary>The plan comes from a rule no game has confirmed yet (<see cref="RootSig.Verified"/>). A scan keeps its
     /// check, so ScsKiller.Evaluate turns it into <see cref="NoRecording"/> once the list confirms the engine.</summary>
     public const string Untested = UntestedNote + ": playing with recording on improves it";
     /// <summary><see cref="Untested"/> without the recording hint: what an anti-cheat game, which can't be recorded, is told.</summary>
-    public const string UntestedNote = "not tested on this engine version yet";
-    public const string Record = "turn on recording and play for about 5 minutes";
+    public const string UntestedNote = "尚未针对此引擎版本充分测试";
+    public const string Record = "开启录制并游玩约 5 分钟";
     /// <summary>Ends the reason of a Vulkan game on a vendor without a Vulkan warm (<see cref="VendorCaps.VulkanKey"/>).</summary>
     public const string VulkanNotOnGpu = ", which isn't supported on this GPU yet";
     /// <summary>Ends the reason of a game that may run on DirectX 11, where the recorder never loads.</summary>
-    public const string Dx12Only = "helps only when played on DirectX 12 (the game may run on DirectX 11)";
+    public const string Dx12Only = "仅在以 DirectX 12 游玩时有效（游戏可能运行于 DirectX 11）";
     public const string RecordedOnly = "plans only the recorded pipelines";
     /// <summary>A game without a recording planned from the PSO disk cache its own engine wrote (Unreal.PsoDiskCache).</summary>
     public const string OwnPipelineCache = "planned from the game's own pipeline cache";
