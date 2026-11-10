@@ -81,7 +81,7 @@ public sealed partial class CachePage : UserControl
     void OnFreeOldDriver(object? _, RoutedEventArgs __) =>
         _ = Confirm($"{Vm.FreeText} the new driver no longer uses?", CacheGroupKind.OldDriver, Vm.OldDriverItems, "Free");
 
-    async Task Confirm(string title, CacheGroupKind kind, IReadOnlyList<CacheItem> items, string action = "Delete")
+    async Task Confirm(string title, CacheGroupKind kind, IReadOnlyList<CacheItem> items, string action = "删除")
     {
         var text = new TextBlock { Text = CacheVm.Consequence(kind, items), TextWrapping = TextWrapping.Wrap };
         if (await App.ShowAsync(App.Confirm(title, text, action)) == ContentDialogResult.Primary) await Vm.DeleteAsync(items);
@@ -100,7 +100,7 @@ public sealed partial class CachePage : UserControl
         var warning = new TextBlock { Text = ScsKiller.EverythingWarning(inv, false), TextWrapping = TextWrapping.Wrap };
         var others = new CheckBox { Content = $"Also delete {ScsKiller.OtherApps.ToLowerInvariant()} ({Format.Bytes(inv.Bytes(CacheGroupKind.Unattributed))})" };
         others.IsCheckedChanged += (_, _) => warning.Text = ScsKiller.EverythingWarning(inv, others.IsChecked == true);
-        var content = new StackPanel { Spacing = 12, Children = { warning, others, new TextBlock { Text = "Files in use are skipped.", TextWrapping = TextWrapping.Wrap } } };
-        return (App.Confirm("Clear every shader cache?", content, "Clear everything"), others);
+        var content = new StackPanel { Spacing = 12, Children = { warning, others, new TextBlock { Text = "正在被占用的文件将自动保留跳过。", TextWrapping = TextWrapping.Wrap } } };
+        return (App.Confirm("清除所有着色器缓存？", content, "清除全部"), others);
     }
 }

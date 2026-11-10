@@ -6,13 +6,13 @@ namespace SCSKiller.Ui.Models;
 /// <summary>The real quit (the tray's Quit, or the close button when it quits). With a compile running, the compile stops
 /// gracefully and the app exits once the warm has exited, however long the driver's cache write takes (scskiller_warm
 /// bounds it: 600 s after its last line, a warm that ignores the stop is ended after 30 s). Quit again meanwhile
-/// ("Quit now (loses unsaved cache)") exits at once: the warm job kills the warm.</summary>
+/// ("强制退出（将丢失未保存的缓存）") exits at once: the warm job kills the warm.</summary>
 public sealed class QuitFlow
 {
     TaskCompletionSource? now;   // set while the quit waits for the compile
 
     public bool Quitting { get; private set; }
-    public string Label => now != null ? "Quit now (loses unsaved cache)" : "Quit";
+    public string Label => now != null ? "强制退出（将丢失未保存的缓存）" : "退出";
 
     /// <summary>False: a quit already runs, and one waiting for the compile stops waiting.</summary>
     public bool Begin()

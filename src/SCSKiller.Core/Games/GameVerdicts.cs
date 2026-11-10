@@ -99,7 +99,7 @@ public sealed class GameVerdicts
     /// <summary>The line for a reason code: the app's own, else the note, else one for the verdict.</summary>
     public static string Text(string verdict, string reason, string? note) =>
         reason != OtherReason && Reasons.TryGetValue(reason, out var own) ? own
-        : note ?? (verdict == NoStutterVerdict ? "This game prepares its shaders itself" : "SCSKiller can't compile this game");
+        : note ?? (verdict == NoStutterVerdict ? "此游戏自行预处理着色器" : "SCSKiller 无法编译此游戏");
 
     public static GameVerdicts Embedded { get => field ??= TryParse(ContentFile.Embedded("SCSKiller.Core.Games." + FileName))!; }
 

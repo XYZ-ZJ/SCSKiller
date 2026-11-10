@@ -12,12 +12,12 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Cache" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="缓存" Style="{StaticResource TitleTextBlockStyle}" />
                     <TextBlock Text="{x:Bind Vm.Total, Mode=OneWay}" Style="{StaticResource Secondary}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
-                    <Button Content="Clear everything" Click="OnClearEverything" IsEnabled="{x:Bind Vm.CanClearEverything, Mode=OneWay}" />
-                    <Button Content="Refresh" Click="OnRefresh" />
+                    <Button Content="清除全部" Click="OnClearEverything" IsEnabled="{x:Bind Vm.CanClearEverything, Mode=OneWay}" />
+                    <Button Content="刷新" Click="OnRefresh" />
                 </StackPanel>
             </Grid>
 
@@ -32,7 +32,7 @@
 
             <Border Style="{StaticResource Card}" Padding="20">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Where the driver keeps its cache" Style="{StaticResource Section}" />
+                    <TextBlock Text="显卡驱动保存缓存的位置" Style="{StaticResource Section}" />
                     <TextBlock Text="Games read their cache from here, and new caches are written here. The driver has no setting to move it."
                                Style="{StaticResource Caption}" TextWrapping="Wrap" />
                     <TextBlock Text="SCSKiller doesn't know where this GPU's driver keeps its cache." Visibility="{x:Bind Vm.NoFolders, Mode=OneWay}"
@@ -49,7 +49,7 @@
                                         <TextBlock Text="{x:Bind Note}" Visibility="{x:Bind HasNote}" Foreground="{ThemeResource WarnBrush}" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{x:Bind Size}" VerticalAlignment="Center" />
-                                    <Button Grid.Column="2" Content="Open folder" Tag="{x:Bind Path}" Click="OnOpenFolder" VerticalAlignment="Center" />
+                                    <Button Grid.Column="2" Content="打开文件夹" Tag="{x:Bind Path}" Click="OnOpenFolder" VerticalAlignment="Center" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
@@ -85,7 +85,7 @@
                                                     <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
                                                     <TextBlock Text="{x:Bind Note}" Visibility="{x:Bind HasNote}" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                                                 </StackPanel>
-                                                <HyperlinkButton Grid.Column="2" Content="Open folder" Tag="{x:Bind}" Click="OnOpenFolder" Padding="0"
+                                                <HyperlinkButton Grid.Column="2" Content="打开文件夹" Tag="{x:Bind}" Click="OnOpenFolder" Padding="0"
                                                                  Visibility="{x:Bind HasFolder}" VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="3" Text="{x:Bind Size}" VerticalAlignment="Center" />
                                                 <HyperlinkButton Grid.Column="4" Content="Delete" Tag="{x:Bind}" Click="OnDeleteItem" Padding="0"

@@ -45,7 +45,7 @@ public sealed class StutterList
         Text(e.Name, 100) && Key(e.Name).Length > 0 && Text(e.Reason, 300)
         && e.Ids is { Length: <= 8 } && e.Ids.All(IsId)
         && e.Severity is "severe" or "moderate"
-        && (e.Source == OwnMeasurement || e.Source is { Length: <= 500 } && IsHttps(e.Source))
+        && (e.Source is OwnMeasurement or "SCSKiller measurement" or "SCSKiller 实测数据" || e.Source is { Length: <= 500 } && IsHttps(e.Source))
         && DateOnly.TryParseExact(e.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
 
     static bool Text(string? s, int max) => ContentFile.Text(s, max);

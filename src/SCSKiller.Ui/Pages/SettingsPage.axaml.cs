@@ -107,7 +107,7 @@ public sealed partial class SettingsPage : UserControl
     // Stands in for the website's recorder-anti-cheat page until it exists.
     public static ContentDialog AntiCheatDetailsDialog() => new()
     {
-        Title = "Recording in games with anti-cheat", CloseButtonText = "Close",
+        Title = "在包含反作弊的游戏中录制", CloseButtonText = "关闭",
         Content = "For one session, SCSKiller puts its recorder (a d3d12.dll) next to the game's exe.\n\n"
             + "SCSKiller removes every file it places when the game exits, or after a crash at your next logon.\n\n"
             + "Enabling the recorder in games with anti-cheat is at your own risk. SCSKiller isn't responsible for bans.",
@@ -118,7 +118,7 @@ public sealed partial class SettingsPage : UserControl
     async void OnRemoveRecorders(object? _, RoutedEventArgs __)
     {
         if (Host.Core is not ScsKiller real || !await App.ConfirmAsync("Remove recorders?",
-                "SCSKiller removes its recorder from every game, then quits. Close your games first: a game that's running keeps its recorder. Recording resumes when SCSKiller starts again.", "Remove and quit")) return;
+                "SCSKiller removes its recorder from every game, then quits. Close your games first: a game that's running keeps its recorder. Recording resumes when SCSKiller starts again.", "移除并退出")) return;
         var removed = await Task.Run(real.RemoveRecorders);
         string[] left = [.. removed.Games.Where(r => r.Left != null).Select(r => $"{real.Games.FirstOrDefault(s => s.Game.Id == r.GameId)?.Game.Name ?? r.Folder}: {r.Left}"),
             .. removed.VulkanLeft is { } vulkan ? [$"Vulkan recorders' registrations: {vulkan}"] : Array.Empty<string>()];
@@ -132,7 +132,7 @@ public sealed partial class SettingsPage : UserControl
         // SCSKiller stays open, so the user can remove them again once a game is closed
         await App.ShowAsync(new ContentDialog
         {
-            Title = "Some recorders are still in place",
+            Title = "部分录制器仍未移除",
             Content = new TextBlock { Text = string.Join("\n", left) + "\n\nClose any game named here, then select Remove recorders again.", TextWrapping = TextWrapping.Wrap },
             CloseButtonText = "OK",
         });
@@ -154,7 +154,7 @@ public sealed partial class SettingsPage : UserControl
                     new TextBlock { Text = Fmt.KeptSize(g.Kept!), Classes = { "Secondary" } },
                 },
             });
-            var remove = new Button { Content = "Remove", VerticalAlignment = VerticalAlignment.Center };
+            var remove = new Button { Content = "移除", VerticalAlignment = VerticalAlignment.Center };
             remove.Click += (_, _) => { Host.Core.DropKeptCache(g.Game.Id); rows.Children.Remove(row); Vm.Refresh(); };
             Grid.SetColumn(remove, 1);
             row.Children.Add(remove);
@@ -162,13 +162,13 @@ public sealed partial class SettingsPage : UserControl
         }
         return new()
         {
-            Title = "Kept aside", CloseButtonText = "Close",
+            Title = "单独保留的备份", CloseButtonText = "关闭",
             Content = new StackPanel
             {
                 Spacing = 14, MinWidth = 420,
                 Children =
                 {
-                    new TextBlock { Text = "Removing frees the space. The game is kept again after its next compile.", TextWrapping = TextWrapping.Wrap },
+                    new TextBlock { Text = "移除可释放该空间。游戏在下次编译后将重新进行保留备份。", TextWrapping = TextWrapping.Wrap },
                     new ScrollViewer { MaxHeight = 360, Content = rows },
                 },
             },

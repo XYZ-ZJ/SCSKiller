@@ -424,8 +424,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     public bool CanLaunch { get; private set; } = BeforeAfterUi.Launchable(s);
     public bool Compiling => compiling;
     public bool CanPlay => !Playing && !compiling;
-    public string PlayText => Playing ? "Running" : "Play";
-    public string PlayTip => Playing ? $"{Name} is running" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
+    public string PlayText => Playing ? "运行中" : "开始游玩";
+    public string PlayTip => Playing ? $"{Name} 正在运行" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
 
     public override string ToString() => $"{Name}, {StatusText}, {RowTip}";   // list item name for screen readers
 
@@ -475,7 +475,7 @@ public sealed class LibraryVm : Bindable
     string filter = "";
     public string Filter { get => filter; set { if (value.Trim() != filter) { filter = value.Trim(); ApplyFilter(); Changed(); } } }
     LibraryShow show;
-    public static readonly string[] ShowLabels = ["All games", "Not supported", "Ready to compile", "Compiled", "Compiled by SCSKiller"];
+    public static readonly string[] ShowLabels = ["全部游戏", "暂不支持", "待编译", "已编译", "由 SCSKiller 编译"];
     public int ShowIndex { get => (int)show; set { if (value >= 0 && (LibraryShow)value != show) { show = (LibraryShow)value; ApplyFilter(); Changed(); } } }
     int shown;
     public bool Filtering => filter.Length > 0 || show != LibraryShow.All;
@@ -506,9 +506,9 @@ public sealed class LibraryVm : Bindable
         Refresh();
     }
     string Arrow(LibrarySort up, LibrarySort down) => sort == up ? " ↑" : sort == down ? " ↓" : "";
-    public string GameHeader => "Game" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
-    public string PipelinesHeader => "Pipelines" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
-    public string CacheHeader => "Cache" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
+    public string GameHeader => "游戏" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
+    public string PipelinesHeader => "管线" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
+    public string CacheHeader => "缓存" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
     public bool Scanning { get; private set; }
     int refreshing;   // Rescan calls not finished: the scan, then a user refresh's server fetches
     public bool Refreshing => refreshing > 0;
@@ -528,13 +528,13 @@ public sealed class LibraryVm : Bindable
     public string Summary { get; private set; } = "";
     public int ReadyCount { get; private set; }     // ready, not queued yet and not a no-stutter game
     public int WaitingCount { get; private set; }
-    public string AddAllText => $"Add all ready ({ReadyCount})";
+    public string AddAllText => $"全部待编译 ({ReadyCount})";
     public bool CanAddAll => ReadyCount > 0 && !Scanning;
     public int RecommendedCount { get; private set; }   // stutters without a compile, ready and not queued yet
-    public string AddRecommendedText => $"Add all recommended ({RecommendedCount})";
+    public string AddRecommendedText => $"全部推荐 ({RecommendedCount})";
     public bool CanAddRecommended => RecommendedCount > 0 && !Scanning;
     public bool CannotAddRecommended => !CanAddRecommended;   // the plain, disabled twin of the accent button (theme brushes stay in XAML)
-    public string CompileQueueText => $"Compile queue ({WaitingCount})";
+    public string CompileQueueText => $"编译队列 ({WaitingCount})";
     public bool CanCompileQueue => WaitingCount > 0;
 
     public string CacheUsed { get; private set; } = "";
@@ -560,7 +560,7 @@ public sealed class LibraryVm : Bindable
         _ => "Rebuild games yourself from the Library",
     };
     public string Threads => App.Core.Settings.Threads.ToString();
-    public string ThreadsOf => $"of {Environment.ProcessorCount} threads";
+    public string ThreadsOf => $"共 {Environment.ProcessorCount} 线程";
     public string SpeedNote { get; private set; } = "";
 
     public void Load()
@@ -895,7 +895,7 @@ public sealed class DetailVm(string id) : Bindable
     bool BaLaunchable => BeforeAfterUi.Launchable(s);
     public string BaText => Ba switch
     {
-        null => "Before and after",
+        null => "编译前后对比测试",
         _ when BaVoided => "Start over",
         { Stage: BeforeAfterStage.BeforeArmed, ClearPending: true } => "Clear the cache and try again",
         { Stage: BeforeAfterStage.BeforeArmed or BeforeAfterStage.AfterArmed } => BaLaunchable ? $"Start {Name}" : $"Start {Name} as usual",
@@ -1639,7 +1639,7 @@ public sealed class QueueVm : Bindable
         var pending = queue.Where(Fmt.Active).ToList();
         var total = TimeSpan.FromTicks(pending.Sum(q => Left(q)?.Ticks ?? 0));
         bool unknown = pending.Any(q => Left(q) is null && !ScsKiller.Stalled(q));
-        Summary = pending.Count == 0 ? "Nothing queued"
+        Summary = pending.Count == 0 ? "队列为空"
             : $"{pending.Count} game{(pending.Count == 1 ? "" : "s")} · "
               + (total > TimeSpan.Zero ? $"about {Format.Duration(total)} in total{(unknown ? ", plus plans to build" : "")}" : "time known once the plans are built")
               + (cur == null && !core.QueueRunning ? " · not started" : "");
@@ -2096,7 +2096,7 @@ public sealed class CacheVm : Bindable
     }
 
     public CacheInventory? Inventory => read;
-    public string Total => read == null ? "Reading the caches…" : split;
+    public string Total => read == null ? "正在读取缓存…" : split;
     public bool NoFolders => read is { Folders.Count: 0, Groups.Count: 0 };
 
     public bool Deleting { get; private set; }

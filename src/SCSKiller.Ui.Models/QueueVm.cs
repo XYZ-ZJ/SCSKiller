@@ -61,7 +61,7 @@ public sealed class QueueVm : Bindable
     public string CurrentDetail => cur is null ? "" : Fmt.Stage(cur) + (Fmt.ProgressText(cur) is { } p ? " · " + p : "") + (Fmt.Started(cur) is { } at ? " · " + at : "");
     public bool Indeterminate => Fmt.Indeterminate(cur);
     public double Percent => Fmt.Percent(cur);
-    public string PauseText => cur?.Stage == QueueStage.Paused ? "Resume" : "Pause";
+    public string PauseText => cur?.Stage == QueueStage.Paused ? "继续" : "暂停";
     public bool CacheWarn { get; private set; }
     public string CacheWarnText { get; private set; } = "";
     public string RuntimeWarnText { get; private set; } = "";
@@ -101,10 +101,10 @@ public sealed class QueueVm : Bindable
         var pending = queue.Where(Fmt.Active).ToList();
         var total = TimeSpan.FromTicks(pending.Sum(q => Left(q)?.Ticks ?? 0));
         bool unknown = pending.Any(q => Left(q) is null && !ScsKiller.Stalled(q));
-        Summary = pending.Count == 0 ? "Nothing queued"
+        Summary = pending.Count == 0 ? "队列为空"
             : $"{pending.Count} game{(pending.Count == 1 ? "" : "s")} · "
-              + (total > TimeSpan.Zero ? $"about {Format.Duration(total)} in total{(unknown ? ", plus plans to build" : "")}" : "time known once the plans are built")
-              + (cur == null && !core.QueueRunning ? " · not started" : "");
+              + (total > TimeSpan.Zero ? $"about {Format.Duration(total)} in total{(unknown ? ", plus plans to build" : "")}" : "将在生成编译规划后预估耗时")
+              + (cur == null && !core.QueueRunning ? " · 尚未开始" : "");
 
         planned = pending.Sum(q => games.GetValueOrDefault(q.GameId)?.EstimatedCacheBytes ?? 0);
         var queued = pending.Select(q => games.GetValueOrDefault(q.GameId)).OfType<GameState>().ToList();
@@ -142,7 +142,7 @@ public sealed class QueueVm : Bindable
         QueueStage.Stopped => "Stopped",
         QueueStage.Done => q.Note is { } n ? "Done · " + n : "Done",
         _ when q.Note != null => q.Note,
-        _ => g?.Plan is { } plan ? $"{plan.Recorded + plan.Generated + plan.MiddlewareItems:N0} pipelines{(plan.D3D11Shaders > 0 ? $" + {plan.D3D11Shaders:N0} DirectX 11 shaders" : "")}" : "plan is built first",
+        _ => g?.Plan is { } plan ? $"{plan.Recorded + plan.Generated + plan.MiddlewareItems:N0} pipelines{(plan.D3D11Shaders > 0 ? $" + {plan.D3D11Shaders:N0} DirectX 11 shaders" : "")}" : "先生成编译规划",
     };
 
     public void PauseOrResume() => Fmt.PauseOrResume(cur);

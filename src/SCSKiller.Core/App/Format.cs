@@ -5,20 +5,20 @@ public static class Format
 {
     /// <summary>The game page's line before a session with the recorder; null for a game whose recorder can't go in.</summary>
     public static string? SessionHint(GameState s) => s.RecorderSkip is ScsKiller.SkipUnsupported or ScsKiller.SkipVulkanSteamOnly ? null
-        : "Play with it on and your last session shows here: how much was ready and what still stuttered.";
+        : "开启录制并游玩，此处将显示您上次的游玩会话：就绪着色器数量及仍发生卡顿的情况。";
 
     public const string Dash = "—";
 
     /// <summary>The Library cache card's line while the NVIDIA shader cache is turned off (<see cref="ScsKiller.CacheOff"/>); null otherwise.</summary>
-    public static string? CacheOffLine(GpuVendor vendor, CacheLimit? limit) => ScsKiller.CacheOff(vendor, limit) ? "The NVIDIA shader cache is turned off" : null;
+    public static string? CacheOffLine(GpuVendor vendor, CacheLimit? limit) => ScsKiller.CacheOff(vendor, limit) ? "NVIDIA 着色器缓存已处于关闭状态" : null;
 
     /// <summary>The driver cache's warning (the Library tile's icon, the Cache page's line): <see cref="CacheOffLine"/>, the driver's
     /// default limit, or over 75% of the limit; null otherwise. <paramref name="used"/>: what the limit counts, the fullest game's
     /// when the limit is each game's own (<paramref name="perGame"/>).</summary>
     public static string? CacheWarning(GpuVendor vendor, CacheLimit? limit, long used, bool perGame) =>
         CacheOffLine(vendor, limit) ?? (limit?.Bytes is not { } max ? null
-        : limit.IsDriverDefault ? "Driver default limit may evict games"
-        : max > 0 && used * 4 > max * 3 ? perGame ? "A game's cache is nearly full" : "The cache is nearly full" : null);
+        : limit.IsDriverDefault ? "驱动默认上限可能会清除早期游戏的缓存"
+        : max > 0 && used * 4 > max * 3 ? perGame ? "某款游戏的着色器缓存接近饱和" : "着色器缓存接近饱和" : null);
 
     /// <summary>The cache's line on the Library and the Cache page, from sizes the app already measured: the driver cache against
     /// its limit, AMD's DirectX 11 cache apart (<paramref name="capped"/>: its DirectX 12 one, which the limit counts) and the Windows
@@ -72,7 +72,7 @@ public static class Format
 
     // FrameLog's 1% low is 0 only when play is empty: the startup never found a quiet window
     public static bool NoPlay(double low1PctFps) => low1PctFps <= 0;
-    const string NoPlayText = "loading or compiling shaders the whole time";
+    const string NoPlayText = "全程处于加载或编译着色器状态";
 
     /// <summary>"5 min: 3 stutters from shader compiles (worst 1.3 s), 2 other hitches, 1% low 35 fps. Loading: 4 slow
     /// frames compiling shaders (worst 9.4 s), 12 others." (compiling shaders: startup only). <paramref name="unsplit"/>: a
@@ -82,8 +82,8 @@ public static class Format
         int other = f.Hitches.Count(h => h.Cause == HitchCause.Other), loading = f.Hitches.Count(h => h.Cause == HitchCause.Loading);
         var compiling = f.Hitches.Where(h => h.Cause == HitchCause.LoadingShaders).ToList();
         return (NoPlay(f.Low1PctFps) ? $"{Duration(f.Duration)}, {NoPlayText}." : $"{Duration(f.Duration)}: " + (unsplit
-                ? other == 0 ? "no stutters" : $"{other:N0} stutter{(other == 1 ? "" : "s")} (worst {Ms(f.Hitches.Where(h => h.Cause == HitchCause.Other).Max(h => h.Ms))})"
-                : (shader.Count == 0 ? "no stutters from shader compiles"
+                ? other == 0 ? "无卡顿" : $"{other:N0} 次卡顿 (最严重 {Ms(f.Hitches.Where(h => h.Cause == HitchCause.Other).Max(h => h.Ms))})"
+                : (shader.Count == 0 ? "未出现着色器编译卡顿"
                 : $"{shader.Count:N0} stutter{(shader.Count == 1 ? "" : "s")} from shader compiles (worst {Ms(shader.Max(h => h.Ms))})")
             + (other == 0 ? ", no other hitches" : $", {other:N0} other hitch{(other == 1 ? "" : "es")}"))
             + $", 1% low {f.Low1PctFps:0} fps." + (unsplit ? $" {BeforeAfter.Dx11Label}." : ""))
@@ -104,10 +104,10 @@ public static class Format
     public static string Engine(EngineInfo e, string? family = null) =>
         e.Version is "" or "-" or "?" ? family ?? e.Family : $"{family ?? e.Family} {e.Version}";
 
-    public const string MergingStage = "Handing the compile to the game's cache";
+    public const string MergingStage = "正在将编译产物合并至游戏缓存";
     public const string WritingStage = "Finishing: writing into the game's cache";
-    public const string SavingStage = "Saving the driver's cache";
-    public const string FinishingStage = "Finishing up";
+    public const string SavingStage = "正在保存显卡驱动缓存";
+    public const string FinishingStage = "正在完成";
 
     /// <summary>The item is being compiled: any stage before it finishes, paused included.</summary>
     public static bool Running(QueueItem q) => q.Stage is QueueStage.Indexing or QueueStage.Planning or QueueStage.Materializing
@@ -134,15 +134,15 @@ public static class Format
             : running.Stage == QueueStage.Warming && done is { } d ? ($"Compiling {name}, {100 * d:0}%", d)
             : running is { Stage: QueueStage.Merging, Note: { } writing } ? ($"{writing}: {name}", null)
             : running.Stage == QueueStage.Merging ? ($"{MergingStage}: {name}" + (done is { } m ? $", {100 * m:0}%" : ""), done)
-            : running.Stage == QueueStage.Saving ? ($"{SavingStage}: {name}", null)
-            : running.Stage == QueueStage.Finishing ? ($"{FinishingStage}: {name}", null)
+            : running.Stage == QueueStage.Saving ? ($"正在保存显卡驱动缓存：{name}", null)
+            : running.Stage == QueueStage.Finishing ? ($"正在完成：{name}", null)
             : ($"Preparing {name}", null);
     }
 
     /// <summary>"FSR4: 80 known pipelines, compiled with the game", "DLSS: compiled by the NVIDIA driver itself",
     /// "XeSS: detected; added after a recording sees them". <paramref name="nvidia"/>: this PC's GPU, the only one DLSS runs on.</summary>
-    public static string Middleware(MiddlewareTag t, bool nvidia = true) => t.Label + (t.Pipelines > 0 ? $": {t.Pipelines:N0} known pipelines, compiled with the game"
-        : t.Label == "DLSS" ? nvidia ? ": compiled by the NVIDIA driver itself" : ": runs only on NVIDIA" : ": detected, added after a recording sees them");
+    public static string Middleware(MiddlewareTag t, bool nvidia = true) => t.Label + (t.Pipelines > 0 ? $": 已知 {t.Pipelines:N0} 个管线，随游戏一同编译"
+        : t.Label == "DLSS" ? nvidia ? ": 由 NVIDIA 显卡驱动自身编译" : ": 仅在 NVIDIA 显卡上运行" : ": 已检测到，将在录制捕获后添加");
 
     /// <summary>The Library's notice that this GPU can't compile, or on Intel that its support is experimental
     /// (<paramref name="intel"/>: the Intel backend is in use); null on NVIDIA and AMD, or once closed for this GPU
@@ -151,10 +151,10 @@ public static class Format
     public static string? GpuNotice(GpuInfo gpu, string? dismissedFor, bool intel = false, string? why = null) => dismissedFor == gpu.Name ? null
         : why ?? (gpu.Vendor is GpuVendor.Nvidia or GpuVendor.Amd ? null : gpu.Vendor switch
         {
-            GpuVendor.Intel when intel => "Intel support is experimental. DirectX 12 games need a recording first.",
-            GpuVendor.Intel => "Intel support is experimental and off. Turn it on in Settings.",
-            GpuVendor.Qualcomm => "SCSKiller doesn't compile on Qualcomm GPUs yet: how Qualcomm's driver caches shaders hasn't been measured.",
-            _ => "SCSKiller doesn't compile on this GPU yet: it only knows how NVIDIA and AMD drivers cache shaders.",
+            GpuVendor.Intel when intel => "Intel 显卡支持尚处于实验阶段。DirectX 12 游戏需要先进行录制。",
+            GpuVendor.Intel => "Intel 显卡支持处于实验阶段且当前已关闭。可在“设置”中开启。",
+            GpuVendor.Qualcomm => "SCSKiller 暂不支持在 Qualcomm GPU 上编译：高通驱动的着色器缓存机制尚未完成测定。",
+            _ => "SCSKiller 暂不支持在此 GPU 上编译：目前仅适配了 NVIDIA 与 AMD 驱动的着色器缓存机制。",
         });
 
     /// <summary>A Library row's note: a few words for the status's reason (the whole one is in the row's tooltip and on the
@@ -168,23 +168,23 @@ public static class Format
         var partly = ScsKiller.IsPartlyWarmed(s);
         return s.Status switch
         {
-            _ when s.CompileUnreached => "This game needs a custom loader",
-            GameStatus.Warmed when r is ScsKiller.OverCacheLimitReason or ScsKiller.OverGameCapReason or ScsKiller.OverCompileFolderReason => "Too big for the shader cache",
+            _ when s.CompileUnreached => "需要专用加载器",
+            GameStatus.Warmed when r is ScsKiller.OverCacheLimitReason or ScsKiller.OverGameCapReason or ScsKiller.OverCompileFolderReason => "超出着色器缓存上限",
             GameStatus.Warmed when r == ScsKiller.CacheFullReason => "Shader cache full",
             _ when ScsKiller.LaunchLine(s) is { } launch => launch,
             _ when ScsKiller.ShownNotReached(s) => "Not in the game's cache yet",
             _ when ScsKiller.LinkedAway(r) => Sentence(r),
             GameStatus.Warmed when ScsKiller.IsPartlyCompiled(s) => Sentence(ScsKiller.PartlyCompiledNote(s)),
-            GameStatus.Warmed when partly => $"Driver {s.WarmedDriverVersion} · {s.Careful!.LaunchCompiled * 100:0}% still compiled",
-            GameStatus.Warmed when ScsKiller.RtAfterRecording(s) && s.NoStutter == null => (s.RecorderInstalled ? "Recorder on: play with ray tracing"
-                : ScsKiller.RecordedEnough(s) ? "Ray tracing needs a recording" : "Ray tracing needs a 5-min recording") + KeyNote(s),
-            GameStatus.Warmed when ScsKiller.BothApis(s.Plan) => "DirectX 11 and 12" + (ScsKiller.IsPartial(s.Plan) ? " · partly covered" : "") + KeyNote(s),
-            GameStatus.Warmed => $"Driver {s.WarmedDriverVersion}" + (ScsKiller.IsPartial(s.Plan) ? " · partly covered" : "") + KeyNote(s),
+            GameStatus.Warmed when partly => $"驱动 {s.WarmedDriverVersion} · 仍有 {s.Careful!.LaunchCompiled * 100:0}% 需游戏编译",
+            GameStatus.Warmed when ScsKiller.RtAfterRecording(s) && s.NoStutter == null => (s.RecorderInstalled ? "录制已开启：请开启光追游玩"
+                : ScsKiller.RecordedEnough(s) ? "光追特效需要录制数据" : "光追需要约 5 分钟录制") + KeyNote(s),
+            GameStatus.Warmed when ScsKiller.BothApis(s.Plan) => "DirectX 11 与 12" + (ScsKiller.IsPartial(s.Plan) ? " · 部分覆盖" : "") + KeyNote(s),
+            GameStatus.Warmed => $"驱动 {s.WarmedDriverVersion}" + (ScsKiller.IsPartial(s.Plan) ? " · 部分覆盖" : "") + KeyNote(s),
             GameStatus.Stale => StaleNote(r),
             _ when ScsKiller.CheckingAntiCheat(s) => null,   // the title: ScsKiller.CheckingAntiCheatTitle
             GameStatus.NeedsRecording when r == ScsKiller.OfflineSessionNote => r,
             GameStatus.NeedsRecording when r is Vulkan.VulkanPlan.StartOnce or ScsKiller.LauncherClearsReason => null,   // the title says it
-            GameStatus.NeedsRecording when s.NoStutter != null && !s.RecorderInstalled => "Compiling isn't needed",
+            GameStatus.NeedsRecording when s.NoStutter != null && !s.RecorderInstalled => "无需编译",
             GameStatus.NeedsRecording when s.RecordingPaused => "Recording paused: limit reached",
             GameStatus.NeedsRecording when ScsKiller.NeverRecorded(s) => null,   // the title: ScsKiller.NothingRecordedTitle
             GameStatus.NeedsRecording when s.RecorderInstalled && !ScsKiller.RecordedEnough(s) => Has(Planning.Planner.Dx12Only) ? "Recorder on: play on DirectX 12" : "Recorder on: play 5 minutes",
@@ -207,12 +207,12 @@ public static class Format
             GameStatus.Ready when Starts("compiles every DirectX 11 shader") => "DirectX 11",
             GameStatus.Ready => null,
             _ when r == Games.BootPrecompiles.Reason => "Builds its shaders at the main menu",
-            _ when s.ShaderModBlocks => $"{s.ShaderMod} changes all its pipelines",
+            _ when s.ShaderModBlocks => $"{s.ShaderMod} 替换了其所有管线",
             _ when s.AnyAntiCheat && (Starts("needs a recording, which") || Starts(ScsKiller.AntiCheatNoRecordingStart)) => "Contains anti-cheat" + (s.InCommunityDb == true ? " · " + InDb(r) : ""),
             _ when Has(ScsKiller.ManualNoRecording) => "Needs a recording: confirm its folder",
             _ when s.Engine?.Encrypted == true => null,   // the title: "Encrypted game files"
             _ when r is Codecs.NoOodleDll or Codecs.NoNativeOodle => r,
-            _ when r.EndsWith(Planning.Planner.VulkanNotOnGpu, StringComparison.Ordinal) => "Vulkan not supported on this GPU yet",
+            _ when r.EndsWith(Planning.Planner.VulkanNotOnGpu, StringComparison.Ordinal) => "当前 GPU 暂不支持 Vulkan",
             _ when s.Engine?.Unsupported is { } u => u.StartsWith("no D3D shaders", StringComparison.Ordinal) ? "No DirectX shaders" : "Engine not supported yet",
             _ when r == ScsKiller.CheckingReason => null,   // the title: "Checking…"
             _ when r == ScsKiller.NotCheckedReason => "Open to check",
@@ -233,20 +233,20 @@ public static class Format
         + (s.StarfieldLuma && s.Status != GameStatus.Unsupported ? "\n" + ScsKiller.StarfieldLumaNote : "");
 
     /// <summary>Recorder in, not long enough yet: the DirectX 12 hint stays, a DirectX 11 run never loads the recorder.</summary>
-    public static string RecorderOnNote(GameState s) => "recorder on: play for about 5 minutes"
+    public static string RecorderOnNote(GameState s) => "录制已开启：请游玩约 5 分钟"
         + (s.StatusReason.Contains(Planning.Planner.Dx12Only, StringComparison.OrdinalIgnoreCase) ? ", " + Planning.Planner.Dx12Only : "");
 
     static string StaleNote(string r) =>
-        r.StartsWith("driver changed:", StringComparison.Ordinal) ? $"Driver {r[(r.LastIndexOf(' ') + 1)..]} cleared its cache"
-        : r == ScsKiller.TrimmedPartReason ? "Part of its shader cache is gone"
-        : r == ScsKiller.TrimmedAllReason ? "Its shader cache was removed"
-        : r.StartsWith("the compile didn't reach", StringComparison.Ordinal) ? "The compile missed the game's cache"
-        : r.StartsWith("the game runs as", StringComparison.Ordinal) ? "The exe name's case changed"
-        : r.StartsWith("the last compile filled the cache of", StringComparison.Ordinal) ? "Compiled for another exe"
-        : r.StartsWith("game updated", StringComparison.Ordinal) ? "Game updated"
-        : r.StartsWith("game shaders changed", StringComparison.Ordinal) ? "Game shaders changed"
-        : r.StartsWith("SCSKiller can now compile", StringComparison.Ordinal) ? "SCSKiller can compile more"
-        : r.StartsWith("Maximum mode", StringComparison.Ordinal) ? "Maximum mode: more to compile"
+        r.StartsWith("driver changed:", StringComparison.Ordinal) ? $"驱动版本 {r[(r.LastIndexOf(' ') + 1)..]} 已清空缓存"
+        : r == ScsKiller.TrimmedPartReason ? "部分着色器缓存丢失"
+        : r == ScsKiller.TrimmedAllReason ? "着色器缓存已被清除"
+        : r.StartsWith("the compile didn't reach", StringComparison.Ordinal) ? "编译未生效于游戏缓存"
+        : r.StartsWith("the game runs as", StringComparison.Ordinal) ? "可执行文件名大小写发生改变"
+        : r.StartsWith("the last compile filled the cache of", StringComparison.Ordinal) ? "为另一可执行程序编译"
+        : r.StartsWith("game updated", StringComparison.Ordinal) ? "游戏已更新"
+        : r.StartsWith("game shaders changed", StringComparison.Ordinal) ? "游戏着色器发生变动"
+        : r.StartsWith("SCSKiller can now compile", StringComparison.Ordinal) ? "SCSKiller 可编译更多管线"
+        : r.StartsWith("Maximum mode", StringComparison.Ordinal) ? "极限模式：有更多内容待编译"
         : r.Contains(". " + ScsKiller.RedoesNote, StringComparison.Ordinal) ? r
         : Sentence(FirstClause(r));   // "N new pipelines recorded"
 

@@ -201,7 +201,7 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
     /// <summary>What the NVIDIA App enforces: no automatic compilation while the shader cache is Disabled.</summary>
     public static string? RefuseReason(AutoShaderCompilation level, CacheLimit? cache) =>
         level != AutoShaderCompilation.Off && cache is { Bytes: 0 }
-            ? "The driver's shader cache is disabled, so there is nothing to compile into. Set a cache size first." : null;
+            ? "显卡驱动的着色器缓存已被禁用，无法写入编译结果。请先在控制面板或设置中设置缓存大小。" : null;
 
     /// <summary>Enable: the setting 1..3, saved, then <c>NvOSC.exe -register</c> (as the NVIDIA App does). Disable: 0, saved,
     /// then <c>NvOSC.exe -deregister</c> (deletes the task; the App's -register would leave it disabled). Only the part that
@@ -246,7 +246,7 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
         if (GetAutoShaderCompilation() is { } after && !after.Is(level))
             throw new InvalidOperationException(after.Level != level
                 ? $"the driver still reads {after.Level} after NvOSC.exe {arg}"
-                : (write ? "the setting is saved, but " : "") + $"NvOSC.exe {arg} finished and the NVIDIA task " +
+                : (write ? "设置已保存，但 " : "") + $"NvOSC.exe {arg} finished and the NVIDIA task " +
                   (level == AutoShaderCompilation.Off ? "is still enabled" : "still isn't set up"));
         return AutoShaderOutcome(level, changed: true);
     }
@@ -259,8 +259,8 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
 
     public static string AutoShaderOutcome(AutoShaderCompilation level, bool changed) => (level, changed) switch
     {
-        (AutoShaderCompilation.Off, false) => "Already off. Nothing to change.",
-        (AutoShaderCompilation.Off, true) => "Turned off.",
+        (AutoShaderCompilation.Off, false) => "已经处于关闭状态，无需更改。",
+        (AutoShaderCompilation.Off, true) => "已关闭。",
         (_, false) => $"Already on ({level}). Nothing to change.",
         _ => $"Turned on ({level}).",
     };
@@ -268,23 +268,23 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
     /// <summary>A failed SetSettingEx or SaveSettings: the session is destroyed unsaved, so nothing changed.</summary>
     public static Exception AutoShaderDrsFailure(string call, int rc, string? name) => rc switch
     {
-        InvalidUserPrivilege => new UnauthorizedAccessException("switching NVIDIA Auto Shader Compilation needs administrator rights"),
-        SettingNotFound => new InvalidOperationException("this NVIDIA driver doesn't have the Auto Shader Compilation setting"),
+        InvalidUserPrivilege => new UnauthorizedAccessException("切换 NVIDIA 自动着色器编译需要管理员权限"),
+        SettingNotFound => new InvalidOperationException("此 NVIDIA 显卡驱动版本不具备自动着色器编译设置"),
         _ => new InvalidOperationException($"the NVIDIA driver didn't take the setting, nothing was changed ({call} answered {rc}{(string.IsNullOrEmpty(name) ? "" : " " + name)})"),
     };
 
     // NvOSC.exe's own names for its exit codes ("Exiting with code %d (%s)", r617).
-    static readonly string[] NvOscExits = ["Success", "General abnormal termination", "Major error", "Library/DLL loading failure",
-        "Initialization failure", "Task scheduler operation failure", "Memory allocation/resource failure", "Configuration/command line argument error",
-        "Compilation/processing error", "File/disk cache error", "Memory leak detected", "Thread pool initialization failure"];
+    static readonly string[] NvOscExits = ["Success", "常规异常终止", "严重错误", "动态链接库 (DLL) 加载失败",
+        "初始化失败", "任务计划程序操作失败", "内存分配或资源不足失败", "配置或命令行参数错误",
+        "编译或处理错误", "文件或磁盘缓存错误", "检测到内存泄漏", "线程池初始化失败"];
 
     /// <summary>NvOSC.exe didn't do its job: it exited with <paramref name="exitCode"/>, didn't start
     /// (<paramref name="startError"/>), or (neither) is still running after a minute, when a retry could overlap it.
     /// Its console <paramref name="output"/>: its reason in the first line, all of it on the lines below.</summary>
     public static string NvOscFailure(string arg, int? exitCode, bool settingSaved, string? startError = null, string? output = null)
     {
-        var task = arg == "-deregister" ? "removed" : "set up";
-        var saved = settingSaved ? "the setting is saved, but " : "";
+        var task = arg == "-deregister" ? "removed" : "已就绪";
+        var saved = settingSaved ? "设置已保存，但 " : "";
         var lines = (output ?? "").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
         // its last line repeats the exit code: the reason is the last line with an error code, else the one before it
         var reason = lines.LastOrDefault(l => l.Contains("0x", StringComparison.OrdinalIgnoreCase))
@@ -293,7 +293,7 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
         var full = lines.Count > 0 ? "\nNvOSC.exe output:\n" + string.Join('\n', lines) : "";
         if (exitCode == null && startError == null)
             return saved + $"NvOSC.exe {arg} is still running after a minute, so the NVIDIA task may not be {task} yet.{said} Wait a minute before applying again." + full;
-        var why = exitCode is { } c ? $"failed with {(c >= 0 && c < NvOscExits.Length ? NvOscExits[c] : "an unknown error")} (exit code {c})"
+        var why = exitCode is { } c ? $"failed with {(c >= 0 && c < NvOscExits.Length ? NvOscExits[c] : "发生未知错误")} (exit code {c})"
             : $"didn't start ({startError})";
         return saved + $"the NVIDIA task couldn't be {task}: NvOSC.exe {arg} {why}.{said} Apply again to retry." + full;
     }
@@ -420,7 +420,7 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
     public static uint Encode(CacheLimit limit)
     {
         if (limit.Bytes is not { } b) return Unlimited;
-        if (b < 0 || b / MiB >= Unlimited) throw new ArgumentOutOfRangeException(nameof(limit), "cache size out of range");
+        if (b < 0 || b / MiB >= Unlimited) throw new ArgumentOutOfRangeException(nameof(limit), "缓存大小超出有效范围");
         return (uint)((b + MiB - 1) / MiB);
     }
 
@@ -435,7 +435,7 @@ public sealed unsafe class NvidiaBackend : IGpuVendorBackend, IRefreshableGpu
             if (rc != SettingNotFound) Check(rc, "NvAPI_DRS_DeleteProfileSetting");
         }
         else WriteBase(drs, id, Encode(limit));
-        Save(drs, "changing the NVIDIA shader cache size needs administrator rights");
+        Save(drs, "更改 NVIDIA 着色器缓存大小需要管理员权限");
     }
 
     static void WriteBase(Drs drs, uint id, uint value)

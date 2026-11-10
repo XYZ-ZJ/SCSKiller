@@ -41,9 +41,9 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     /// <summary>A before and after recording in progress; the tile has no button for it, the game page has.</summary>
     public string BaChip => BeforeAfterUi.Voided(s.BeforeAfter) ? "" : s.BeforeAfter?.Stage switch
     {
-        BeforeAfterStage.AfterReady => "After run ready",
-        BeforeAfterStage.Compiling => "Before and after: compiling",
-        BeforeAfterStage.BeforePlaying or BeforeAfterStage.AfterPlaying => "Before and after: playing",
+        BeforeAfterStage.AfterReady => "编译后测试已就绪",
+        BeforeAfterStage.Compiling => "对比测试：正在编译",
+        BeforeAfterStage.BeforePlaying or BeforeAfterStage.AfterPlaying => "对比测试：正在游玩",
         _ => "",
     };
     public bool HasBaChip => BaChip.Length > 0;
@@ -68,8 +68,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     }
     /// <summary>The shader mod by name, else plain ReShade; null = neither, or not looked (anti-cheat).</summary>
     internal static TagChip? ModChip(GameState s) => s.ShaderMod is { } mod
-        ? new(mod, s.ShaderModBlocks ? "Stops this game compiling" : s.ShaderModLayer ? "Compiled through your mod" : "A few modded shaders aren't precompiled")
-        : s.ReShade ? new("ReShade", "Changes no pipelines") : null;
+        ? new(mod, s.ShaderModBlocks ? "阻止该游戏进行编译" : s.ShaderModLayer ? "通过您的模组完成编译" : "少数模组修改的着色器未预编译")
+        : s.ReShade ? new("ReShade", "未更改任何管线") : null;
     public string Shaders => Fmt.N(s.ShaderCount);
     public string Pipelines => Fmt.N(ScsKiller.PlanPipelines(s));
     public string Cache => Fmt.Cache(s);
@@ -93,8 +93,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
         _ when ScsKiller.NeedsOfflineSession(s) => "Needs an offline session",
         _ when ScsKiller.NeedsSteamStart(s) => "Start it once from Steam",
         GameStatus.NeedsRecording when ScsKiller.NeverRecorded(s) => ScsKiller.NothingRecordedTitle,
-        GameStatus.NeedsRecording => ScsKiller.RecordedEnough(s) ? "Needs a recording" : "Needs a 5-min recording",
-        GameStatus.Stale => "Needs rebuilding",
+        GameStatus.NeedsRecording => ScsKiller.RecordedEnough(s) ? "需要录制" : "需要 5 分钟录制",
+        GameStatus.Stale => "需要重新构建",
         _ when s.StatusReason == ScsKiller.CheckingReason => "Checking…",
         _ when s.StatusReason == ScsKiller.NotCheckedReason => "Not checked",
         _ when s.StatusReason == ScsKiller.CantReachReason => "Not compatible",
@@ -121,8 +121,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     /// <summary>The row's note under the status: a few words (<see cref="Format.ShortNote"/>); null when the status says it all.</summary>
     public string? Note => Format.ShortNote(s);
     // a mod the compile runs through takes the note's place; the tooltip keeps the full reason
-    string? ListNote => s.ShaderModLayer ? $"{(s.Status == GameStatus.Warmed ? "Compiled" : "Compiles")} through {s.ShaderMod}" : Note;
-    public string RowNote => Playing ? "Playing now" + (ListNote is { } n ? " · " + n : "") : fold ?? ListNote ?? "";
+    string? ListNote => s.ShaderModLayer ? $"{(s.Status == GameStatus.Warmed ? "已通过" : "将通过")} {s.ShaderMod} 协同编译" : Note;
+    public string RowNote => Playing ? "正在游玩" + (ListNote is { } n ? " · " + n : "") : fold ?? ListNote ?? "";
     string? fold;
     /// <summary>A fold's share moved: only a row whose line changed updates.</summary>
     public void ShowFold() { if (Fmt.FoldLine(Id) is var f && f != fold) { fold = f; Changed(); } }
@@ -157,8 +157,8 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
     public bool CanLaunch { get; private set; } = BeforeAfterUi.Launchable(s);
     public bool Compiling => compiling;
     public bool CanPlay => !Playing && !compiling;
-    public string PlayText => Playing ? "Running" : "Play";
-    public string PlayTip => Playing ? $"{Name} is running" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
+    public string PlayText => Playing ? "运行中" : "开始游玩";
+    public string PlayTip => Playing ? $"{Name} 正在运行" : compiling ? Fmt.CompilingTip : Fmt.PlayVia(s.Game);
 
     public override string ToString() => $"{Name}, {StatusText}, {RowTip}";   // list item name for screen readers
 
@@ -179,7 +179,7 @@ public sealed class GameRow(GameState s, bool queued = false, bool compiling = f
 /// <summary>One store's section of the library list (the rows shown after the search filter).</summary>
 public sealed class StoreGroup(string store) : ObservableCollection<GameRow>
 {
-    public const string Recommended = "Recommended to compile";
+    public const string Recommended = "推荐编译";
     public string Store => store;
     public string CountText => $"{Count} game{(Count == 1 ? "" : "s")}" + (store == Recommended ? RecommendedNote() : "");
     // a row updated in place (compiled, cleared) changes the count of compiled ones without a collection change
@@ -214,15 +214,15 @@ public sealed class LibraryVm : Bindable
     string filter = "";
     public string Filter { get => filter; set { if (value.Trim() != filter) { filter = value.Trim(); ApplyFilter(); Changed(); } } }
     LibraryShow show;
-    public static readonly string[] ShowLabels = ["All games", "Not supported", "Ready to compile", "Compiled", "Compiled by SCSKiller"];
+    public static readonly string[] ShowLabels = ["全部游戏", "暂不支持", "待编译", "已编译", "由 SCSKiller 编译"];
     public int ShowIndex { get => (int)show; set { if (value >= 0 && (LibraryShow)value != show) { show = (LibraryShow)value; ApplyFilter(); Changed(); } } }
     int shown;
     public bool Filtering => filter.Length > 0 || show != LibraryShow.All;
     public bool Searching => filter.Length > 0;
-    public string ShownText => $"{shown} of {Games.Count} shown";
+    public string ShownText => $"已显示 {shown} / {Games.Count} 款";
     public bool NoMatch => Filtering && Games.Count > 0 && shown == 0;
-    public string NoMatchText => Searching ? $"No games match “{filter}”" : "No games with this status";
-    public string SearchHint => Host.Platform.Stores.Count > 1 ? "Try part of the name, a store (Steam, GOG…) or an engine (UE 5)." : "Try part of the name or an engine (UE 5).";
+    public string NoMatchText => Searching ? $"未找到匹配“{filter}”的游戏" : "此状态下暂无游戏";
+    public string SearchHint => Host.Platform.Stores.Count > 1 ? "Try part of the name, a store (Steam, GOG…) or an engine (UE 5)." : "尝试输入游戏名称片段或引擎（如 UE 5）。";
     /// <summary>A scan found no games at all, on an OS whose library says why.</summary>
     public bool NoGames => scanned && !Scanning && Games.Count == 0 && Host.Platform.NoGamesNote != null;
     public string NoGamesNote => NoGames ? Host.Platform.NoGamesNote!() : "";
@@ -251,9 +251,9 @@ public sealed class LibraryVm : Bindable
         Refresh();
     }
     string Arrow(LibrarySort up, LibrarySort down) => sort == up ? " ↑" : sort == down ? " ↓" : "";
-    public string GameHeader => "Game" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
-    public string PipelinesHeader => "Pipelines" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
-    public string CacheHeader => "Cache" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
+    public string GameHeader => "游戏" + Arrow(LibrarySort.NameAscending, LibrarySort.NameDescending);
+    public string PipelinesHeader => "管线" + Arrow(LibrarySort.PipelinesAscending, LibrarySort.PipelinesDescending);
+    public string CacheHeader => "缓存" + Arrow(LibrarySort.CacheAscending, LibrarySort.CacheDescending);
     public bool Scanning { get; private set; }
     int refreshing;   // Rescan calls not finished: the scan, then a user refresh's server fetches
     public bool Refreshing => refreshing > 0;
@@ -302,7 +302,7 @@ public sealed class LibraryVm : Bindable
     public bool CanChangeDriverMode => Host.Platform.DriverUpdateModes;
     public string DriverMode => !CanChangeDriverMode ? "Manual" : DriverUpdateChoice.Of(Host.Core.Settings) switch
     {
-        0 => "Ask me first", 1 => "When the PC is idle", 2 => "Right away", _ => "Off",
+        0 => "先询问我", 1 => "电脑空闲时", 2 => "立即开始", _ => "Off",
     };
     public string DriverModeNote => !CanChangeDriverMode ? "Games to rebuild show as Needs rebuilding" : DriverUpdateChoice.Of(Host.Core.Settings) switch
     {
@@ -326,10 +326,10 @@ public sealed class LibraryVm : Bindable
     bool slowScan, forced, scanned;
     public bool ScanEmpty => slowScan && Games.Count == 0;
     public bool ScanBusy => slowScan && Games.Count > 0;
-    public string ScanEmptyNote => Fmt.AfterUpdateLine ?? $"Checking {Stores(Host.Platform.Stores)}, then which engine each game uses. The first scan reads every game's files, so it can take a minute.";
+    public string ScanEmptyNote => Fmt.AfterUpdateLine ?? $"正在检查 {Stores(Host.Platform.Stores)}，随后识别各游戏所用引擎。首次扫描需要读取游戏文件，可能需要一到两分钟。";
     static string Stores(IReadOnlyList<string> s) => s.Count > 1 ? $"{string.Join(", ", s.Take(s.Count - 1))} and {s[^1]}" : string.Join("", s);
-    public string ScanTitle => Fmt.ScanProgress ?? "Checking for changed games…";
-    public string ScanEmptyTitle => Fmt.ScanProgress ?? "Looking for your games…";
+    public string ScanTitle => Fmt.ScanProgress ?? "正在检查发生变动的游戏…";
+    public string ScanEmptyTitle => Fmt.ScanProgress ?? "正在查找您的游戏…";
     /// <summary>A scan's step: the last list, which the first scan puts up before it reads the games, else the progress line.</summary>
     public void ScanStep()
     {
@@ -337,8 +337,8 @@ public sealed class LibraryVm : Bindable
         else Changed();
         foreach (var r in Games) r.ShowFold();
     }
-    public string ScanBusyNote => forced ? "Re-reading every game's engine and anti-cheat. Each game updates as it's checked."
-        : "Each game updates as it's checked.";
+    public string ScanBusyNote => forced ? "正在重新读取每款游戏的引擎与反作弊信息。每款游戏在检查完毕后会实时更新状态。"
+        : "每款游戏在检查完毕后会实时更新状态。";
 
     public async void Rescan(bool force = true, bool userRequested = false)
     {
@@ -346,15 +346,15 @@ public sealed class LibraryVm : Bindable
         var scan = force ? Host.Core.RescanAsync(CancellationToken.None, userRequested) : Host.Core.ScanAsync(CancellationToken.None, userRequested);
         if (await Task.WhenAny(scan, Task.Delay(300)) != scan) { slowScan = true; Changed(); }
         try { await scan; firstScan.Ended(ok: true); }
-        catch (Exception e) { Error = "Scan failed: " + e.Message; firstScan.Ended(ok: false); }
+        catch (Exception e) { Error = "扫描失败: " + e.Message; firstScan.Ended(ok: false); }
         Scanning = slowScan = false;
         scanned = true;
         Refresh();
         if (userRequested && Error == null && Host.Core is ScsKiller k)
             refreshNote = await k.ServerRefresh switch
             {
-                ScsKiller.ServerCheck.TooSoon => "Checked the server a few minutes ago.",
-                ScsKiller.ServerCheck.Unreachable => "Couldn't reach the SCSKiller server. The lists stay as they were.",
+                ScsKiller.ServerCheck.TooSoon => "几分钟前刚刚检查过服务器。",
+                ScsKiller.ServerCheck.Unreachable => "无法连接到 SCSKiller 服务器。列表保持原状。",
                 _ => null,
             };
         refreshing--;
@@ -392,7 +392,7 @@ public sealed class LibraryVm : Bindable
         cache.Request();
 
         var rate = ScsKiller.MeasuredRate(list);
-        SpeedNote = (core.Settings.Priority == WarmPriority.BelowNormal ? "Below-normal priority" : "Idle priority")
+        SpeedNote = (core.Settings.Priority == WarmPriority.BelowNormal ? "低于正常优先级" : "空闲优先级")
                     + (rate is { } r ? $" · about {r:N0} pipelines/s measured" : "");
         Changed();
     }

@@ -58,7 +58,7 @@ static class GameFolderDialog
         {
             try
             {
-                if ((await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "Use this folder" })).FirstOrDefault()?.TryGetLocalPath() is { } picked) folder = picked;
+                if ((await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "使用此文件夹" })).FirstOrDefault()?.TryGetLocalPath() is { } picked) folder = picked;
             }
             catch (Exception e)
             {

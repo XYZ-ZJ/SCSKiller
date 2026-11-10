@@ -10,9 +10,9 @@ public sealed class SettingsVm : Bindable
     public static readonly (string Label, CacheLimit Limit)[] Sizes =
     [
         ("512 MB", new(512L << 20, false)), ("1 GB", new(1L << 30, false)), ("4 GB", new(4L << 30, false)), ("5 GB", new(5L << 30, false)),
-        ("10 GB", new(10L << 30, false)), ("12 GB", new(12L << 30, false)), ("16 GB (driver default)", new(16L << 30, true)), ("24 GB", new(24L << 30, false)),
+        ("10 GB", new(10L << 30, false)), ("12 GB", new(12L << 30, false)), ("16 GB (驱动默认值)", new(16L << 30, true)), ("24 GB", new(24L << 30, false)),
         ("32 GB", new(32L << 30, false)), ("48 GB", new(48L << 30, false)), ("64 GB", new(64L << 30, false)), ("100 GB", new(100L << 30, false)),
-        ("Unlimited", new(null, false)),
+        ("无限制", new(null, false)),
     ];
     static readonly int DefaultSize = Array.FindIndex(Sizes, s => s.Limit.Bytes == 100L << 30);
     public static readonly string[] SizeLabels = Sizes.Select(s => s.Label).ToArray();
@@ -59,45 +59,45 @@ public sealed class SettingsVm : Bindable
     // Mesa's RADV, ANV and NVK: each Steam game's folder, one file with no size limit
     bool Mesa => MesaLinux.Is(V.Caps);
 
-    public static readonly string[] AutoLevels = ["Low", "Medium", "High"];   // AutoShaderCompilation.Low..High, as the NVIDIA App names them
+    public static readonly string[] AutoLevels = ["低", "中", "高"];   // AutoShaderCompilation.Low..High, as the NVIDIA App names them
     public bool? AutoOn { get; set; }
     public int AutoLevelIndex { get; set; } = 1;
     public AutoShaderCompilation AutoChoice => AutoOn == true ? (AutoShaderCompilation)(Math.Clamp(AutoLevelIndex, 0, 2) + 1) : AutoShaderCompilation.Off;
     public string AutoShaderText => read == null ? Format.Dash : read.Value.Auto switch
     {
-        null => "Couldn't read the setting",
-        { Level: AutoShaderCompilation.Off } => "Now: Off",
+        null => "无法读取该设置",
+        { Level: AutoShaderCompilation.Off } => "当前: 关闭",
         { TaskReady: true, Level: var l } => $"Now: On, {l}",
-        _ => "Setting on but the NVIDIA task isn't set up: click Apply to repair",
+        _ => "设置已开启但 NVIDIA 任务未就绪：点击“应用”进行修复",
     };
     public string? AutoMessage { get; set; }
     public InfoBarSeverity AutoSeverity { get; set; }
     public bool HasAutoMessage => AutoMessage != null;
-    public string CacheIntro => Mesa ? "Each game has a cache of its own, in Steam's shader cache folder."
-        : V.Caps.PerGameCacheCap != null ? "Each game has a cache of its own. When it's full the driver deletes that game's older files, and it stutters again."
-        : (IsNvidia ? "Global driver setting, the same one as NVIDIA App › Graphics › Shader Cache Size. " : "Global driver setting. ")
-        + (KeptOn ? "When the cache is full the driver deletes older entries. Kept games are put back." : "When the cache is full the driver deletes older entries, and those games stutter again.");
+    public string CacheIntro => Mesa ? "每个游戏拥有独立的缓存，存放于 Steam 的着色器缓存目录中。"
+        : V.Caps.PerGameCacheCap != null ? "每个游戏拥有独立的缓存。当缓存满时，驱动会自动删除该游戏较旧的缓存文件，进而再次引发卡顿。"
+        : (IsNvidia ? "全局显卡驱动设置，与 NVIDIA App › 图形 › 着色器缓存大小 相同。" : "全局显卡驱动设置。 ")
+        + (KeptOn ? "当缓存满时，驱动会自动删除较旧的条目。被保留备份的游戏会自动放回。" : "当缓存满时，驱动会自动删除较旧的条目，这些游戏将再次出现卡顿。");
     public bool Configurable => V.Caps.CacheSizeConfigurable;
     public bool NotConfigurable => !Configurable;
     public string? AmdAlwaysOn => ScsKiller.AmdAlwaysOnLine(V);
     public bool HasAmdAlwaysOn => AmdAlwaysOn != null;
-    public string NotConfigurableText => Mesa ? "Mesa keeps each game's shaders in one file with no size limit, so there is no size setting."
+    public string NotConfigurableText => Mesa ? "Mesa 将每个游戏的着色器保存在单个无大小限制的文件中，因此无需设置缓存大小。"
         : V.Vendor == GpuVendor.Amd
-        ? $"The AMD driver's DirectX 12 shader cache is fixed at {Format.Bytes(AmdAppCache.DxcCacheCap)}, with no size setting. "
-          + "Past it, the driver removes the least recently used games' caches when a game starts" + (KeptOn ? ". Kept games are put back." : ", and SCSKiller shows those games as needing a compile again.")
+        ? $"AMD 显卡驱动的 DirectX 12 着色器缓存固定为 {Format.Bytes(AmdAppCache.DxcCacheCap)}，无法调整大小。"
+          + "超出此限制后，驱动会在游戏启动时自动移除最久未玩的缓存" + (KeptOn ? "。已开启单独保留的游戏会自动放回。" : "，SCSKiller 会提示这些游戏需要重新编译。")
         : V.Vendor == GpuVendor.Intel
-        ? $"The Intel driver keeps up to {Format.Bytes(IntelBackend.PerGameCap)} of shaders per game, with no size setting. "
-          + "Past it, the driver drops that game's older shaders, so SCSKiller compiles the most likely ones first."
-        : PerGameNvidia ? $"SCSKiller gives each game {Format.Bytes(NvidiaLinux.PlacedCacheSize)} of NVIDIA shader cache, with no size setting."
-        : $"SCSKiller can't change the cache size of {Fmt.Vendor(V.Vendor)} drivers yet, so it only shows what is used. "
-          + "If games get evicted, raise the limit in your GPU vendor's control panel.";
+        ? $"Intel 显卡驱动为每个游戏保留最多 {Format.Bytes(IntelBackend.PerGameCap)} 的着色器，无法调整大小。"
+          + "超出此限制后，驱动会丢弃该游戏较早的着色器，因此 SCSKiller 会优先编译可能性最高的着色器。"
+        : PerGameNvidia ? $"SCSKiller 为每个游戏分配 {Format.Bytes(NvidiaLinux.PlacedCacheSize)} 的 NVIDIA 着色器缓存，无法调整大小。"
+        : $"SCSKiller 尚无法修改 {Fmt.Vendor(V.Vendor)} 显卡驱动的缓存大小，仅能显示当前已使用量。"
+          + "如果游戏缓存被挤占丢弃，请在显卡控制面板中调高缓存上限。";
 
     public string CurrentLimit => read == null ? Format.Dash : read.Value.Limit switch
     {
-        null => "Unknown",
-        { Bytes: null } => "Unlimited",
-        { Bytes: 0 } => "Disabled",
-        { Bytes: { } b, IsDriverDefault: var d } => Format.Bytes(b) + (V.Caps.PerGameCacheCap != null ? " per game" : "") + (d ? " (driver default)" : ""),
+        null => "未知",
+        { Bytes: null } => "无限制",
+        { Bytes: 0 } => "已禁用",
+        { Bytes: { } b, IsDriverDefault: var d } => Format.Bytes(b) + (V.Caps.PerGameCacheCap != null ? " / 游戏" : "") + (d ? " (驱动默认)" : ""),
     };
     public string Used => read is { Usage: var u } ? (u.UpperBound ? "≤ " : "") + Format.Bytes(u.BytesOnDisk) : Format.Dash;
     public bool HasAmdUse => amdUsed != null;
@@ -167,9 +167,9 @@ public sealed class SettingsVm : Bindable
     }
     public void GamesChanged() => Changed();   // no driver-cache re-read (Refresh)
     public bool RecordAllGames { get => S.RecordAllGames; set { if (value != S.RecordAllGames) Save(S with { RecordAllGames = value }); } }   // the core reconciles off this thread
-    public string RecordAllGamesNote => "Adds a small d3d12.dll or d3d11.dll to games without anti-cheat to catch shaders the plan missed and time each frame, so the game page "
-        + $"shows what stuttered. Frame times stay on this PC. Never used in games with anti-cheat{(ShowsRecordAntiCheatGames ? " unless you allow it below" : "")}. "
-        + "Switch off to remove it from every game you haven't turned it on for yourself.";
+    public string RecordAllGamesNote => "在无反作弊的游戏中添加小巧的 d3d12.dll 或 d3d11.dll，以捕获编译计划遗漏的着色器并统计每帧耗时，以便在游戏页面直观展示卡顿原因。"
+        + $"帧时间数据仅保留在本机。绝不会用于包含反作弊的游戏{(ShowsRecordAntiCheatGames ? "（除非您在下方明确允许）" : "")}。"
+        + "关闭此项将从所有未主动开启录制的游戏中移除录制器。";
     public bool ShowsRecordAntiCheatGames => Host.Platform.RecordAntiCheatGames;
     // where the OS has no risk sessions it reads as off and is never saved: settings.json keeps the user's value
     public bool? RecordAntiCheatGames
@@ -243,7 +243,7 @@ public sealed class SettingsVm : Bindable
         }
         finally { Changed(nameof(StartWithWindows)); }
     }
-    public static string StartText { get; } = OperatingSystem.IsWindows() ? "Start SCSKiller when Windows starts" : "Start when you sign in";
+    public static string StartText { get; } = OperatingSystem.IsWindows() ? "Start SCSKiller when Windows starts" : "登录系统时自动启动";
     public static string RemoveRecordersNote { get; } = "Removes the recorder from every game and quits. Use it before deleting "
         + (OperatingSystem.IsWindows() ? "the portable folder." : "the AppImage.");
     public static string StartNote { get; } = OperatingSystem.IsWindows() ? "It waits in the notification area, next to the clock, to offer a rebuild after a driver update."
@@ -266,7 +266,7 @@ public sealed class SettingsVm : Bindable
         }
     }
     public bool? NewShadersRightAway { get => S.NewShadersRightAway; set { if (value is { } v && v != S.NewShadersRightAway) Save(S with { NewShadersRightAway = v }); } }
-    public string ScanAtStartNote => "Reads again what changed in each game's folders. Off: the last list shows, and a game is read again when you refresh, "
+    public string ScanAtStartNote => "重新扫描各游戏目录的变动。关闭后：显示上次列表，仅在手动刷新时重新读取。 "
         + $"when it exits, or when {Host.Platform.UpdatingStores} updates it.";
     public bool? ScanAtStart { get => S.ScanAtStart; set { if (value is { } v && v != S.ScanAtStart) Save(S with { ScanAtStart = v }); } }
     public bool? HddMode { get => S.HddMode; set { if (value is { } v && v != S.HddMode) Save(S with { HddMode = v }); } }
@@ -318,7 +318,7 @@ public sealed class SettingsVm : Bindable
         }
     }
 
-    public IReadOnlyList<string> Themes { get; } = [Host.Platform.SystemTheme, "Light", "Dark"];   // AppTheme.System..Dark
+    public IReadOnlyList<string> Themes { get; } = [Host.Platform.SystemTheme, "浅色", "深色"];   // AppTheme.System..Dark
     public int ThemeIndex
     {
         get => (int)(S.Theme ?? AppTheme.System);
@@ -339,7 +339,7 @@ public sealed class SettingsVm : Bindable
     public string MaxCompileMemoryNote => $"Auto picks the best limit for this PC's memory ({ScsKiller.AutoCompileMemoryGB()} GB here, with {ScsKiller.RamGB()} GB of RAM). Set it lower to keep more memory free while compiling, higher to compile faster.";
     public double MaxCompileMemoryMax => ScsKiller.MaxCompileMemoryGB(GC.GetGCMemoryInfo().TotalAvailableMemoryBytes);
     public string MaxCompileMemoryText => S.MaxCompileMemoryGB > 0 ? $"{S.MaxCompileMemoryGB} GB" : $"Auto ({ScsKiller.AutoCompileMemoryGB()} GB)";
-    public string PriorityNote => (S.Priority == WarmPriority.BelowNormal ? "Below-normal priority." : "Idle priority.") + " Fewer threads = slower compile, quieter PC.";
+    public string PriorityNote => (S.Priority == WarmPriority.BelowNormal ? "低于正常优先级。" : "空闲优先级。") + " 较少线程 = 编译稍慢，电脑更安静。";
 
     /// <summary>A Yes/No question before an admin-only change: title, text, the Yes button's text.</summary>
     public delegate Task<bool> Confirm(string title, string text, string yes);
@@ -366,8 +366,8 @@ public sealed class SettingsVm : Bindable
         AsAdminAsync(() => Host.Design != null ? "Design data: nothing changed." : D3DSCache.KeepFromCleanup(keep), () => ["shader-cleanup", keep ? "keep" : "allow"]);
 
     public bool ShowsShaderCleanup => D3DSCache.CleanupKept() != null;
-    public string ShaderCleanupAction => D3DSCache.CleanupKept() == true ? "Let Windows clear them again" : "Keep Windows from clearing compiled shaders";
-    public string ShaderCleanupLine => D3DSCache.CleanupKept() == true ? "Windows' automatic disk cleanup no longer clears compiled shaders." : "Storage Sense can delete the DirectX shader cache.";
+    public string ShaderCleanupAction => D3DSCache.CleanupKept() == true ? "允许 Windows 自动清理" : "防止 Windows 自动清理已编译着色器";
+    public string ShaderCleanupLine => D3DSCache.CleanupKept() == true ? "Windows 自动磁盘清理将不再清理已编译的着色器缓存。" : "Storage Sense can delete the DirectX shader cache.";
     public bool CanApplyShaderCleanup { get; private set; } = true;
     public string? ShaderCleanupMessage { get; set; }
     public InfoBarSeverity ShaderCleanupSeverity { get; set; }
@@ -379,7 +379,7 @@ public sealed class SettingsVm : Bindable
         Changed();
         (ShaderCleanupMessage, ShaderCleanupSeverity) = await KeepShadersAsync(D3DSCache.CleanupKept() != true) switch
         {
-            null => ("Cancelled.", InfoBarSeverity.Informational),
+            null => ("已取消。", InfoBarSeverity.Informational),
             { Ok: true } => ((string?)null, InfoBarSeverity.Success),   // the line beside the button shows the new state
             { Message: AppStore.MovedRefusal } r => (r.Message, InfoBarSeverity.Error),
             var r => ("Not changed: " + r.Message, InfoBarSeverity.Error),
@@ -400,14 +400,14 @@ public sealed class SettingsVm : Bindable
                 "and stays until you change it. Windows will ask for administrator permission.\n\n" +
                 "Raising it deletes nothing. Lowering it below what is used now makes the driver delete older entries, and those games stutter again. " +
                 "You can switch back to the driver default here at any time.",
-                "Change limit")) return;
+                "更改上限")) return;
 
         CanApplyLimit = false;
         Changed();
         var size = limit.IsDriverDefault ? "default" : limit.Bytes is { } b ? (b / (double)(1L << 30)).ToString(System.Globalization.CultureInfo.InvariantCulture) : "unlimited";
         (ApplyMessage, ApplySeverity) = await AsAdminAsync(() => { V.SetCacheLimit(limit); return ""; }, () => ["cache", "set", size, .. RunningGpu]) switch
         {
-            null => ("Cancelled.", InfoBarSeverity.Informational),
+            null => ("已取消。", InfoBarSeverity.Informational),
             { Ok: true } => ($"Shader cache limit set to {label}.", InfoBarSeverity.Success),
             { Message: AppStore.MovedRefusal } r => (r.Message, InfoBarSeverity.Error),
             var r => ("The limit was not changed: " + r.Message, InfoBarSeverity.Error),
@@ -433,8 +433,8 @@ public sealed class SettingsVm : Bindable
                 (AutoMessage, AutoSeverity) = (NvidiaBackend.AutoShaderOutcome(level, changed: false), InfoBarSeverity.Success);
                 return;
             }
-            if (!await confirm(level == AutoShaderCompilation.Off ? "Turn off NVIDIA Auto Shader Compilation?" : $"Turn on NVIDIA Auto Shader Compilation ({level})?",
-                    "Auto Shader Compilation is a beta feature by NVIDIA®.", level == AutoShaderCompilation.Off ? "Turn off" : "Turn on")) return;
+            if (!await confirm(level == AutoShaderCompilation.Off ? "关闭 NVIDIA 自动着色器编译？" : $"Turn on NVIDIA Auto Shader Compilation ({level})?",
+                    "Auto Shader Compilation is a beta feature by NVIDIA®.", level == AutoShaderCompilation.Off ? "关闭" : "开启")) return;
 
             // --for-user: the elevated CLI refuses when UAC elevated another administrator (NvOSC would register the task for them).
             var result = await AsAdminAsync(() => V.SetAutoShaderCompilation(level),
@@ -442,7 +442,7 @@ public sealed class SettingsVm : Bindable
             if (result is { Ok: false } && Host.Core is ScsKiller k) k.Log?.Report($"Auto Shader Compilation {level}: {result.Message}");
             (AutoMessage, AutoSeverity) = result switch
             {
-                null => ("Cancelled.", InfoBarSeverity.Informational),
+                null => ("已取消。", InfoBarSeverity.Informational),
                 { Ok: true } r => (r.Message is { Length: > 0 } m ? m : NvidiaBackend.AutoShaderOutcome(level, changed: true), InfoBarSeverity.Success),
                 { Message: AppStore.MovedRefusal } r => (r.Message, InfoBarSeverity.Error),
                 var r => ("Couldn't apply: " + r.Message.Split('\n')[0], InfoBarSeverity.Error),   // NvOSC's full output goes to the log only

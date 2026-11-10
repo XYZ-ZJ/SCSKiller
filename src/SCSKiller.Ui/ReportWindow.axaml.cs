@@ -100,7 +100,7 @@ public sealed partial class ReportWindow : Window
 
     void Fill()
     {
-        Heading.Text = $"Before and after · {game}";
+        Heading.Text = $"编译前后对比测试 · {game}";
         CardGame.Text = game.ToUpperInvariant();
         ShowIcon();
         var text = BeforeAfter.Report(game, r, Host.Core.Vendor.Vendor);
@@ -110,7 +110,7 @@ public sealed partial class ReportWindow : Window
         (LabelWorst.Text, TileWorst.Text) = text.Tiles[2];
 
         var (before, after) = (FrameData.Of(r.Before) with { Neutral = C.Dx11 }, FrameData.Of(r.After) with { Neutral = C.Dx11 });
-        if (C.Dx11) (LegendShader.IsVisible, LegendOther.Text) = (false, "stutter");
+        if (C.Dx11) (LegendShader.IsVisible, LegendOther.Text) = (false, "卡顿");
         double top = FrameGraph.TopFor(r.Before.Hitches.Concat(r.After.Hitches));
         double spp = Math.Max(Span(before), Span(after)) / 1000 / GraphWidth;
         Graph(BeforeGraph, BeforeAxis, BeforeEnd, before, C.Before);
@@ -119,7 +119,7 @@ public sealed partial class ReportWindow : Window
         {
             graph.Show(d, d.Play.From, d.Play.To, top, spp);
             axis.Width = graph.Width;
-            end.Text = BeforeAfter.Clock(run.PlaySeconds) + " of play";
+            end.Text = $"游玩时长 {BeforeAfter.Clock(run.PlaySeconds)}";
         }
 
         ShowGpu.IsChecked = Host.Core.Settings.BeforeAfterShowGpu;
@@ -128,7 +128,7 @@ public sealed partial class ReportWindow : Window
 
         Details.Children.Clear();
         Details.RowDefinitions.Clear();
-        Row(new("Details", "Before", "After"), header: true);
+        Row(new("详细指标", "编译前", "编译后"), header: true);
         foreach (var row in text.Rows) Row(row);
 
         Notes.Children.Clear();
@@ -207,7 +207,7 @@ public sealed partial class ReportWindow : Window
             {
                 SuggestedFileName = BeforeAfter.ImageName(game), DefaultExtension = "png",
                 SuggestedStartLocation = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Pictures),
-                FileTypeChoices = [new("PNG image") { Patterns = ["*.png"] }],
+                FileTypeChoices = [new("PNG 图片") { Patterns = ["*.png"] }],
             });
             if (file == null) return;
             using (var image = CardImage())
@@ -247,7 +247,7 @@ public sealed partial class ReportWindow : Window
                 return true;
             }
             // Avalonia's clipboard reads the bitmap when an app pastes: it stays undisposed
-            var clipboard = Clipboard ?? throw new InvalidOperationException("No clipboard");
+            var clipboard = Clipboard ?? throw new InvalidOperationException("剪贴板不可用");
             var item = new DataTransferItem();
             if (bitmap != null) item.SetBitmap(bitmap);
             if (text != null) item.Set(DataFormat.Text, text);
@@ -262,17 +262,17 @@ public sealed partial class ReportWindow : Window
 
     async void OnCopy(object? _, RoutedEventArgs __)
     {
-        if (await CopyAsync(image: true, Text())) Tell("Image copied");
+        if (await CopyAsync(image: true, Text())) Tell("图片已复制");
     }
 
     async void OnDiscord(object? _, RoutedEventArgs __)
     {
-        if (await CopyAsync(image: true, Text())) Tell("Image and text copied: paste them in Discord");
+        if (await CopyAsync(image: true, Text())) Tell("图片和文本已复制：可直接粘贴到聊天中");
     }
 
     async void OnCopyText(object? _, RoutedEventArgs __)
     {
-        if (Text() is { } text && await CopyAsync(image: false, text)) Tell("Text copied");
+        if (Text() is { } text && await CopyAsync(image: false, text)) Tell("文本已复制");
     }
 
     // neither composer takes an image from a link: it goes to the clipboard, and a toast over the browser says to paste it
@@ -284,11 +284,11 @@ public sealed partial class ReportWindow : Window
         if (Text() is not { } text || !await CopyAsync(image: true, null)) return;
         try
         {
-            if (!await Launcher.LaunchUriAsync(new Uri(url(text)))) throw new InvalidOperationException("No browser");
+            if (!await Launcher.LaunchUriAsync(new Uri(url(text)))) throw new InvalidOperationException("未找到默认浏览器");
         }
         catch (Exception e) { Tell("Couldn't open the browser: " + BeforeAfterUi.Describe(e), InfoBarSeverity.Error); return; }
         Tell("Paste (Ctrl+V) to add the image", InfoBarSeverity.Informational);
-        App.Hint?.Invoke("The image is copied", "Press Ctrl+V in the post to add it.");
+        App.Hint?.Invoke("图片已复制", "Press Ctrl+V in the post to add it.");
     }
 
     async void OnRecordAgain(object? _, RoutedEventArgs __)

@@ -123,7 +123,7 @@ public sealed partial class MainWindow : Window
     public void ShowGpu()
     {
         GpuName.Text = Host.Core.Vendor.Gpu.Name;
-        GpuDriver.Text = (Host.Core as ScsKiller)?.GpuRestartNote ?? "Driver " + Host.Core.Vendor.Gpu.DriverVersion;
+        GpuDriver.Text = (Host.Core as ScsKiller)?.GpuRestartNote ?? "显卡驱动版本 " + Host.Core.Vendor.Gpu.DriverVersion;
     }
 
     /// <summary>The page shown in the content area. The Library is built once and kept, with its scroll position.</summary>
@@ -221,7 +221,7 @@ public sealed partial class MainWindow : Window
         var unread = Notifications().Unread.Count;
         BellCount.Text = unread.ToString();
         BellBadge.IsVisible = unread > 0;
-        AutomationProperties.SetName(BellButton, unread > 0 ? $"Notifications, {unread} unread" : "Notifications");
+        AutomationProperties.SetName(BellButton, unread > 0 ? $"消息通知，{unread} 条未读" : "消息通知");
     }
 
     public void OpenBell() => BellFlyout.ShowAt(BellButton);
@@ -271,7 +271,7 @@ public sealed partial class MainWindow : Window
         if (item.Link != null) actions.Children.Add(new HyperlinkButton { Content = "Open", NavigateUri = new Uri(item.Link) });
         if (item.Game != null)
         {
-            var go = new Button { Content = "Go to game" };
+            var go = new Button { Content = "前往该游戏" };
             go.Click += (_, _) => { BellFlyout.Hide(); Navigate(typeof(DetailPage), item.Game); };
             actions.Children.Add(go);
         }
@@ -282,8 +282,8 @@ public sealed partial class MainWindow : Window
             Classes = { "Subtle" }, Content = new TextBlock { Classes = { "Icon" }, Text = Glyphs.Dismiss, FontSize = 10 },
             Padding = new(6), VerticalAlignment = VerticalAlignment.Top,
         };
-        ToolTip.SetTip(dismiss, "Dismiss");
-        AutomationProperties.SetName(dismiss, "Dismiss");
+        ToolTip.SetTip(dismiss, "忽略");
+        AutomationProperties.SetName(dismiss, "忽略");
         dismiss.Click += (_, _) =>
         {
             NewsState.Dismiss(Host.Store, item.Id, Feed());

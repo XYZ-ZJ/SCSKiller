@@ -266,7 +266,7 @@ public sealed partial class ScsKiller
     {
         AntiCheat.EasyAntiCheat => "EasyAntiCheat",
         AntiCheat.BattlEye => "BattlEye",
-        _ => "anti-cheat",
+        _ => "反作弊",
     };
 
     /// <summary><see cref="AntiCheatName(AntiCheat)"/>; "VAC" for a game whose only anti-cheat is VAC.</summary>

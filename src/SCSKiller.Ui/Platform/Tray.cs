@@ -28,7 +28,7 @@ public partial class App
         tray = new Tray(Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico"))
         {
             Open = ShowWindow,
-            PauseLabel = () => QuitFlow.Running(core) is not { } q ? null : q.Stage == QueueStage.Paused ? "Resume" : "Pause compiling",
+            PauseLabel = () => QuitFlow.Running(core) is not { } q ? null : q.Stage == QueueStage.Paused ? "继续编译" : "暂停编译",
             PauseOrResume = () => Fmt.PauseOrResume(QuitFlow.Running(core)),
             Quit = () => _ = QuitAsync(desktop),
             QuitLabel = () => quit.Label,
@@ -118,7 +118,7 @@ public partial class App
         Main.SavePlacement();
         SetExitReason("session end (shutdown or log-off)");
         if (!Host.Core.Compiling) return;   // a removed item's warm too: it is still saving
-        if (OperatingSystem.IsWindows()) ShutdownBlockReasonCreate(hwnd, "Stopping the compile so the graphics driver can save its shader cache");
+        if (OperatingSystem.IsWindows()) ShutdownBlockReasonCreate(hwnd, "正在停止编译以便显卡驱动保存着色器缓存");
         QuitFlow.StopAll(Host.Core);
     }
 

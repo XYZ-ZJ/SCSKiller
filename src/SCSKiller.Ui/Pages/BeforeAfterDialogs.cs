@@ -29,30 +29,30 @@ static class BeforeAfterDialogs
         static TextBlock Line(string text) => new() { Text = text, TextWrapping = TextWrapping.Wrap };
         var (step1, step3) = (Line(""), Line(""));
         void Steps() => (step1.Text, step3.Text) = (
-            $"1. SCSKiller deletes this game's shader caches ({(Host.Platform.SystemShaderCache ? "the driver's, Windows' and" : "the driver's and")} the game's own) and starts the game. Load a save you can load again and play. The {minutes} minutes count from the game's first frame, loading and pauses included.",
-            $"3. Load the same save and play the same {minutes} minutes.");
+            $"1. SCSKiller 会删除该游戏的着色器缓存（{(Host.Platform.SystemShaderCache ? "包含显卡驱动缓存、Windows 缓存及" : "包含显卡驱动缓存与")}游戏自身缓存）并启动游戏。请加载一个可重复加载的存档并开始游玩。{minutes} 分钟计时将从游戏第一帧开始计算，包含加载与暂停时间。",
+            $"3. 加载相同的存档并游玩相同的 {minutes} 分钟。");
         Steps();
         var steps = new StackPanel
         {
             Spacing = 8, IsVisible = full,
-            Children = { step1, Line("2. Close the game. SCSKiller deletes the caches again and compiles the game's shaders."), step3,
-                Line("4. You get a before and after report you can save and share.") },
+            Children = { step1, Line("2. 关闭游戏。SCSKiller 会再次清理缓存并完整编译该游戏的着色器。"), step3,
+                Line("4. 生成一份对比测试报告，您可以保存或分享给他人。") },
         };
-        var how = new HyperlinkButton { Content = "How it works", Padding = new(0), IsVisible = !full };
+        var how = new HyperlinkButton { Content = "工作原理与说明", Padding = new(0), IsVisible = !full };
         how.Click += (_, _) => (steps.IsVisible, how.IsVisible) = (true, false);
 
         var group = $"play-time-{Guid.NewGuid():N}";
-        var (five, ten) = (new RadioButton { Content = "5 minutes", GroupName = group, IsChecked = true }, new RadioButton { Content = "10 minutes", GroupName = group });
+        var (five, ten) = (new RadioButton { Content = "5 分钟", GroupName = group, IsChecked = true }, new RadioButton { Content = "10 分钟", GroupName = group });
         ten.IsCheckedChanged += (_, _) => { minutes = ten.IsChecked == true ? 10 : 5; Steps(); };
         var time = new StackPanel
         {
             Spacing = 8,
-            Children = { new TextBlock { Text = "Play time" }, new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { five, ten } } },
+            Children = { new TextBlock { Text = "游玩时长" }, new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children = { five, ten } } },
         };
-        var sound = new CheckBox { Content = "Play a sound when the time is up", IsChecked = s.BeforeAfterSound };
-        var overlay = new CheckBox { Content = "Show the countdown in the game", IsChecked = s.BeforeAfterOverlay };
-        ToolTip.SetTip(overlay, "A small panel at the top right of the game: the time left, your frame times and, on DirectX 12 and Vulkan, each shader compilation stutter. SCSKiller counts down here either way. It isn't shown with FSR or XeSS frame generation on.");
-        var maxRun = new CheckBox { Content = "Max compile for the after run", IsChecked = s.BeforeAfterMax, IsVisible = max };
+        var sound = new CheckBox { Content = "时间到达时播放提示音", IsChecked = s.BeforeAfterSound };
+        var overlay = new CheckBox { Content = "在游戏内显示倒计时浮窗", IsChecked = s.BeforeAfterOverlay };
+        ToolTip.SetTip(overlay, "游戏右上角的小浮窗：显示剩余时间、实时帧时间，以及在 DirectX 12 和 Vulkan 下的每次着色器编译卡顿。无论是否开启浮窗，SCSKiller 都会在后台进行倒计时。若开启了 FSR 或 XeSS 帧生成，浮窗将自动隐藏。");
+        var maxRun = new CheckBox { Content = "在编译后测试中采用极限模式编译", IsChecked = s.BeforeAfterMax, IsVisible = max };
         ToolTip.SetTip(maxRun, DetailVm.MaxCompileWhy);
         var checks = new StackPanel { VerticalAlignment = VerticalAlignment.Bottom, Children = { sound, overlay, maxRun } };
         var choices = new Grid { ColumnSpacing = 24, ColumnDefinitions = new("*,Auto"), Children = { time, checks }, IsVisible = mode != Intro.HowItWorks };
@@ -70,7 +70,7 @@ static class BeforeAfterDialogs
                     new InfoBar
                     {
                         IsClosable = false, Severity = InfoBarSeverity.Warning,
-                        Message = "This also deletes the game's own shader cache, which isn't backed up and can be 2 GB. The game rebuilds it, which can take minutes.",
+                        Message = "此操作还会删除游戏自身的着色器缓存（未作备份且可能达 2 GB）。游戏在启动时将重新构建这些缓存，可能需要几分钟。",
                     },
                     steps, how, choices,
                     new StackPanel
@@ -78,16 +78,16 @@ static class BeforeAfterDialogs
                         Spacing = 6,
                         Children =
                         {
-                            Bullet("Don't change graphics settings between the two runs."),
-                            Bullet("Your current compile for this game is deleted, it's compiled again in step 2."),
-                            Bullet("A small d3d11.dll goes next to the game for this recording only, then it's removed.", frames11),
-                            Bullet("Frame times stay on this PC. With sharing on, the usual anonymous hashes are sent."),
+                            Bullet("两次测试之间请勿更改画质图像设置。"),
+                            Bullet("该游戏当前的编译缓存将被删除，并将在第 2 步中重新编译。"),
+                            Bullet("仅在此次录制期间在游戏目录旁临时添加小巧的 d3d11.dll，测试结束后将立即移除。", frames11),
+                            Bullet("帧时间数据仅保存在此电脑上。若开启数据分享，仅会发送匿名哈希。"),
                         },
                     },
                 },
             },
-            CloseButtonText = mode == Intro.HowItWorks ? "Close" : "Cancel",
-            PrimaryButtonText = mode == Intro.HowItWorks ? "" : "Start the before run",
+            CloseButtonText = mode == Intro.HowItWorks ? "关闭" : "取消",
+            PrimaryButtonText = mode == Intro.HowItWorks ? "" : "开始编译前测试",
             DefaultButton = mode == Intro.HowItWorks ? ContentDialogButton.Close : ContentDialogButton.Primary,
         };
         Showing = dialog;
@@ -113,9 +113,9 @@ static class BeforeAfterDialogs
     {
         var dialog = new ContentDialog
         {
-            Title = "Record the after run again?",
-            Content = "SCSKiller clears the caches and compiles again first, so the new run isn't helped by the last one. Then play the same save again.",
-            PrimaryButtonText = "Record again", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Primary,
+            Title = "重新录制编译后测试？",
+            Content = "SCSKiller 会先清空缓存并重新编译，确保新的测试不会受到上次运行的缓存影响。随后请重新加载相同的存档进行游玩。",
+            PrimaryButtonText = "重新录制", CloseButtonText = "取消", DefaultButton = ContentDialogButton.Primary,
         };
         if (await App.ShowAsync(dialog, on) != ContentDialogResult.Primary) return null;
         return await BeforeAfterUi.RecordAfterAgainAsync(id);
@@ -126,9 +126,9 @@ static class BeforeAfterDialogs
     {
         var dialog = new ContentDialog
         {
-            Title = "Cancel the before and after recording?",
-            Content = "Its shader caches were cleared, so the game stutters until it's compiled again.",
-            PrimaryButtonText = "Compile now", SecondaryButtonText = "Don't compile", CloseButtonText = "Keep going", DefaultButton = ContentDialogButton.Primary,
+            Title = "取消编译前后对比测试？",
+            Content = "该游戏的着色器缓存已被清除，若不重新编译，游玩时可能会出现卡顿。",
+            PrimaryButtonText = "立即编译", SecondaryButtonText = "暂不编译", CloseButtonText = "继续测试", DefaultButton = ContentDialogButton.Primary,
         };
         var result = await App.ShowAsync(dialog);
         if (result is not (ContentDialogResult.Primary or ContentDialogResult.Secondary)) return null;

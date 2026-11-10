@@ -26,7 +26,7 @@ public interface IShutdownLock
 /// which logind no longer waits for it.</summary>
 public sealed class ShutdownGuard : IDisposable
 {
-    public const string Why = "Stopping the compile so the graphics driver can save its shader cache";
+    public const string Why = "正在停止编译以使显卡驱动能够保存其着色器缓存";
 
     static readonly TimeSpan Recheck = TimeSpan.FromSeconds(1);   // a removed item's warm ends without QueueChanged
 

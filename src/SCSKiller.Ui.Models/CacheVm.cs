@@ -63,7 +63,7 @@ public sealed class CacheVm : Bindable
     }
 
     public CacheInventory? Inventory => read;
-    public string Total => read == null ? "Reading the caches…" : split;
+    public string Total => read == null ? "正在读取缓存…" : split;
     public string? UpperNote { get; private set; }
     public string? Warning { get; private set; }
     public bool HasWarning => Warning != null;
@@ -84,13 +84,13 @@ public sealed class CacheVm : Bindable
         try
         {
             var r = await Task.Run(() => Host.Core.DeleteCaches(items));
-            Result = $"Deleted {Format.Bytes(r.Bytes)} in {r.Files} file{(r.Files == 1 ? "" : "s")}."
+            Result = $"已删除 {r.Files} 个文件中的 {Format.Bytes(r.Bytes)} 缓存。"
                 + (r.Skipped.Count > 0 ? $" Skipped {r.Skipped.Count}:\n" + string.Join("\n", r.Skipped) : "");
             ResultSeverity = r.Skipped.Count > 0 ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
         }
         catch (Exception e)
         {
-            (Result, ResultSeverity) = ($"Nothing was deleted: {e.Message}", InfoBarSeverity.Error);
+            (Result, ResultSeverity) = ($"未删除任何内容: {e.Message}", InfoBarSeverity.Error);
         }
         Deleting = false;
         Refresh();
@@ -99,16 +99,16 @@ public sealed class CacheVm : Bindable
 
     long OldDriver => read?.Bytes(CacheGroupKind.OldDriver) ?? 0;
     public bool HasOldDriver => OldDriver > 0;
-    public string OldDriverText => $"{Format.Bytes(OldDriver)} of cache files are from before the current driver was installed on {read?.DriverInstalled?.ToLocalTime():d}. It hasn't used them since.";
-    public string FreeText => $"Free {Format.Bytes(OldDriver)}";
+    public string OldDriverText => $"有 {Format.Bytes(OldDriver)} 的缓存文件来自当前显卡驱动安装前（{read?.DriverInstalled?.ToLocalTime():d}）。安装新驱动后从未再次使用。";
+    public string FreeText => $"释放 {Format.Bytes(OldDriver)}";
     public IReadOnlyList<CacheItem> OldDriverItems => read?.Groups.Where(g => g.Kind == CacheGroupKind.OldDriver).SelectMany(g => g.Items).ToList() ?? [];
 
     public IReadOnlyList<CacheFolderRow> Folders => read?.Folders.Select(f => new CacheFolderRow(f.Label, f.Path,
         f.Cap is { } cap ? $"{Format.Bytes(f.Bytes)} of {Format.Bytes(cap)}" : Format.Bytes(f.Bytes),
-        f.TargetMissing ? "This folder is a link whose target is missing"
-        : f.Cap is { } full && f.Bytes >= full * 9 / 10 ? "Nearly full: the driver removes the least recently used games' caches when a game starts"
-        : f.Final != null ? $"Stored in {f.Final} through a link"
-        : !f.Exists ? "Not created yet" : null)).ToList() ?? [];
+        f.TargetMissing ? "此文件夹为软链接，但目标路径不存在"
+        : f.Cap is { } full && f.Bytes >= full * 9 / 10 ? "接近饱和：驱动会在游戏启动时自动清除最久未运行游戏的缓存"
+        : f.Final != null ? $"通过链接存储于 {f.Final}"
+        : !f.Exists ? "尚未创建" : null)).ToList() ?? [];
 
     public IReadOnlyList<CacheGroupRow> Groups => read?.Groups.Select(g =>
     {
@@ -129,9 +129,9 @@ public sealed class CacheVm : Bindable
     {
         CacheGroupKind.Installed or CacheGroupKind.Uninstalled =>
             $"These games compile their shaders again on their next compile, and stutter until then: {string.Join(", ", items.Select(i => i.Name))}.",
-        CacheGroupKind.OldDriver => "The current driver hasn't used these files since it was installed. Nothing needs to compile again.",
-        CacheGroupKind.OldBuild => "The games don't read these files.",
-        CacheGroupKind.OtherVendor => "Apps that run on that GPU build their cache again as they run.",
-        _ => "These apps and games build their cache again as they run, and may stutter until they have.",
-    } + string.Concat(items.Select(i => i.Note).OfType<string>().Select(n => " " + n)) + " Files in use are skipped.";
+        CacheGroupKind.OldDriver => "当前驱动安装以来从未读取过这些文件。无需重新编译任何内容。",
+        CacheGroupKind.OldBuild => "游戏不会读取这些文件。",
+        CacheGroupKind.OtherVendor => "在该 GPU 上运行的应用程序将在运行时重新构建其缓存。",
+        _ => "这些应用和游戏将在运行时重新构建缓存，在此之前可能会出现短暂卡顿。",
+    } + string.Concat(items.Select(i => i.Note).OfType<string>().Select(n => " " + n)) + " 正在被占用的文件将自动保留跳过。";
 }

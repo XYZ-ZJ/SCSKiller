@@ -28,10 +28,10 @@ static class NativeClipboard
         if (text != null) data.Add((CfUnicodeText, Encoding.Unicode.GetBytes(text + "\0")));
 
         // the clipboard's owner: with none, SetClipboardData fails
-        nint hwnd = owner.TryGetPlatformHandle()?.Handle ?? throw new InvalidOperationException("The window has no handle");
+        nint hwnd = owner.TryGetPlatformHandle()?.Handle ?? throw new InvalidOperationException("窗口句柄无效");
         for (int tries = 1; !OpenClipboard(hwnd); tries++)
         {
-            if (tries == 10) throw new IOException("Another app is using the clipboard");
+            if (tries == 10) throw new IOException("剪贴板正被其他程序占用");
             Thread.Sleep(20);
         }
         try

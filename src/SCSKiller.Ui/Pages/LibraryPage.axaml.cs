@@ -136,7 +136,7 @@ public sealed partial class LibraryPage : UserControl
         add.Click += OnAddFolder;
         menu.Items.Add(add);
         var leave = new MenuItem { Header = "Leave out a folder…", Icon = Glyph(Glyphs.Blocked) };
-        ToolTip.SetTip(leave, "Games installed in it are not listed or read");
+        ToolTip.SetTip(leave, "安装在其中的游戏将不会被扫描或读取");
         leave.Click += OnLeaveOutFolder;
         menu.Items.Add(leave);
         var folders = Fmt.Added?.Folders ?? [];
@@ -145,11 +145,11 @@ public sealed partial class LibraryPage : UserControl
         {
             // a header's "_" marks an access key: doubled, it shows
             var item = new MenuItem { Header = folder.Replace("_", "__"), Icon = Glyph(Glyphs.Dismiss) };
-            ToolTip.SetTip(item, "Stop looking for games here");
+            ToolTip.SetTip(item, "停止在此处查找游戏");
             item.Click += async (_, _) =>
             {
-                if (!await App.ConfirmAsync("Stop looking for games here?",
-                        $"{folder}\n\nThe games SCSKiller found only in this folder leave the library. Nothing in the folder changes.", "Stop looking")) return;
+                if (!await App.ConfirmAsync("停止在此处查找游戏？",
+                        $"{folder}\n\nThe games SCSKiller found only in this folder leave the library. Nothing in the folder changes.", "停止查找")) return;
                 if (Fmt.Added is { } added) await Task.Run(() => added.RemoveFolder(folder));
                 Vm.Rescan(force: false);
             };
@@ -160,7 +160,7 @@ public sealed partial class LibraryPage : UserControl
         foreach (var folder in leftOut)
         {
             var item = new MenuItem { Header = $"Left out: {folder.Replace("_", "__")}", Icon = Glyph(Glyphs.Refresh) };
-            ToolTip.SetTip(item, "Look for games here again");
+            ToolTip.SetTip(item, "重新在此处查找游戏");
             item.Click += async (_, _) =>
             {
                 await Task.Run(() => Host.Core.ScanFolderAgain(folder));
@@ -173,13 +173,13 @@ public sealed partial class LibraryPage : UserControl
     async void OnLeaveOutFolder(object? _, RoutedEventArgs __)
     {
         string? path;
-        try { path = (await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "Leave out this folder" })).FirstOrDefault()?.TryGetLocalPath(); }
-        catch (Exception ex) { await Message("Couldn't open the folder picker", ex.Message); return; }
+        try { path = (await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "排除此文件夹" })).FirstOrDefault()?.TryGetLocalPath(); }
+        catch (Exception ex) { await Message("无法打开文件夹选择器", ex.Message); return; }
         if (path == null) return;
         try { await Task.Run(() => Host.Core.LeaveOutFolder(path)); }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or IOException or UnauthorizedAccessException)
         {
-            await Message("Couldn't leave out this folder", ex.Message);
+            await Message("无法排除此文件夹", ex.Message);
             return;
         }
         Vm.Rescan(force: false);
@@ -191,13 +191,13 @@ public sealed partial class LibraryPage : UserControl
     async void OnAddFolder(object? _, RoutedEventArgs __)
     {
         string? path;
-        try { path = (await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "Look for games here" })).FirstOrDefault()?.TryGetLocalPath(); }
-        catch (Exception ex) { await Message("Couldn't open the folder picker", ex.Message); return; }
+        try { path = (await App.Main.StorageProvider.OpenFolderPickerAsync(new() { Title = "在此处查找游戏" })).FirstOrDefault()?.TryGetLocalPath(); }
+        catch (Exception ex) { await Message("无法打开文件夹选择器", ex.Message); return; }
         if (path == null || Fmt.Added is not { } added) return;
         try { await Task.Run(() => added.AddFolder(path)); }
         catch (Exception ex) when (ex is ArgumentException or IOException or UnauthorizedAccessException)
         {
-            await Message("Couldn't add this folder", ex.Message);
+            await Message("无法添加此文件夹", ex.Message);
             return;
         }
         Vm.Rescan(force: false);
@@ -210,25 +210,25 @@ public sealed partial class LibraryPage : UserControl
         string? path;
         try
         {
-            var picked = await App.Main.StorageProvider.OpenFilePickerAsync(new() { Title = "Add game", FileTypeFilter = [new(".exe") { Patterns = ["*.exe"] }] });
+            var picked = await App.Main.StorageProvider.OpenFilePickerAsync(new() { Title = "添加游戏", FileTypeFilter = [new(".exe") { Patterns = ["*.exe"] }] });
             path = picked.FirstOrDefault()?.TryGetLocalPath();
         }
-        catch (Exception ex) { await Message("Couldn't open the file picker", ex.Message); return; }
+        catch (Exception ex) { await Message("无法打开文件选择器", ex.Message); return; }
         if (path == null) return;
         ManualAdd added;
         try { added = await Task.Run(() => Host.Core.PreviewManualGame(path)); }   // reads the install's files
         catch (Exception ex)   // a rejection's message, or a data folder SCSKiller couldn't read
         {
-            await Message("Couldn't add this game", ex.Message);
+            await Message("无法添加此游戏", ex.Message);
             return;
         }
         if (!added.Existed)
         {
-            if (await GameFolderDialog.ShowAsync(added.Game, $"Add {added.Game.Name}", "Add game") is not { } folder) return;
+            if (await GameFolderDialog.ShowAsync(added.Game, $"添加《{added.Game.Name}》", "添加游戏") is not { } folder) return;
             try { await Task.Run(() => Host.Core.AddManualGame(path, folder)); }
             catch (Exception ex)
             {
-                await Message("Couldn't add this game", ex.Message);
+                await Message("无法添加此游戏", ex.Message);
                 return;
             }
             Vm.Rescan(force: false);   // lists it under "Added by you" once its engine and anti-cheat are checked
@@ -236,17 +236,17 @@ public sealed partial class LibraryPage : UserControl
         }
         if (Host.Core.HiddenGames.Any(g => g.Id == added.Game.Id))
         {
-            await Message("Hidden from your library", $"You removed {added.Game.Name}. Show hidden brings it back.");
+            await Message("已从游戏库中隐藏", $"您之前移除了《{added.Game.Name}》。勾选“显示已隐藏”可重新显示。");
             return;
         }
         var listed = Host.Core.Games.Any(s => s.Game.Id == added.Game.Id);
-        var where = added.Game.Store == Store.Manual ? "you added it already" : $"SCSKiller found it in {Fmt.StoreName(added.Game)}";
-        if (listed && await App.ConfirmAsync("Already in your library", $"{added.Game.Name} is in the list: {where}.", "Open", ContentDialogButton.Primary))
+        var where = added.Game.Store == Store.Manual ? "您已添加过此游戏" : $"SCSKiller 已在 {Fmt.StoreName(added.Game)} 中找到它";
+        if (listed && await App.ConfirmAsync("已在游戏库中", $"《{added.Game.Name}》已在列表中：{where}。", "前往查看", ContentDialogButton.Primary))
             App.Main.Navigate(typeof(DetailPage), added.Game.Id);
-        else if (!listed) await Message("Already in your library", $"{added.Game.Name}: {where}. Refresh the library to see it.");
+        else if (!listed) await Message("已在游戏库中", $"《{added.Game.Name}》：{where}。请刷新游戏库查看。");
     }
 
-    static Task Message(string title, string text) => App.ShowAsync(new ContentDialog { Title = title, Content = text, CloseButtonText = "OK" });
+    static Task Message(string title, string text) => App.ShowAsync(new ContentDialog { Title = title, Content = text, CloseButtonText = "确定" });
 
     void OnAddAll(object? _, RoutedEventArgs __) => Vm.AddAllReady();
     void OnAddRecommended(object? _, RoutedEventArgs __) => Vm.AddAllRecommended();

@@ -27,8 +27,8 @@ public sealed record AppPlatform
     public bool Tray { get; init; }
     /// <summary>The driver-update setting's sign-in and idle check, which notifies or compiles (ScheduledTask).</summary>
     public bool DriverUpdateModes { get; init; }
-    /// <summary>The Library's line for the "When idle" rebuild after a driver update.</summary>
-    public string IdleRebuildNote { get; init; } = "Rebuilds on its own while you're away from the PC";
+    /// <summary>The Library's line for the "空闲时" rebuild after a driver update.</summary>
+    public string IdleRebuildNote { get; init; } = "在您离开电脑时自动在后台重建缓存";
     /// <summary>NVIDIA App's Automatic Shader Compilation, a setting of the Windows driver.</summary>
     public bool AutoShaderCompilation { get; init; }
     /// <summary>The OS's own shader cache of each game (Windows' D3DSCache), which clearing a game's caches deletes too.</summary>
@@ -40,12 +40,12 @@ public sealed record AppPlatform
     /// <summary>The game page's line on the cache SCSKiller puts in Steam's own folder (IScsKiller.SteamCacheNote).</summary>
     public bool SteamCacheNote { get; init; }
     /// <summary>The Cache page's line under where the driver keeps its cache.</summary>
-    public string CacheFolderNote { get; init; } = "Games read their cache from here, and new caches are written here. The driver has no setting to move it.";
+    public string CacheFolderNote { get; init; } = "游戏由此处读取缓存并写入新缓存。显卡驱动未提供移动该路径的设置选项。";
 
     public static readonly AppPlatform Windows = new()
     {
         Name = "Windows", Stores = ["Steam", "Epic", "Xbox", "EA", "GOG", "Ubisoft Connect", "Battle.net", "PURPLE", "HoYoPlay", "GRYPHLINK", "WeGame", "Gaijin", "Riot Client"],
-        UpdatingStores = "Steam or the Xbox app", SystemTheme = "Use Windows setting", Runtime = "Windows",
+        UpdatingStores = "Steam or the Xbox app", SystemTheme = "跟随系统设置", Runtime = "Windows",
         AddGames = true, GameFolders = true, StartAtSignIn = true, Tray = true, DriverUpdateModes = true, AutoShaderCompilation = true, SystemShaderCache = true,
         RecordAntiCheatGames = true,
     };
